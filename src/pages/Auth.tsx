@@ -173,14 +173,14 @@ const Auth = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-purple-900">
-        <Loader2 className="h-8 w-8 animate-spin text-white" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-purple-900 flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm">
         {/* Logo/Title */}
         <div className="text-center mb-8">
@@ -189,8 +189,8 @@ const Auth = () => {
             alt="Vivo Logo" 
             className="w-24 h-24 mx-auto mb-4"
           />
-          <h1 className="text-2xl font-bold text-white">Cliente Vivo</h1>
-          <p className="text-purple-200 mt-2">{getTitle()}</p>
+          <h1 className="text-2xl font-bold text-foreground">Cliente Vivo</h1>
+          <p className="text-muted-foreground mt-2">{getTitle()}</p>
         </div>
 
         {/* Form */}
@@ -198,9 +198,9 @@ const Auth = () => {
           {/* Email field - shown in login, signup, forgot */}
           {mode !== "reset" && (
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-purple-100">Email</Label>
+              <Label htmlFor="email" className="text-foreground">Email</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-300" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
                 <Input
                   id="email"
                   type="email"
@@ -210,11 +210,11 @@ const Auth = () => {
                     setErrors((prev) => ({ ...prev, email: undefined }));
                   }}
                   placeholder="seu@email.com"
-                  className="pl-10 bg-purple-800 border-purple-600 text-white placeholder:text-purple-300"
+                  className="pl-10 bg-card border-border text-foreground placeholder:text-muted-foreground"
                 />
               </div>
               {errors.email && (
-                <p className="text-red-300 text-sm">{errors.email}</p>
+                <p className="text-destructive text-sm">{errors.email}</p>
               )}
             </div>
           )}
@@ -222,11 +222,11 @@ const Auth = () => {
           {/* WhatsApp field - shown in login and signup */}
           {(mode === "login" || mode === "signup") && (
             <div className="space-y-2">
-              <Label htmlFor="whatsapp" className="text-purple-100">
+              <Label htmlFor="whatsapp" className="text-foreground">
                 WhatsApp {mode === "signup" ? "(opcional)" : "(opcional)"}
               </Label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-300" />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
                 <Input
                   id="whatsapp"
                   type="tel"
@@ -238,11 +238,11 @@ const Auth = () => {
                   }}
                   placeholder="11999999999"
                   maxLength={11}
-                  className="pl-10 bg-purple-800 border-purple-600 text-white placeholder:text-purple-300"
+                  className="pl-10 bg-card border-border text-foreground placeholder:text-muted-foreground"
                 />
               </div>
               {errors.whatsapp && (
-                <p className="text-red-300 text-sm">{errors.whatsapp}</p>
+                <p className="text-destructive text-sm">{errors.whatsapp}</p>
               )}
             </div>
           )}
@@ -250,11 +250,11 @@ const Auth = () => {
           {/* Password field - shown in login, signup, reset */}
           {mode !== "forgot" && (
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-purple-100">
+              <Label htmlFor="password" className="text-foreground">
                 {mode === "reset" ? "Nova senha" : "Senha"}
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-300" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
                 <Input
                   id="password"
                   type="password"
@@ -264,11 +264,11 @@ const Auth = () => {
                     setErrors((prev) => ({ ...prev, password: undefined }));
                   }}
                   placeholder="••••••"
-                  className="pl-10 bg-purple-800 border-purple-600 text-white placeholder:text-purple-300"
+                  className="pl-10 bg-card border-border text-foreground placeholder:text-muted-foreground"
                 />
               </div>
               {errors.password && (
-                <p className="text-red-300 text-sm">{errors.password}</p>
+                <p className="text-destructive text-sm">{errors.password}</p>
               )}
             </div>
           )}
@@ -276,7 +276,7 @@ const Auth = () => {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-6"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-6"
           >
             {isLoading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -295,7 +295,7 @@ const Auth = () => {
                 setMode("forgot");
                 setErrors({});
               }}
-              className="text-purple-300 text-sm hover:underline"
+              className="text-primary text-sm hover:underline"
             >
               Esqueceu a senha?
             </button>
@@ -305,7 +305,7 @@ const Auth = () => {
         {/* Toggle Login/Signup */}
         <div className="mt-6 text-center">
           {mode === "login" && (
-            <p className="text-purple-200">
+            <p className="text-muted-foreground">
               Não tem conta?{" "}
               <button
                 type="button"
@@ -313,14 +313,14 @@ const Auth = () => {
                   setMode("signup");
                   setErrors({});
                 }}
-                className="text-white font-semibold hover:underline"
+                className="text-primary font-semibold hover:underline"
               >
                 Cadastre-se
               </button>
             </p>
           )}
           {mode === "signup" && (
-            <p className="text-purple-200">
+            <p className="text-muted-foreground">
               Já tem conta?{" "}
               <button
                 type="button"
@@ -328,21 +328,21 @@ const Auth = () => {
                   setMode("login");
                   setErrors({});
                 }}
-                className="text-white font-semibold hover:underline"
+                className="text-primary font-semibold hover:underline"
               >
                 Entrar
               </button>
             </p>
           )}
           {(mode === "forgot" || mode === "reset") && (
-            <p className="text-purple-200">
+            <p className="text-muted-foreground">
               <button
                 type="button"
                 onClick={() => {
                   setMode("login");
                   setErrors({});
                 }}
-                className="text-white font-semibold hover:underline"
+                className="text-primary font-semibold hover:underline"
               >
                 Voltar ao login
               </button>
