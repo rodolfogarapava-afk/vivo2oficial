@@ -33,7 +33,20 @@ const LIGHT_COLORS = [
   { name: "Rosa Claro", hsl: "330 60% 96%" },
   { name: "Cinza Claro", hsl: "220 15% 95%" },
   { name: "Ciano Claro", hsl: "190 60% 95%" },
+  { name: "Creme", hsl: "45 70% 95%" },
+  { name: "Pêssego", hsl: "20 70% 94%" },
+  { name: "Menta", hsl: "165 55% 94%" },
+  { name: "Amarelo Claro", hsl: "50 85% 94%" },
+  { name: "Laranja Claro", hsl: "30 85% 94%" },
+  { name: "Coral Claro", hsl: "5 70% 95%" },
+  { name: "Lavanda", hsl: "250 55% 95%" },
+  { name: "Uva Claro", hsl: "285 50% 95%" },
+  { name: "Céu", hsl: "200 80% 94%" },
+  { name: "Turquesa Claro", hsl: "180 55% 94%" },
+  { name: "Oliva Claro", hsl: "80 40% 94%" },
+  { name: "Gelo", hsl: "220 40% 97%" },
 ];
+
 
 const DEFAULT_BG = "250 55% 6%";
 const DEFAULT_LIGHT_BG = "0 0% 100%";
