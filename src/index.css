@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    --background: 250 55% 6%;
+    --foreground: 0 0% 100%;
+
+    --card: 252 45% 11%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 252 45% 11%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 262 60% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 250 35% 18%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 250 25% 22%;
+    --muted-foreground: 250 20% 75%;
+
+    --accent: 145 70% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 15 85% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 250 35% 20%;
+    --input: 250 35% 18%;
+    --ring: 262 70% 50%;
+
+    --radius: 1rem;
+
+    --success: 145 70% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 15 85% 55%;
+    --warning-foreground: 0 0% 100%;
+
+    --surface: 0 0% 98%;
+    --surface-foreground: 220 20% 20%;
+  }
+
+  .dark {
+    --background: 270 60% 15%;
+    --foreground: 0 0% 100%;
+
+    --card: 270 50% 20%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 270 50% 20%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 270 45% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 270 40% 30%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 270 30% 35%;
+    --muted-foreground: 270 20% 70%;
+
+    --accent: 145 70% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 15 85% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 270 40% 30%;
+    --input: 270 40% 30%;
+    --ring: 270 60% 50%;
+
+    --success: 145 70% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 15 85% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --surface: 270 30% 12%;
+    --surface-foreground: 0 0% 95%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Poppins', sans-serif;
+  }
+}
