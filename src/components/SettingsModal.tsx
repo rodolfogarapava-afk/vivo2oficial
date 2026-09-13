@@ -1117,6 +1117,9 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   className="w-full min-h-12 h-auto justify-start bg-purple-900/70 hover:bg-purple-700 text-white rounded-xl px-4 py-3"
                 >
                   <Pencil className="h-4 w-4 mr-3 shrink-0" />
+                  {Number(client.value_paid) > 0 && (
+                    <Star className="h-4 w-4 mr-2 shrink-0 fill-current text-green-400" aria-label="Valor cadastrado" />
+                  )}
                   <span className="text-left whitespace-normal break-words">{client.name}</span>
                 </Button>
               ))}
