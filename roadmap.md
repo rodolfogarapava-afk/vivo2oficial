@@ -15,3 +15,4 @@
 - [x] Atualizar clientes e buscar nova versão ao puxar a tela para baixo
 - [x] Trocar os botões de contas por Total, Gastos e Lucro na tela inicial
 - [x] WhatsApp opcional no cliente com mensagem e ícone configuráveis
+- [x] Remover a opção Contas da engrenagem

@@ -163,7 +163,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const { toast } = useToast();
   const { settings: whatsAppSettings, saveSettings: saveWhatsAppSettings } = useWhatsAppSettings();
   const { settings: themeSettings, saveSettings: saveThemeSettings, setMode: setThemeMode, setButtonColor, colors, buttonColors } = useThemeSettings();
-  const { accounts, count: accountsCount, labels: accountLabels, setLabel: setAccountLabel, increase: increaseAccounts, decrease: decreaseAccounts } = useAccounts();
+  const { accounts } = useAccounts();
 
   
   const [destinationPhone, setDestinationPhone] = useState("");
@@ -942,48 +942,6 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   Salvar
                 </Button>
               </div>
-            </div>
-
-            {/* ===== Contas ===== */}
-            <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
-              <h3 className="text-sm font-semibold text-white mb-3">Contas</h3>
-              <div className="flex items-center justify-between gap-3">
-                <button
-                  type="button"
-                  onClick={decreaseAccounts}
-                  className="h-12 flex-1 rounded-xl bg-red-700 border border-red-500 text-sm font-bold text-white"
-                >
-                  − Excluir conta
-                </button>
-                <span className="text-3xl font-black text-white">{accountsCount}</span>
-                <button
-                  type="button"
-                  onClick={increaseAccounts}
-                  className="h-12 flex-1 rounded-xl bg-green-700 border border-green-500 text-sm font-bold text-white"
-                >
-                  + Adicionar
-                </button>
-              </div>
-
-              <div className="mt-3 space-y-2">
-                <p className="text-xs text-white/70">Número de cada conta (aparece no botão)</p>
-                {accounts.map((n) => (
-                  <div key={n} className="flex items-center gap-2">
-                    <span className="w-16 shrink-0 text-xs font-bold text-white">Conta {n}</span>
-                    <Input
-                      value={accountLabels[n] ?? ""}
-                      onChange={(e) => setAccountLabel(n, e.target.value)}
-                      placeholder="Ex: 0476371128"
-                      inputMode="numeric"
-                      className="h-10 bg-purple-950/50 border-purple-700 text-white rounded-xl text-sm"
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <p className="text-[11px] text-white/60 mt-2">
-                As contas continuam disponíveis no cadastro e na edição dos clientes.
-              </p>
             </div>
 
             {/* ===== Tema ===== */}
