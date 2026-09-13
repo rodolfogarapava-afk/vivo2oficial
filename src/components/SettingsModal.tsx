@@ -1399,16 +1399,31 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 <FileText className="h-4 w-4" />
                 Backup
               </h3>
-              <div className="flex gap-2">
-                <Button onClick={handleCopyToClipboard} className="flex-1 h-10 bg-purple-700 hover:bg-purple-600 text-white rounded-xl text-sm">
+              <div className="grid grid-cols-2 gap-2">
+                <Button onClick={handleCopyToClipboard} className="h-10 bg-purple-700 hover:bg-purple-600 text-white rounded-xl text-sm">
                   {copied ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
-                  {copied ? "Copiado!" : "Copiar"}
+                  {copied ? "Copiado!" : "Copiar lista"}
                 </Button>
-                <Button onClick={handleDownloadText} className="flex-1 h-10 bg-purple-700 hover:bg-purple-600 text-white rounded-xl text-sm">
+                <Button onClick={handleDownloadText} className="h-10 bg-purple-700 hover:bg-purple-600 text-white rounded-xl text-sm">
                   <Download className="h-4 w-4 mr-1" />
-                  Baixar
+                  Baixar lista
+                </Button>
+                <Button onClick={handleDownloadBackupFile} className="h-10 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm">
+                  <Download className="h-4 w-4 mr-1" />
+                  Gerar backup
+                </Button>
+                <Button
+                  onClick={() => document.getElementById("backup-import-input")?.click()}
+                  disabled={isImporting}
+                  className="h-10 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm"
+                >
+                  {isImporting ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Upload className="h-4 w-4 mr-1" />}
+                  {isImporting ? "Importando..." : "Importar"}
                 </Button>
               </div>
+              <p className="text-[11px] text-purple-200 mt-2">
+                "Gerar backup" salva um arquivo com todos os dados dos clientes. "Importar" adiciona os clientes desse arquivo nesta conta.
+              </p>
             </div>
 
             {/* ===== Atualizar / Sincronizar ===== */}
