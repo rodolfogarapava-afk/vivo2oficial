@@ -171,8 +171,18 @@ export const useThemeSettings = () => {
   }, []);
 
   const saveSettings = useCallback((newSettings: ThemeSettings) => {
-    setSettings(newSettings);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
+    const current = readSettings();
+    const next = { ...current, ...newSettings };
+    setSettings(next);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    window.dispatchEvent(new Event(THEME_UPDATED_EVENT));
+  }, []);
+
+  const setButtonColor = useCallback((buttonColor: string) => {
+    const current = readSettings();
+    const next = { ...current, buttonColor };
+    setSettings(next);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     window.dispatchEvent(new Event(THEME_UPDATED_EVENT));
   }, []);
 
@@ -180,7 +190,7 @@ export const useThemeSettings = () => {
     (mode: ThemeMode) => {
       const current = readSettings();
       const backgroundColor = mode === "light" ? DEFAULT_LIGHT_BG : DEFAULT_BG;
-      const next = { mode, backgroundColor };
+      const next = { ...current, mode, backgroundColor };
       setSettings(next);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       window.dispatchEvent(new Event(THEME_UPDATED_EVENT));
@@ -193,8 +203,11 @@ export const useThemeSettings = () => {
     settings,
     saveSettings,
     setMode,
+    setButtonColor,
     colors: settings.mode === "light" ? LIGHT_COLORS : DARK_COLORS,
     darkColors: DARK_COLORS,
     lightColors: LIGHT_COLORS,
+    buttonColors: BUTTON_COLORS,
   };
+
 };
