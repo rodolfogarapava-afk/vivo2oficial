@@ -5,10 +5,25 @@ export type ThemeMode = "dark" | "light";
 interface ThemeSettings {
   backgroundColor: string;
   mode: ThemeMode;
+  buttonColor?: string;
 }
 
 const STORAGE_KEY = "theme-settings";
 const THEME_UPDATED_EVENT = "theme-settings-updated";
+
+const BUTTON_COLORS = [
+  { name: "Padrão", hsl: "" },
+  { name: "Verde", hsl: "145 65% 38%" },
+  { name: "Azul", hsl: "215 80% 48%" },
+  { name: "Roxo", hsl: "265 70% 50%" },
+  { name: "Rosa", hsl: "330 70% 50%" },
+  { name: "Vermelho", hsl: "0 70% 48%" },
+  { name: "Laranja", hsl: "25 85% 48%" },
+  { name: "Ciano", hsl: "190 80% 42%" },
+  { name: "Âmbar", hsl: "42 90% 48%" },
+  { name: "Grafite", hsl: "220 12% 30%" },
+];
+
 
 const DARK_COLORS = [
   { name: "Roxo Escuro Vivo", hsl: "250 55% 6%" },
@@ -65,9 +80,18 @@ const setVar = (name: string, value: string) => {
   document.documentElement.style.setProperty(name, value);
 };
 
-const applyTheme = ({ backgroundColor, mode }: ThemeSettings) => {
+const applyTheme = ({ backgroundColor, mode, buttonColor }: ThemeSettings) => {
   const { h, s, l } = parseHsl(backgroundColor);
   const root = document.documentElement;
+
+  if (buttonColor) {
+    root.classList.add("custom-buttons");
+    setVar("--btn", buttonColor);
+  } else {
+    root.classList.remove("custom-buttons");
+  }
+
+
 
   if (mode === "light") {
     root.classList.add("light-mode");
@@ -118,12 +142,13 @@ const readSettings = (): ThemeSettings => {
       if (mode === "dark" && LEGACY_DEFAULTS.includes(backgroundColor)) {
         backgroundColor = DEFAULT_BG;
       }
-      return { backgroundColor, mode };
+      return { backgroundColor, mode, buttonColor: parsed.buttonColor || "" };
     } catch (e) {
       console.error("Error loading theme settings:", e);
     }
   }
-  return { backgroundColor: DEFAULT_BG, mode: "dark" };
+  return { backgroundColor: DEFAULT_BG, mode: "dark", buttonColor: "" };
+
 };
 
 export const useThemeSettings = () => {
@@ -146,8 +171,18 @@ export const useThemeSettings = () => {
   }, []);
 
   const saveSettings = useCallback((newSettings: ThemeSettings) => {
-    setSettings(newSettings);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
+    const current = readSettings();
+    const next = { ...current, ...newSettings };
+    setSettings(next);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    window.dispatchEvent(new Event(THEME_UPDATED_EVENT));
+  }, []);
+
+  const setButtonColor = useCallback((buttonColor: string) => {
+    const current = readSettings();
+    const next = { ...current, buttonColor };
+    setSettings(next);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     window.dispatchEvent(new Event(THEME_UPDATED_EVENT));
   }, []);
 
@@ -155,7 +190,7 @@ export const useThemeSettings = () => {
     (mode: ThemeMode) => {
       const current = readSettings();
       const backgroundColor = mode === "light" ? DEFAULT_LIGHT_BG : DEFAULT_BG;
-      const next = { mode, backgroundColor };
+      const next = { ...current, mode, backgroundColor };
       setSettings(next);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       window.dispatchEvent(new Event(THEME_UPDATED_EVENT));
@@ -168,8 +203,11 @@ export const useThemeSettings = () => {
     settings,
     saveSettings,
     setMode,
+    setButtonColor,
     colors: settings.mode === "light" ? LIGHT_COLORS : DARK_COLORS,
     darkColors: DARK_COLORS,
     lightColors: LIGHT_COLORS,
+    buttonColors: BUTTON_COLORS,
   };
+
 };

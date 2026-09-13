@@ -98,3 +98,28 @@
     font-family: 'Poppins', sans-serif;
   }
 }
+
+/* ===== Tema claro: texto preto e superfícies claras ===== */
+.light-mode [class*="text-white"],
+.light-mode [class*="text-purple-2"],
+.light-mode [class*="text-purple-3"] {
+  color: #0b0b0b !important;
+}
+
+.light-mode [class*="bg-purple-6"],
+.light-mode [class*="bg-purple-7"],
+.light-mode [class*="bg-purple-8"],
+.light-mode [class*="bg-purple-9"] {
+  background-color: hsl(var(--card)) !important;
+}
+
+.light-mode [class*="border-purple-"] {
+  border-color: hsl(var(--border)) !important;
+}
+
+/* ===== Cor de botões escolhida pelo usuário ===== */
+.custom-buttons [class*="bg-green-5"],
+.custom-buttons [class*="bg-green-6"],
+.custom-buttons [class*="bg-green-7"] {
+  background-color: hsl(var(--btn)) !important;
+}

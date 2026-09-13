@@ -168,7 +168,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
   const { toast } = useToast();
   const { settings: whatsAppSettings, saveSettings: saveWhatsAppSettings } = useWhatsAppSettings();
-  const { settings: themeSettings, saveSettings: saveThemeSettings, setMode: setThemeMode, colors } = useThemeSettings();
+  const { settings: themeSettings, saveSettings: saveThemeSettings, setMode: setThemeMode, setButtonColor, colors, buttonColors } = useThemeSettings();
   const { accounts, count: accountsCount, labels: accountLabels, setLabel: setAccountLabel, increase: increaseAccounts, decrease: decreaseAccounts } = useAccounts();
 
   
@@ -833,13 +833,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
               </h3>
               <div className="flex gap-2">
                 <button
-                  onClick={() => { onOpenChange(false); setTimeout(() => onCancelClick?.(), 200); }}
-                  className="flex-1 h-12 rounded-xl flex items-center justify-center gap-2 transition-all bg-gradient-to-b from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 shadow-[0_4px_0_0_#9a3412] hover:shadow-[0_2px_0_0_#9a3412] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px]"
-                >
-                  <Ban className="h-5 w-5 text-white" />
-                  <span className="text-white text-xs font-bold">Cancelar</span>
-                </button>
-                <button
+
                   onClick={() => { onOpenChange(false); setTimeout(() => onBlockClick?.(), 200); }}
                   className="flex-1 h-12 rounded-xl flex items-center justify-center gap-2 transition-all bg-gradient-to-b from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 shadow-[0_4px_0_0_#7f1d1d] hover:shadow-[0_2px_0_0_#7f1d1d] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px]"
                 >
@@ -883,274 +877,6 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
 
             </div>
 
-            {/* ===== WhatsApp Cobrança ===== */}
-            <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
-              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                <MessageCircle className="h-4 w-4" />
-                WhatsApp Cobrança
-              </h3>
-
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-xs text-white/70">Número de destino</Label>
-                  <div className="flex gap-2 mt-1">
-                    <Input
-                      value={destinationPhone}
-                      onChange={(e) => !isPhoneLocked ? setDestinationPhone(formatPhone(e.target.value)) : null}
-                      placeholder="(XX) XXXXX-XXXX"
-                      className="bg-purple-900/50 border-purple-600 text-white text-sm h-10"
-                      readOnly={isPhoneLocked}
-                    />
-                    <button
-                      onClick={() => setIsPhoneLocked(!isPhoneLocked)}
-                      className="p-2 rounded-lg bg-purple-700/50 text-white/80 hover:text-white"
-                    >
-                      {isPhoneLocked ? <Lock className="h-4 w-4" /> : <LockOpen className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-xs text-white/70">Mensagem</Label>
-                  <div className="flex gap-2 mt-1 items-start">
-                    <Textarea
-                      value={messageTemplate}
-                      onChange={(e) => !isMessageLocked ? setMessageTemplate(e.target.value) : null}
-                      className="bg-purple-900/50 border-purple-600 text-white text-xs min-h-[120px]"
-                      readOnly={isMessageLocked}
-                    />
-                    <button
-                      onClick={() => setIsMessageLocked(!isMessageLocked)}
-                      className="p-2 rounded-lg bg-purple-700/50 text-white/80 hover:text-white mt-1"
-                    >
-                      {isMessageLocked ? <Lock className="h-4 w-4" /> : <LockOpen className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <Switch checked={useBusiness} onCheckedChange={setUseBusiness} className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-white/20 [&>span]:bg-white [&>span]:shadow-md" />
-                  <span className="text-xs text-white/70 flex items-center gap-1">
-                    <Building2 className="h-3.5 w-3.5" />
-                    WhatsApp Business
-                  </span>
-                </div>
-
-                <Button onClick={handleSaveWhatsApp} className="w-full h-10 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm">
-                  <Save className="h-4 w-4 mr-2" />
-                  Salvar Configurações
-                </Button>
-              </div>
-            </div>
-
-            {/* ===== WhatsApp Pagamento ===== */}
-            <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
-              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                <CreditCard className="h-4 w-4" />
-                WhatsApp Pagamento
-              </h3>
-
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-xs text-white/70">Número de destino</Label>
-                  <div className="flex gap-2 mt-1">
-                    <Input
-                      value={paymentPhone}
-                      onChange={(e) => !isPaymentPhoneLocked ? setPaymentPhone(formatPhone(e.target.value)) : null}
-                      placeholder="(XX) XXXXX-XXXX"
-                      className="bg-purple-900/50 border-purple-600 text-white text-sm h-10"
-                      readOnly={isPaymentPhoneLocked}
-                    />
-                    <button
-                      onClick={() => setIsPaymentPhoneLocked(!isPaymentPhoneLocked)}
-                      className="p-2 rounded-lg bg-purple-700/50 text-white/80 hover:text-white"
-                    >
-                      {isPaymentPhoneLocked ? <Lock className="h-4 w-4" /> : <LockOpen className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-xs text-white/70">Mensagem de pagamento</Label>
-                  <div className="flex gap-2 mt-1 items-start">
-                    <Textarea
-                      value={paymentMessage}
-                      onChange={(e) => !isPaymentMessageLocked ? setPaymentMessage(e.target.value) : null}
-                      className="bg-purple-900/50 border-purple-600 text-white text-xs min-h-[120px]"
-                      readOnly={isPaymentMessageLocked}
-                    />
-                    <button
-                      onClick={() => setIsPaymentMessageLocked(!isPaymentMessageLocked)}
-                      className="p-2 rounded-lg bg-purple-700/50 text-white/80 hover:text-white mt-1"
-                    >
-                      {isPaymentMessageLocked ? <Lock className="h-4 w-4" /> : <LockOpen className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Payment tracking grid - Pago / Restante */}
-                <div>
-                  <p className="text-xs text-white/70 mb-2">Acompanhamento por dia</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    {ALL_DUE_DAYS.map((day) => {
-                      const total = totalsByDay[day] ?? 0;
-                      const remaining = remainingByDay[day] ?? 0;
-                      const paid = total - remaining;
-                      const pct = total > 0 ? (paid / total) * 100 : 0;
-                      return (
-                        <div key={day} className="bg-purple-900/70 rounded-xl p-3 space-y-1.5 border border-gray-400/50">
-                          <p className="text-xs font-bold text-white text-center">Dia {day}</p>
-                          <div className="flex justify-between text-[10px]">
-                            <span className="text-green-400">Pago</span>
-                            <span className="text-green-400 font-semibold">{formatCurrency(paid)}</span>
-                          </div>
-                          <div className="flex justify-between text-[10px]">
-                            <span className="text-yellow-400">Restante</span>
-                            <span className="text-yellow-400 font-semibold">{formatCurrency(remaining)}</span>
-                          </div>
-                          <div className="w-full h-1.5 bg-purple-950 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-green-500 rounded-full transition-all"
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-xs text-white/70 mb-2">Enviar pagamento por dia</p>
-                  <div className="grid grid-cols-6 gap-1.5">
-                    {ALL_DUE_DAYS.map((day) => {
-                      const value = totalsByDay[day] ?? 0;
-                      return (
-                        <button
-                          key={day}
-                          onClick={() => handleSendPaymentForDay(day)}
-                          className={`relative flex flex-col items-center rounded-xl p-1.5 transition-colors ${
-                            sentPaymentDays.includes(day)
-                              ? 'bg-red-900/50 hover:bg-red-800/50'
-                              : 'bg-purple-900/70 hover:bg-purple-700/70'
-                          }`}
-                        >
-                          {sentPaymentDays.includes(day) && (
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                              <X className="h-7 w-7 text-red-500 opacity-70" strokeWidth={3} />
-                            </div>
-                          )}
-                          <span className="text-[11px] font-bold text-white">Dia {day}</span>
-                          <span className="text-[9px] text-green-400 truncate w-full text-center">{formatCurrency(value)}</span>
-                          <Send className="h-3 w-3 text-white/60 mt-1" />
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <Switch checked={paymentUseBusiness} onCheckedChange={setPaymentUseBusiness} className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-white/20 [&>span]:bg-white [&>span]:shadow-md" />
-                  <span className="text-xs text-white/70 flex items-center gap-1">
-                    <Building2 className="h-3.5 w-3.5" />
-                    WhatsApp Business
-                  </span>
-                </div>
-
-                <Button onClick={handleSavePaymentSettings} className="w-full h-10 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm">
-                  <Save className="h-4 w-4 mr-2" />
-                  Salvar Configurações
-                </Button>
-              </div>
-            </div>
-
-            {/* ===== WhatsApp Bloqueio ===== */}
-            <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
-              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                <Ban className="h-4 w-4" />
-                WhatsApp Bloqueio / Desbloqueio
-              </h3>
-
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-xs text-white/70">Número de destino</Label>
-                  <div className="flex gap-2 mt-1">
-                    <Input
-                      value={blockPhone}
-                      onChange={(e) => !isBlockPhoneLocked ? setBlockPhone(formatPhone(e.target.value)) : null}
-                      placeholder="(XX) XXXXX-XXXX"
-                      className="bg-purple-900/50 border-purple-600 text-white text-sm h-10"
-                      readOnly={isBlockPhoneLocked}
-                    />
-                    <button
-                      onClick={() => setIsBlockPhoneLocked(!isBlockPhoneLocked)}
-                      className="p-2 rounded-lg bg-purple-700/50 text-white/80 hover:text-white"
-                    >
-                      {isBlockPhoneLocked ? <Lock className="h-4 w-4" /> : <LockOpen className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-xs text-white/70">Mensagem de bloqueio</Label>
-                  <div className="flex gap-2 mt-1 items-start">
-                    <Textarea
-                      value={blockMessage}
-                      onChange={(e) => !isBlockMessageLocked ? setBlockMessage(e.target.value) : null}
-                      className="bg-purple-900/50 border-purple-600 text-white text-xs min-h-[100px]"
-                      readOnly={isBlockMessageLocked}
-                    />
-                    <button
-                      onClick={() => setIsBlockMessageLocked(!isBlockMessageLocked)}
-                      className="p-2 rounded-lg bg-purple-700/50 text-white/80 hover:text-white mt-1"
-                    >
-                      {isBlockMessageLocked ? <Lock className="h-4 w-4" /> : <LockOpen className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-xs text-white/70">Mensagem de desbloqueio</Label>
-                  <div className="flex gap-2 mt-1 items-start">
-                    <Textarea
-                      value={unblockMessage}
-                      onChange={(e) => !isUnblockMessageLocked ? setUnblockMessage(e.target.value) : null}
-                      className="bg-purple-900/50 border-purple-600 text-white text-xs min-h-[100px]"
-                      readOnly={isUnblockMessageLocked}
-                    />
-                    <button
-                      onClick={() => setIsUnblockMessageLocked(!isUnblockMessageLocked)}
-                      className="p-2 rounded-lg bg-purple-700/50 text-white/80 hover:text-white mt-1"
-                    >
-                      {isUnblockMessageLocked ? <Lock className="h-4 w-4" /> : <LockOpen className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-xs text-white/70">Mensagem de cancelamento</Label>
-                  <div className="flex gap-2 mt-1 items-start">
-                    <Textarea
-                      value={cancelMessage}
-                      onChange={(e) => !isCancelMessageLocked ? setCancelMessage(e.target.value) : null}
-                      className="bg-purple-900/50 border-purple-600 text-white text-xs min-h-[100px]"
-                      readOnly={isCancelMessageLocked}
-                    />
-                    <button
-                      onClick={() => setIsCancelMessageLocked(!isCancelMessageLocked)}
-                      className="p-2 rounded-lg bg-purple-700/50 text-white/80 hover:text-white mt-1"
-                    >
-                      {isCancelMessageLocked ? <Lock className="h-4 w-4" /> : <LockOpen className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <Button onClick={handleSaveBlockSettings} className="w-full h-10 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm">
-                  <Save className="h-4 w-4 mr-2" />
-                  Salvar Configurações
-                </Button>
-              </div>
-            </div>
 
             {/* ===== Resumo Financeiro ===== */}
             <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
@@ -1204,62 +930,6 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
               </div>
             </div>
 
-            {/* ===== Dias Visíveis ===== */}
-            <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
-              <h3 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Dias Visíveis
-              </h3>
-              <p className="text-[11px] text-purple-200/80 mb-3">
-                Escolha quais dias de vencimento aparecem no resumo da tela inicial.
-              </p>
-              <div className="grid grid-cols-6 gap-1.5">
-                {ALL_DUE_DAYS.map((day) => {
-                  const active = visibleDays.includes(day);
-                  return (
-                    <button
-                      key={day}
-                      onClick={() => toggleDay(day)}
-                      className={`h-11 rounded-xl font-bold text-sm transition-colors border ${
-                        active
-                          ? 'bg-green-600 border-green-400 text-white'
-                          : 'bg-purple-950/60 border-purple-700 text-white/50'
-                      }`}
-                    >
-                      {day}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* ===== Copiar Clientes por Dia ===== */}
-            <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
-              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                <Copy className="h-4 w-4" />
-                Copiar Clientes por Dia
-              </h3>
-              <div className="grid grid-cols-6 gap-1.5">
-                {ALL_DUE_DAYS.map((day) => {
-                  const count = clients.filter(c => c.due_day === day && !c.name.toUpperCase().includes("CANCELADO")).length;
-                  return (
-                    <button
-                      key={day}
-                      onClick={() => handleCopyClientsByDay(day)}
-                      className="flex flex-col items-center rounded-xl p-1.5 bg-purple-900/70 hover:bg-purple-700/70 transition-colors"
-                    >
-                      <span className="text-[11px] font-bold text-white">Dia {day}</span>
-                      <span className="text-[9px] text-white/60">{count}</span>
-                      {copiedDay === day ? (
-                        <Check className="h-3.5 w-3.5 text-green-400 mt-1" />
-                      ) : (
-                        <Copy className="h-3 w-3 text-white/60 mt-1" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
 
             {/* ===== Gasto Fixo ===== */}
             <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
@@ -1391,7 +1061,30 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   />
                 ))}
               </div>
+
+              <p className="text-xs text-white/70 mt-4 mb-2">Cor dos botões</p>
+              <div className="grid grid-cols-5 gap-2">
+                {buttonColors.map((color) => (
+                  <button
+                    key={color.name}
+                    onClick={() => {
+                      setButtonColor(color.hsl);
+                      toast({ title: "Cor dos botões alterada!", description: color.name });
+                    }}
+                    className={`w-full aspect-square rounded-xl border-2 flex items-center justify-center transition-all ${
+                      (themeSettings.buttonColor || "") === color.hsl
+                        ? 'border-white scale-110'
+                        : 'border-transparent hover:border-white/50'
+                    }`}
+                    style={color.hsl ? { backgroundColor: `hsl(${color.hsl})` } : undefined}
+                    title={color.name}
+                  >
+                    {!color.hsl && <span className="text-[9px] font-bold text-white">Padrão</span>}
+                  </button>
+                ))}
+              </div>
             </div>
+
 
             {/* ===== Backup ===== */}
             <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
