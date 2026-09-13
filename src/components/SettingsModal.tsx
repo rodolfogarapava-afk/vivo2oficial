@@ -930,62 +930,6 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
               </div>
             </div>
 
-            {/* ===== Dias Visíveis ===== */}
-            <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
-              <h3 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Dias Visíveis
-              </h3>
-              <p className="text-[11px] text-purple-200/80 mb-3">
-                Escolha quais dias de vencimento aparecem no resumo da tela inicial.
-              </p>
-              <div className="grid grid-cols-6 gap-1.5">
-                {ALL_DUE_DAYS.map((day) => {
-                  const active = visibleDays.includes(day);
-                  return (
-                    <button
-                      key={day}
-                      onClick={() => toggleDay(day)}
-                      className={`h-11 rounded-xl font-bold text-sm transition-colors border ${
-                        active
-                          ? 'bg-green-600 border-green-400 text-white'
-                          : 'bg-purple-950/60 border-purple-700 text-white/50'
-                      }`}
-                    >
-                      {day}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* ===== Copiar Clientes por Dia ===== */}
-            <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
-              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                <Copy className="h-4 w-4" />
-                Copiar Clientes por Dia
-              </h3>
-              <div className="grid grid-cols-6 gap-1.5">
-                {ALL_DUE_DAYS.map((day) => {
-                  const count = clients.filter(c => c.due_day === day && !c.name.toUpperCase().includes("CANCELADO")).length;
-                  return (
-                    <button
-                      key={day}
-                      onClick={() => handleCopyClientsByDay(day)}
-                      className="flex flex-col items-center rounded-xl p-1.5 bg-purple-900/70 hover:bg-purple-700/70 transition-colors"
-                    >
-                      <span className="text-[11px] font-bold text-white">Dia {day}</span>
-                      <span className="text-[9px] text-white/60">{count}</span>
-                      {copiedDay === day ? (
-                        <Check className="h-3.5 w-3.5 text-green-400 mt-1" />
-                      ) : (
-                        <Copy className="h-3 w-3 text-white/60 mt-1" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
 
             {/* ===== Gasto Fixo ===== */}
             <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
