@@ -29,7 +29,6 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
   const [isResale, setIsResale] = useState(false);
   const [bonus, setBonus] = useState(false);
   const [alreadyPaid, setAlreadyPaid] = useState(false);
-  const [company, setCompany] = useState<string>("omega");
   const [phoneError, setPhoneError] = useState("");
   const [account, setAccount] = useState<number | null>(null);
   const { accounts } = useAccounts();
@@ -60,7 +59,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
       is_resale: isResale,
       bonus,
       already_paid: alreadyPaid,
-      company,
+      company: "omega",
       account,
 
     });
@@ -73,7 +72,6 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
     setIsResale(false);
     setBonus(false);
     setAlreadyPaid(false);
-    setCompany("omega");
   };
 
   const formatPhone = (digits: string) => {
@@ -166,30 +164,13 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
           <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
             Empresa
           </label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2">
             <button
               type="button"
-              onClick={() => setCompany("omega")}
-              className={`h-14 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
-                company === "omega"
-                  ? 'bg-primary text-primary-foreground shadow-[0_4px_0_0_#581c87]'
-                  : 'bg-primary/30 border border-primary/50 text-foreground/70 hover:bg-primary/40'
-              }`}
-            >
-            <Building2 className="h-4 w-4" />
-              Raio Telecom
-            </button>
-            <button
-              type="button"
-              onClick={() => setCompany("nexus")}
-              className={`h-14 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
-                company === "nexus"
-                  ? 'bg-white text-black border-2 border-gray-300 shadow-[0_4px_0_0_#9ca3af]'
-                  : 'bg-primary/30 border border-primary/50 text-foreground/70 hover:bg-primary/40'
-              }`}
+              className="h-14 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#581c87]"
             >
               <Building2 className="h-4 w-4" />
-              Nexus Telecom
+              Raio Telecom
             </button>
           </div>
         </div>

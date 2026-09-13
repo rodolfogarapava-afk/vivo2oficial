@@ -11,3 +11,4 @@
 - [x] Mostrar quantidade de linhas em cada botão de conta (com opção de ocultar)
 - [x] Adicionar/excluir contas e definir o número de cada conta na engrenagem
 - [x] Emoji 🌐 na frente do nome dos clientes da Raio Telecom
+- [x] Remover a opção Nexus Telecom do cadastro e da edição
