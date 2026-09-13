@@ -24,7 +24,6 @@ export function usePullToRefresh(onRefresh: () => Promise<unknown>) {
       return;
     }
 
-    event.preventDefault();
     setPullDistance(Math.min(MAX_PULL_DISTANCE, distance * 0.55));
   }, []);
 
