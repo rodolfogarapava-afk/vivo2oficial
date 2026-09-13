@@ -1061,7 +1061,30 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   />
                 ))}
               </div>
+
+              <p className="text-xs text-white/70 mt-4 mb-2">Cor dos botões</p>
+              <div className="grid grid-cols-5 gap-2">
+                {buttonColors.map((color) => (
+                  <button
+                    key={color.name}
+                    onClick={() => {
+                      setButtonColor(color.hsl);
+                      toast({ title: "Cor dos botões alterada!", description: color.name });
+                    }}
+                    className={`w-full aspect-square rounded-xl border-2 flex items-center justify-center transition-all ${
+                      (themeSettings.buttonColor || "") === color.hsl
+                        ? 'border-white scale-110'
+                        : 'border-transparent hover:border-white/50'
+                    }`}
+                    style={color.hsl ? { backgroundColor: `hsl(${color.hsl})` } : undefined}
+                    title={color.name}
+                  >
+                    {!color.hsl && <span className="text-[9px] font-bold text-white">Padrão</span>}
+                  </button>
+                ))}
+              </div>
             </div>
+
 
             {/* ===== Backup ===== */}
             <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
