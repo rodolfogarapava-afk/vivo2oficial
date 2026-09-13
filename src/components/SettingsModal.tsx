@@ -168,7 +168,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
   const { toast } = useToast();
   const { settings: whatsAppSettings, saveSettings: saveWhatsAppSettings } = useWhatsAppSettings();
-  const { settings: themeSettings, saveSettings: saveThemeSettings, setMode: setThemeMode, colors } = useThemeSettings();
+  const { settings: themeSettings, saveSettings: saveThemeSettings, setMode: setThemeMode, setButtonColor, colors, buttonColors } = useThemeSettings();
   const { accounts, count: accountsCount, labels: accountLabels, setLabel: setAccountLabel, increase: increaseAccounts, decrease: decreaseAccounts } = useAccounts();
 
   
