@@ -833,13 +833,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
               </h3>
               <div className="flex gap-2">
                 <button
-                  onClick={() => { onOpenChange(false); setTimeout(() => onCancelClick?.(), 200); }}
-                  className="flex-1 h-12 rounded-xl flex items-center justify-center gap-2 transition-all bg-gradient-to-b from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 shadow-[0_4px_0_0_#9a3412] hover:shadow-[0_2px_0_0_#9a3412] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px]"
-                >
-                  <Ban className="h-5 w-5 text-white" />
-                  <span className="text-white text-xs font-bold">Cancelar</span>
-                </button>
-                <button
+
                   onClick={() => { onOpenChange(false); setTimeout(() => onBlockClick?.(), 200); }}
                   className="flex-1 h-12 rounded-xl flex items-center justify-center gap-2 transition-all bg-gradient-to-b from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 shadow-[0_4px_0_0_#7f1d1d] hover:shadow-[0_2px_0_0_#7f1d1d] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px]"
                 >
