@@ -5,10 +5,25 @@ export type ThemeMode = "dark" | "light";
 interface ThemeSettings {
   backgroundColor: string;
   mode: ThemeMode;
+  buttonColor?: string;
 }
 
 const STORAGE_KEY = "theme-settings";
 const THEME_UPDATED_EVENT = "theme-settings-updated";
+
+const BUTTON_COLORS = [
+  { name: "Padrão", hsl: "" },
+  { name: "Verde", hsl: "145 65% 38%" },
+  { name: "Azul", hsl: "215 80% 48%" },
+  { name: "Roxo", hsl: "265 70% 50%" },
+  { name: "Rosa", hsl: "330 70% 50%" },
+  { name: "Vermelho", hsl: "0 70% 48%" },
+  { name: "Laranja", hsl: "25 85% 48%" },
+  { name: "Ciano", hsl: "190 80% 42%" },
+  { name: "Âmbar", hsl: "42 90% 48%" },
+  { name: "Grafite", hsl: "220 12% 30%" },
+];
+
 
 const DARK_COLORS = [
   { name: "Roxo Escuro Vivo", hsl: "250 55% 6%" },
