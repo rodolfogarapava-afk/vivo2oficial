@@ -200,6 +200,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   });
   
   const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [showClientList, setShowClientList] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editWhatsapp, setEditWhatsapp] = useState("");
@@ -491,6 +493,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
 
   const handleStartEdit = (client: Client) => {
     // Close the settings dialog first to release focus trap
+    setShowClientList(false);
     onOpenChange(false);
     setTimeout(() => {
       setEditingClient(client);
@@ -522,20 +525,24 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
     });
 
     setEditingClient(null);
-    // Reopen settings after saving
-    setTimeout(() => onOpenChange(true), 150);
+    setTimeout(() => setShowClientList(true), 150);
   };
 
   const handleCancelEdit = () => {
     setEditingClient(null);
-    // Reopen settings after canceling
-    setTimeout(() => onOpenChange(true), 150);
+    setTimeout(() => setShowClientList(true), 150);
   };
 
   const handleDeleteClient = (client: Client) => {
-    if (confirm(`Deseja excluir o cliente ${client.name}?`)) {
-      onDeleteClient(client.id);
-    }
+    setClientToDelete(client);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!clientToDelete) return;
+    onDeleteClient(clientToDelete.id);
+    setClientToDelete(null);
+    setEditingClient(null);
+    setTimeout(() => setShowClientList(true), 150);
   };
 
   const generateBackupText = () => {
@@ -856,33 +863,18 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   </button>
                 )}
               </div>
+              <Button
+                type="button"
+                onClick={() => {
+                  onOpenChange(false);
+                  setTimeout(() => setShowClientList(true), 150);
+                }}
+                className="w-full h-12 mt-3 bg-purple-700 hover:bg-purple-600 text-white rounded-xl font-bold"
+              >
+                <Users className="h-5 w-5 mr-2" />
+                Lista de clientes
+              </Button>
             </div>
-
-
-
-
-            <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
-              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                Gerenciar Clientes
-              </h3>
-
-              <div className="space-y-2 max-h-72 overflow-y-auto">
-                {clients.map((client) => (
-                  <button
-                    key={client.id}
-                    onClick={() => handleStartEdit(client)}
-                    className="w-full text-left bg-purple-900/70 hover:bg-purple-800/80 active:scale-[0.99] transition-all rounded-xl px-3 py-2.5"
-                  >
-                    <p className="text-sm font-semibold text-white break-words leading-snug">
-                      {client.company === "nexus" ? "✅ " : ""}{client.name}
-                    </p>
-                  </button>
-                ))}
-              </div>
-
-            </div>
-
 
             {/* ===== Atalhos (Revenda / Ocultar) ===== */}
             <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
@@ -1096,6 +1088,47 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
         </DialogContent>
       </Dialog>
 
+      {showClientList && createPortal(
+        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60">
+          <div className="bg-purple-800 rounded-2xl p-4 w-[92vw] max-w-md max-h-[85vh] flex flex-col">
+            <div className="flex items-center gap-3 mb-4">
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  setShowClientList(false);
+                  setTimeout(() => onOpenChange(true), 150);
+                }}
+                className="text-white hover:bg-purple-700"
+                aria-label="Voltar para configurações"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <h3 className="text-lg font-bold text-white">Lista de clientes</h3>
+            </div>
+            <div className="space-y-2 overflow-y-auto pr-1">
+              {clients.map((client) => (
+                <Button
+                  key={client.id}
+                  type="button"
+                  variant="ghost"
+                  onClick={() => handleStartEdit(client)}
+                  className="w-full min-h-12 h-auto justify-start bg-purple-900/70 hover:bg-purple-700 text-white rounded-xl px-4 py-3"
+                >
+                  <Pencil className="h-4 w-4 mr-3 shrink-0" />
+                  <span className="text-left whitespace-normal break-words">{client.name}</span>
+                </Button>
+              ))}
+              {clients.length === 0 && (
+                <p className="py-8 text-center text-sm text-purple-200">Nenhum cliente cadastrado.</p>
+              )}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {/* Edit Client Portal - rendered completely outside Dialog */}
       {editingClient && createPortal(
         <div 
@@ -1236,11 +1269,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 Salvar
               </Button>
               <Button
-                onClick={() => {
-                  const c = editingClient;
-                  handleCancelEdit();
-                  if (c) handleDeleteClient(c);
-                }}
+                onClick={() => editingClient && handleDeleteClient(editingClient)}
                 className="h-10 sm:h-12 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm"
               >
                 <Trash2 className="h-4 w-4 mr-1" />
@@ -1265,6 +1294,35 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
               </Button>
             </div>
 
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {clientToDelete && createPortal(
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/70">
+          <div className="bg-purple-800 rounded-2xl p-5 w-[88vw] max-w-sm">
+            <h3 className="text-lg font-bold text-white">Confirmar exclusão</h3>
+            <p className="mt-2 text-sm text-purple-100">
+              Deseja excluir o cliente <strong>{clientToDelete.name}</strong>?
+            </p>
+            <div className="grid grid-cols-2 gap-2 mt-5">
+              <Button
+                type="button"
+                onClick={() => setClientToDelete(null)}
+                className="h-11 bg-purple-700 hover:bg-purple-600 text-white rounded-xl"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                onClick={handleConfirmDelete}
+                className="h-11 bg-red-600 hover:bg-red-700 text-white rounded-xl"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Excluir
+              </Button>
+            </div>
           </div>
         </div>,
         document.body

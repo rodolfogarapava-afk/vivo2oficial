@@ -16,3 +16,4 @@
 - [x] Trocar os botões de contas por Total, Gastos e Lucro na tela inicial
 - [x] WhatsApp opcional no cliente com mensagem e ícone configuráveis
 - [x] Remover a opção Contas da engrenagem
+- [x] Organizar a edição em um botão Lista de clientes com confirmação de exclusão
