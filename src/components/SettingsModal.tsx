@@ -1089,8 +1089,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       </Dialog>
 
       {showClientList && createPortal(
-        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60">
-          <div className="bg-purple-800 rounded-2xl p-4 w-[92vw] max-w-md max-h-[85vh] flex flex-col">
+        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60 p-4">
+          <div className="bg-purple-800 rounded-2xl p-4 w-full max-w-md h-[85dvh] min-h-0 flex flex-col overflow-hidden">
             <div className="flex items-center gap-3 mb-4">
               <Button
                 type="button"
@@ -1107,7 +1107,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
               </Button>
               <h3 className="text-lg font-bold text-white">Lista de clientes</h3>
             </div>
-            <div className="space-y-2 overflow-y-auto pr-1">
+            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain pr-1 pb-4 touch-pan-y">
               {clients.map((client) => (
                 <Button
                   key={client.id}
