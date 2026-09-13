@@ -3,6 +3,9 @@
 
 const SW_URL = "/sw.js";
 
+let appRegistration: ServiceWorkerRegistration | undefined;
+let activateWaitingWorker: ((reloadPage?: boolean) => Promise<void>) | undefined;
+
 function isBlockedContext(): boolean {
   if (!import.meta.env.PROD) return true;
   try {
@@ -43,6 +46,7 @@ export async function registerPWA() {
     immediate: true,
     onRegisteredSW(_swUrl, registration) {
       if (!registration) return;
+      appRegistration = registration;
       // Check for a new version periodically and when the app regains focus.
       const check = () => registration.update().catch(() => {});
       setInterval(check, 60 * 1000);
@@ -57,6 +61,8 @@ export async function registerPWA() {
     },
   });
 
+  activateWaitingWorker = updateSW;
+
   // Reload once when the new service worker takes control.
   let reloaded = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
@@ -64,4 +70,19 @@ export async function registerPWA() {
     reloaded = true;
     window.location.reload();
   });
+}
+
+export async function checkForPWAUpdate() {
+  if (isBlockedContext() || !("serviceWorker" in navigator)) return;
+
+  const registration = appRegistration ?? await navigator.serviceWorker.getRegistration(SW_URL);
+  if (!registration) return;
+
+  appRegistration = registration;
+  await registration.update();
+
+  if (registration.waiting && activateWaitingWorker) {
+    localStorage.setItem("app_refreshed_for_update", "true");
+    await activateWaitingWorker(true);
+  }
 }
