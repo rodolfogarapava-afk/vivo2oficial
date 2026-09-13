@@ -130,24 +130,22 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
 
 
   const handleWhatsApp = () => {
-    if (!hasDestination) {
+    const destination = client.whatsapp?.replace(/\D/g, "") ?? "";
+    if (!destination) {
       toast({
-        title: "Configure o WhatsApp",
-        description: "Vá em Configurações e defina o número de destino.",
+        title: "WhatsApp não cadastrado",
+        description: "Edite o cliente e informe o WhatsApp.",
         variant: "destructive",
       });
       return;
     }
 
-    const destinationPhone = settings.destinationPhone.replace(/\D/g, "");
-    const phoneWithCountry = destinationPhone.startsWith("55") ? destinationPhone : `55${destinationPhone}`;
+    const phoneWithCountry = destination.startsWith("55") ? destination : `55${destination}`;
     
-    const message = formatMessage(
-      client.name,
-      client.phone,
-      formatCurrency(Number(client.value_paid)),
-      client.virtual_chip
-    );
+    const message = settings.clientMessageTemplate
+      .replaceAll("{nome}", client.name)
+      .replaceAll("{telefone}", formatPhoneDisplay(client.phone))
+      .replaceAll("{valor}", formatCurrency(Number(client.value_paid)));
     
     const encodedMessage = encodeURIComponent(message);
     
@@ -225,13 +223,13 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
       >
         {compactMode ? (
           <div className="flex items-center gap-2">
-            <button
+            {settings.showClientWhatsApp && client.whatsapp && <button
               onClick={handleNumberClick}
               className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all bg-gradient-to-b from-green-400 to-green-600 shadow-[0_3px_0_0_#166534] hover:translate-y-[1px] active:translate-y-[2px]"
               title="Desmarcar pagamento"
             >
               <Check className="h-4 w-4 text-white" />
-            </button>
+            </button>}
             <h3 className={`flex-1 font-semibold text-sm whitespace-nowrap overflow-x-auto ${isResale ? 'text-white' : isNexus ? 'text-black' : 'text-white'}`}>
               {client.company !== "nexus" && <span className="mr-1">🌐</span>}
               {client.name}
@@ -327,7 +325,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
               
               <div className="flex gap-2">
                 {/* WhatsApp button */}
-                <button
+                {settings.showClientWhatsApp && client.whatsapp && <button
                   onClick={handleWhatsAppClick}
                   onTouchStart={handleTouchStart}
                   onTouchEnd={handleTouchEnd}
@@ -341,7 +339,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                   } hover:translate-y-[2px] active:shadow-none active:translate-y-[4px]`}
                 >
                   <img src={whatsappIcon} alt="WhatsApp" className="h-6 w-6 drop-shadow-sm" />
-                </button>
+                </button>}
               </div>
           </div>
         </div>

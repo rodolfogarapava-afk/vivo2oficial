@@ -18,6 +18,7 @@ export interface Client {
   bonus: boolean;
   company?: string;
   account?: number | null;
+  whatsapp?: string | null;
 
 }
 
@@ -117,7 +118,7 @@ export const useClients = (userId?: string) => {
   }, [queryClient, isOnline]);
 
   const addClient = useMutation({
-    mutationFn: async (client: { name: string; phone: string; value_paid: number; due_day: number; virtual_chip?: boolean; is_resale?: boolean; bonus?: boolean; company?: string; account?: number | null }) => {
+    mutationFn: async (client: { name: string; phone: string; value_paid: number; due_day: number; virtual_chip?: boolean; is_resale?: boolean; bonus?: boolean; company?: string; account?: number | null; whatsapp?: string | null }) => {
       if (!navigator.onLine) {
         throw new Error("Sem conexão com a internet");
       }
@@ -197,7 +198,7 @@ export const useClients = (userId?: string) => {
   });
 
   const updateClient = useMutation({
-    mutationFn: async (client: { id: string; name: string; phone: string; value_paid: number; due_day: number; bonus?: boolean; is_resale?: boolean; company?: string; account?: number | null }) => {
+    mutationFn: async (client: { id: string; name: string; phone: string; value_paid: number; due_day: number; bonus?: boolean; is_resale?: boolean; company?: string; account?: number | null; whatsapp?: string | null }) => {
       if (!navigator.onLine) {
         throw new Error("Sem conexão com a internet");
       }
@@ -219,6 +220,7 @@ export const useClients = (userId?: string) => {
       if (typeof client.is_resale === "boolean") updatePayload.is_resale = client.is_resale;
       if (typeof client.company === "string") updatePayload.company = client.company;
       if (client.account !== undefined) updatePayload.account = client.account;
+      if (client.whatsapp !== undefined) updatePayload.whatsapp = client.whatsapp;
 
 
       const { data, error } = await supabase

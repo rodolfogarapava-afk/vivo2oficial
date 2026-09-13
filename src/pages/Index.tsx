@@ -203,7 +203,7 @@ const Index = () => {
   }, [clients, searchQuery, selectedDueDay, hidePaidClients, paidClientIds]);
 
 
-  const handleAddClient = (client: { name: string; phone: string; value_paid: number; due_day: number; virtual_chip: boolean; is_resale: boolean; bonus: boolean; already_paid: boolean; company: string; account: number | null }) => {
+  const handleAddClient = (client: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; virtual_chip: boolean; is_resale: boolean; bonus: boolean; already_paid: boolean; company: string; account: number | null }) => {
     const { already_paid, ...clientData } = client;
     addClient.mutate(clientData, {
       onSuccess: (data) => {

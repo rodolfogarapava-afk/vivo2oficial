@@ -24,7 +24,7 @@ interface SettingsModalProps {
   clients: Client[];
   fixedExpense: number;
   onDeleteClient: (id: string) => void;
-  onEditClient: (id: string, data: { name: string; phone: string; value_paid: number; due_day: number; bonus: boolean; is_resale: boolean; company: string; account: number | null }) => void;
+  onEditClient: (id: string, data: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; bonus: boolean; is_resale: boolean; company: string; account: number | null }) => void;
   onBlockClient: (id: string, blocked: boolean) => void;
   onRefresh?: () => void;
   totalsByDay: Record<number, number>;
@@ -169,6 +169,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [destinationPhone, setDestinationPhone] = useState("");
   const [messageTemplate, setMessageTemplate] = useState("");
   const [useBusiness, setUseBusiness] = useState(false);
+  const [showClientWhatsApp, setShowClientWhatsApp] = useState(false);
+  const [clientMessageTemplate, setClientMessageTemplate] = useState("");
   const [isMessageLocked, setIsMessageLocked] = useState(true);
   const [isPhoneLocked, setIsPhoneLocked] = useState(true);
   
@@ -200,6 +202,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
+  const [editWhatsapp, setEditWhatsapp] = useState("");
   const [editValue, setEditValue] = useState("");
   const [editDueDay, setEditDueDay] = useState<number>(10);
   const [editBonus, setEditBonus] = useState<boolean>(false);
@@ -243,6 +246,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       setDestinationPhone(whatsAppSettings.destinationPhone);
       setMessageTemplate(whatsAppSettings.messageTemplate);
       setUseBusiness(whatsAppSettings.useBusiness);
+      setShowClientWhatsApp(whatsAppSettings.showClientWhatsApp);
+      setClientMessageTemplate(whatsAppSettings.clientMessageTemplate);
       
       // Load payment settings
       const paymentSettings = getPaymentSettings();
@@ -277,6 +282,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       destinationPhone,
       messageTemplate,
       useBusiness,
+      showClientWhatsApp,
+      clientMessageTemplate,
     });
     toast({
       title: "Configurações salvas!",
@@ -489,6 +496,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       setEditingClient(client);
       setEditName(client.name);
       setEditPhone(client.phone);
+      setEditWhatsapp(client.whatsapp ?? "");
       setEditValue(String(client.value_paid));
       setEditDueDay(client.due_day || 10);
       setEditBonus(Boolean(client.bonus));
@@ -504,6 +512,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
     onEditClient(editingClient.id, {
       name: editName.trim(),
       phone: editPhone.trim(),
+      whatsapp: editWhatsapp.trim() || null,
       value_paid: parseFloat(editValue),
       due_day: editDueDay,
       bonus: editBonus,
@@ -663,6 +672,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
         bonus: !!c.bonus,
         company: c.company ?? "omega",
         account: c.account ?? null,
+        whatsapp: c.whatsapp ?? null,
       })),
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -700,6 +710,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
             bonus: !!c.bonus,
             company: c.company ? String(c.company) : "omega",
             account: c.account === null || c.account === undefined || c.account === "" ? null : Number(c.account),
+            whatsapp: c.whatsapp ? String(c.whatsapp) : null,
           }));
       }
     } catch {
@@ -729,6 +740,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
         bonus: false,
         company: "omega",
         account: null as number | null,
+        whatsapp: null as string | null,
       }));
   };
 
