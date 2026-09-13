@@ -499,7 +499,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       setEditDueDay(client.due_day || 10);
       setEditBonus(Boolean(client.bonus));
       setEditIsResale(Boolean(client.is_resale));
-      setEditCompany(client.company || "omega");
+      setEditCompany("omega");
       setEditAccount(client.account ?? null);
     }, 100);
   };
@@ -1209,28 +1209,13 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
               <Store className={`h-4 w-4 ${editIsResale ? 'text-blue-400' : ''}`} />
               {editIsResale ? 'Revenda' : 'Cliente Final'}
             </button>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2">
               <button
                 type="button"
                 onClick={() => setEditCompany("omega")}
-                className={`h-10 sm:h-12 rounded-xl font-bold text-xs transition-all ${
-                  editCompany === "omega"
-                    ? 'bg-primary text-white border-2 border-primary'
-                    : 'bg-purple-900/50 border border-purple-600 text-white/80 hover:bg-purple-900/70'
-                }`}
+                className="h-10 sm:h-12 rounded-xl font-bold text-xs transition-all bg-primary text-white border-2 border-primary"
               >
                 Raio Telecom
-              </button>
-              <button
-                type="button"
-                onClick={() => setEditCompany("nexus")}
-                className={`h-10 sm:h-12 rounded-xl font-bold text-xs transition-all ${
-                  editCompany === "nexus"
-                    ? 'bg-white text-black border-2 border-gray-300'
-                    : 'bg-purple-900/50 border border-purple-600 text-white/80 hover:bg-purple-900/70'
-                }`}
-              >
-                Nexus Telecom
               </button>
             </div>
             <div>
