@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Download, FileText, Copy, Check, MessageCircle, Save, ArrowLeft, Palette, Pencil, Trash2, X, Users, Lock, LockOpen, Unlock, Building2, RefreshCw, CloudDownload, CreditCard, Send, Ban, Search, Star, Store, ShoppingCart, Eye, EyeOff, Calendar } from "lucide-react";
+import { Download, FileText, Copy, Check, MessageCircle, Save, ArrowLeft, Palette, Pencil, Trash2, X, Users, Lock, LockOpen, Unlock, Building2, RefreshCw, CloudDownload, CreditCard, Send, Ban, Search, Star, Store, ShoppingCart, Eye, EyeOff, Calendar, Upload, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Switch } from "@/components/ui/switch";
 import { Client } from "@/hooks/useClients";
 import { useState, useEffect } from "react";
@@ -163,6 +164,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const { visibleDays, toggleDay } = useVisibleDueDays();
   const [copied, setCopied] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
   const { toast } = useToast();
   const { settings: whatsAppSettings, saveSettings: saveWhatsAppSettings } = useWhatsAppSettings();
@@ -650,8 +652,163 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
     });
   };
 
+  // ===== Backup completo (arquivo) e importação =====
+  const handleDownloadBackupFile = () => {
+    const payload = {
+      app: "cliente-vivo",
+      version: 1,
+      exported_at: new Date().toISOString(),
+      clients: clients.map((c) => ({
+        name: c.name,
+        phone: c.phone,
+        value_paid: c.value_paid,
+        due_day: c.due_day ?? 10,
+        virtual_chip: !!c.virtual_chip,
+        blocked: !!c.blocked,
+        is_resale: !!c.is_resale,
+        bonus: !!c.bonus,
+        company: c.company ?? "omega",
+        account: c.account ?? null,
+      })),
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `backup-completo-${new Date().toISOString().split("T")[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Backup gerado!",
+      description: `${clients.length} cliente(s) salvos no arquivo.`,
+    });
+  };
+
+  const parseBackupFile = (raw: string) => {
+    // Formato completo (JSON)
+    try {
+      const parsed = JSON.parse(raw);
+      const list = Array.isArray(parsed) ? parsed : parsed?.clients;
+      if (Array.isArray(list)) {
+        return list
+          .filter((c: any) => c && c.name && c.phone)
+          .map((c: any) => ({
+            name: String(c.name).trim(),
+            phone: String(c.phone).replace(/\D/g, ""),
+            value_paid: Number(c.value_paid) || 0,
+            due_day: Number(c.due_day) || 10,
+            virtual_chip: !!c.virtual_chip,
+            blocked: !!c.blocked,
+            is_resale: !!c.is_resale,
+            bonus: !!c.bonus,
+            company: c.company ? String(c.company) : "omega",
+            account: c.account === null || c.account === undefined || c.account === "" ? null : Number(c.account),
+          }));
+      }
+    } catch {
+      // segue para o formato de texto
+    }
+
+    // Formato antigo em texto: "1- *Nome* 11999999999"
+    return raw
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => /\d/.test(line))
+      .map((line) => {
+        const nameMatch = line.match(/\*(.+?)\*/);
+        const digits = (line.match(/(\d[\d\s().-]{7,})\s*$/)?.[1] || "").replace(/\D/g, "");
+        const name = (nameMatch?.[1] || line.replace(/^\d+\s*[-)]\s*/, "").replace(/[\d\s().-]+$/, "")).trim();
+        return { name, phone: digits };
+      })
+      .filter((c) => c.name && c.phone.length >= 8)
+      .map((c) => ({
+        name: c.name,
+        phone: c.phone,
+        value_paid: 0,
+        due_day: 10,
+        virtual_chip: false,
+        blocked: false,
+        is_resale: false,
+        bonus: false,
+        company: "omega",
+        account: null as number | null,
+      }));
+  };
+
+  const handleImportFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setIsImporting(true);
+    try {
+      const raw = await file.text();
+      const rows = parseBackupFile(raw);
+
+      if (rows.length === 0) {
+        toast({
+          title: "Arquivo sem clientes",
+          description: "Não encontrei clientes nesse arquivo.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Faça login",
+          description: "Entre na sua conta para importar os dados.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const existing = new Set(clients.map((c) => c.phone.replace(/\D/g, "")));
+      const novos = rows.filter((r) => !existing.has(r.phone));
+
+      if (novos.length === 0) {
+        toast({
+          title: "Nada novo para importar",
+          description: "Todos os clientes do arquivo já estão cadastrados.",
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from("clients")
+        .insert(novos.map((r) => ({ ...r, user_id: user.id })));
+
+      if (error) throw error;
+
+      toast({
+        title: "Importação concluída!",
+        description: `${novos.length} cliente(s) adicionados.`,
+      });
+      onRefresh?.();
+    } catch (error: any) {
+      toast({
+        title: "Erro na importação",
+        description: error?.message || "Não foi possível ler o arquivo.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   return (
     <>
+      <input
+        id="backup-import-input"
+        type="file"
+        accept=".json,.txt,application/json,text/plain"
+        className="hidden"
+        onChange={handleImportFile}
+      />
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="bg-purple-800 border-none rounded-2xl w-[90vw] max-w-md max-h-[80vh] overflow-hidden p-3 sm:p-6">
           <DialogHeader className="flex flex-row items-center gap-3">
@@ -1242,16 +1399,31 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 <FileText className="h-4 w-4" />
                 Backup
               </h3>
-              <div className="flex gap-2">
-                <Button onClick={handleCopyToClipboard} className="flex-1 h-10 bg-purple-700 hover:bg-purple-600 text-white rounded-xl text-sm">
+              <div className="grid grid-cols-2 gap-2">
+                <Button onClick={handleCopyToClipboard} className="h-10 bg-purple-700 hover:bg-purple-600 text-white rounded-xl text-sm">
                   {copied ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
-                  {copied ? "Copiado!" : "Copiar"}
+                  {copied ? "Copiado!" : "Copiar lista"}
                 </Button>
-                <Button onClick={handleDownloadText} className="flex-1 h-10 bg-purple-700 hover:bg-purple-600 text-white rounded-xl text-sm">
+                <Button onClick={handleDownloadText} className="h-10 bg-purple-700 hover:bg-purple-600 text-white rounded-xl text-sm">
                   <Download className="h-4 w-4 mr-1" />
-                  Baixar
+                  Baixar lista
+                </Button>
+                <Button onClick={handleDownloadBackupFile} className="h-10 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm">
+                  <Download className="h-4 w-4 mr-1" />
+                  Gerar backup
+                </Button>
+                <Button
+                  onClick={() => document.getElementById("backup-import-input")?.click()}
+                  disabled={isImporting}
+                  className="h-10 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm"
+                >
+                  {isImporting ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Upload className="h-4 w-4 mr-1" />}
+                  {isImporting ? "Importando..." : "Importar"}
                 </Button>
               </div>
+              <p className="text-[11px] text-purple-200 mt-2">
+                "Gerar backup" salva um arquivo com todos os dados dos clientes. "Importar" adiciona os clientes desse arquivo nesta conta.
+              </p>
             </div>
 
             {/* ===== Atualizar / Sincronizar ===== */}
