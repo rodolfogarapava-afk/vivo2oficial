@@ -142,12 +142,13 @@ const readSettings = (): ThemeSettings => {
       if (mode === "dark" && LEGACY_DEFAULTS.includes(backgroundColor)) {
         backgroundColor = DEFAULT_BG;
       }
-      return { backgroundColor, mode };
+      return { backgroundColor, mode, buttonColor: parsed.buttonColor || "" };
     } catch (e) {
       console.error("Error loading theme settings:", e);
     }
   }
-  return { backgroundColor: DEFAULT_BG, mode: "dark" };
+  return { backgroundColor: DEFAULT_BG, mode: "dark", buttonColor: "" };
+
 };
 
 export const useThemeSettings = () => {
