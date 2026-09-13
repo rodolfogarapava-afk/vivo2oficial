@@ -80,9 +80,18 @@ const setVar = (name: string, value: string) => {
   document.documentElement.style.setProperty(name, value);
 };
 
-const applyTheme = ({ backgroundColor, mode }: ThemeSettings) => {
+const applyTheme = ({ backgroundColor, mode, buttonColor }: ThemeSettings) => {
   const { h, s, l } = parseHsl(backgroundColor);
   const root = document.documentElement;
+
+  if (buttonColor) {
+    root.classList.add("custom-buttons");
+    setVar("--btn", buttonColor);
+  } else {
+    root.classList.remove("custom-buttons");
+  }
+
+
 
   if (mode === "light") {
     root.classList.add("light-mode");
