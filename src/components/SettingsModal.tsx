@@ -37,12 +37,6 @@ interface SettingsModalProps {
   onBlockClick?: () => void;
   onUnblockClick?: () => void;
   hasBlockedClients?: boolean;
-  totalGross?: number;
-  totalProfit?: number;
-  totalExpenses?: number;
-  totalClients?: number;
-  showAccountCounts?: boolean;
-  onSetShowAccountCounts?: (value: boolean) => void;
 }
 
 const formatCurrency = (value: number) => {
@@ -160,7 +154,7 @@ const saveBlockSettings = (settings: BlockSettings) => {
   localStorage.setItem(BLOCK_STORAGE_KEY, JSON.stringify(settings));
 };
 
-export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDeleteClient, onEditClient, onBlockClient, onRefresh, totalsByDay, remainingByDay, onResaleClick, showPaymentCards, onTogglePaymentCards, onPaymentSent, onCancelClick, onBlockClick, onUnblockClick, hasBlockedClients, totalGross = 0, totalProfit = 0, totalExpenses = 0, totalClients = 0, showAccountCounts = true, onSetShowAccountCounts }: SettingsModalProps) => {
+export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDeleteClient, onEditClient, onBlockClient, onRefresh, totalsByDay, remainingByDay, onResaleClick, showPaymentCards, onTogglePaymentCards, onPaymentSent, onCancelClick, onBlockClick, onUnblockClick, hasBlockedClients }: SettingsModalProps) => {
   const { visibleDays, toggleDay } = useVisibleDueDays();
   const [copied, setCopied] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -878,32 +872,6 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
             </div>
 
 
-            {/* ===== Resumo Financeiro ===== */}
-            <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
-              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                <CreditCard className="h-4 w-4" />
-                Resumo Financeiro
-              </h3>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-xl bg-purple-950/50 border border-purple-700 p-2.5">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-purple-300/80">Faturamento Bruto</p>
-                  <p className="text-base font-extrabold text-white">{formatCurrency(totalGross)}</p>
-                </div>
-                <div className="rounded-xl bg-purple-950/50 border border-purple-700 p-2.5">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-purple-300/80">Clientes</p>
-                  <p className="text-base font-extrabold text-white">{totalClients}</p>
-                </div>
-                <div className="rounded-xl bg-purple-950/50 border border-purple-700 p-2.5">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-purple-300/80">Despesas</p>
-                  <p className="text-base font-extrabold text-red-500">{formatCurrency(totalExpenses)}</p>
-                </div>
-                <div className="rounded-xl bg-purple-950/50 border border-purple-700 p-2.5">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-purple-300/80">Lucro</p>
-                  <p className="text-base font-extrabold text-green-500">{formatCurrency(totalProfit)}</p>
-                </div>
-              </div>
-            </div>
-
             {/* ===== Atalhos (Revenda / Ocultar) ===== */}
             <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
               <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
@@ -1001,16 +969,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 ))}
               </div>
 
-              <div className="mt-3 flex items-center gap-3">
-                <Switch
-                  checked={showAccountCounts}
-                  onCheckedChange={onSetShowAccountCounts}
-                  className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-white/20 [&>span]:bg-white [&>span]:shadow-md"
-                />
-                <span className="text-xs text-white/80">Mostrar quantidade de linhas em cada conta</span>
-              </div>
               <p className="text-[11px] text-white/60 mt-2">
-                Os botões aparecem 4 por linha na tela inicial e quebram para a linha de baixo.
+                As contas continuam disponíveis no cadastro e na edição dos clientes.
               </p>
             </div>
 

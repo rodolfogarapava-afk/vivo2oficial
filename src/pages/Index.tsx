@@ -21,7 +21,6 @@ import { usePaymentTracking } from "@/hooks/usePaymentTracking";
 import { useBlockWhatsApp } from "@/hooks/useBlockWhatsApp";
 import { useWhatsAppSettings } from "@/hooks/useWhatsAppSettings";
 import { useVisibleDueDays } from "@/lib/dueDays";
-import { useAccounts } from "@/hooks/useAccounts";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { checkForPWAUpdate } from "@/pwa";
 
@@ -66,15 +65,6 @@ const Index = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDueDay, setSelectedDueDay] = useState<number | null>(null);
-  const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
-  const [showAccountCounts, setShowAccountCounts] = useState(() => {
-    try { return localStorage.getItem("show_account_counts") !== "false"; } catch { return true; }
-  });
-
-  useEffect(() => {
-    try { localStorage.setItem("show_account_counts", String(showAccountCounts)); } catch {}
-  }, [showAccountCounts]);
-
   const [sentPaymentDays, setSentPaymentDays] = useState<number[]>(getSentPaymentDaysFromStorage);
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [showUnblockModal, setShowUnblockModal] = useState(false);
@@ -166,10 +156,6 @@ const Index = () => {
   }, [searchQuery, user]);
 
   const { visibleDays } = useVisibleDueDays();
-  const { accounts, labels: accountLabels } = useAccounts();
-
-
-
   const activeClients = useMemo(() => clients.filter(c => !c.name.toUpperCase().includes("CANCELADO")), [clients]);
   const billableClients = useMemo(() => activeClients.filter(c => !c.bonus), [activeClients]);
   const totalExpenses = billableClients.length * fixedExpense;
@@ -193,11 +179,6 @@ const Index = () => {
   const filteredClients = useMemo(() => {
     let result = clients.filter(c => !c.bonus);
 
-    // Filter by account
-    if (selectedAccount !== null) {
-      result = result.filter(client => (client.account ?? null) === selectedAccount);
-    }
-
     // Filter by due day
     if (selectedDueDay !== null) {
       result = result.filter(client => (client.due_day || 10) === selectedDueDay);
@@ -219,7 +200,7 @@ const Index = () => {
     }
 
     return result;
-  }, [clients, searchQuery, selectedDueDay, selectedAccount, hidePaidClients, paidClientIds]);
+  }, [clients, searchQuery, selectedDueDay, hidePaidClients, paidClientIds]);
 
 
   const handleAddClient = (client: { name: string; phone: string; value_paid: number; due_day: number; virtual_chip: boolean; is_resale: boolean; bonus: boolean; already_paid: boolean; company: string; account: number | null }) => {
@@ -576,45 +557,25 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Contas */}
-      <div className="mx-3 rounded-2xl border border-purple-900/50 bg-card/40 p-3">
-        <div className="mb-2 flex items-center justify-between">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Contas</p>
-          {selectedAccount !== null && (
-            <button
-              type="button"
-              onClick={() => setSelectedAccount(null)}
-              className="rounded-full border border-purple-600 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-purple-200"
-            >
-              Ver todos
-            </button>
-          )}
+      {/* Financial totals */}
+      <div className="mx-3 grid grid-cols-3 gap-2">
+        <div className="min-w-0 rounded-xl border border-purple-700/60 bg-purple-950/40 px-2 py-3 text-center">
+          <p className="text-[9px] font-bold uppercase text-purple-300">Total</p>
+          <p className="mt-1 truncate text-xs font-extrabold text-white" title={totalGross.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}>
+            {totalGross.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+          </p>
         </div>
-        <div className="grid grid-cols-4 gap-2">
-          {accounts.map((n) => {
-            const count = clients.filter((c) => (c.account ?? null) === n).length;
-            const active = selectedAccount === n;
-            return (
-              <button
-                key={n}
-                type="button"
-                onClick={() => setSelectedAccount(active ? null : n)}
-                className={`relative flex h-12 items-center justify-center rounded-xl border px-1 transition-all ${
-                  active
-                    ? "border-white bg-gradient-to-b from-purple-600 to-purple-800 text-white shadow-[0_3px_0_0_#581c87]"
-                    : "border-purple-700/60 bg-purple-950/40 text-purple-100 hover:bg-purple-900/40"
-                }`}
-                title={accountLabels[n] ? `${accountLabels[n]} (${count} linhas)` : `${count} linhas`}
-              >
-                <span className="text-xl font-black leading-none tracking-tight">{n}</span>
-                {accountLabels[n] && (
-                  <span className="absolute bottom-1 left-1 right-1 truncate text-[9px] font-semibold opacity-90">
-                    {accountLabels[n]}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+        <div className="min-w-0 rounded-xl border border-red-700/60 bg-red-950/30 px-2 py-3 text-center">
+          <p className="text-[9px] font-bold uppercase text-red-300">Gastos</p>
+          <p className="mt-1 truncate text-xs font-extrabold text-red-400" title={totalExpenses.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}>
+            {totalExpenses.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+          </p>
+        </div>
+        <div className="min-w-0 rounded-xl border border-green-700/60 bg-green-950/30 px-2 py-3 text-center">
+          <p className="text-[9px] font-bold uppercase text-green-300">Lucro</p>
+          <p className="mt-1 truncate text-xs font-extrabold text-green-400" title={totalProfit.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}>
+            {totalProfit.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+          </p>
         </div>
       </div>
 
@@ -760,12 +721,6 @@ const Index = () => {
         onBlockClick={handleBlockClick}
         onUnblockClick={handleUnblockClick}
         hasBlockedClients={hasBlockedClients}
-        totalGross={totalGross}
-        totalProfit={totalProfit}
-        totalExpenses={totalExpenses}
-        totalClients={activeClients.length}
-        showAccountCounts={showAccountCounts}
-        onSetShowAccountCounts={setShowAccountCounts}
       />
 
       {/* Install PWA Banner */}
