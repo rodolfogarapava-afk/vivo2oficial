@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Loader2, LogOut, Search, X, Lock, Unlock, Ban, Save, Mail, UserPlus, Eye, EyeOff, Signal } from "lucide-react";
+import { Settings, Loader2, LogOut, Search, X, Lock, Unlock, Ban, Save, Mail, UserPlus, Eye, EyeOff, Signal, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ClientCard } from "@/components/ClientCard";
 import { NewClientForm } from "@/components/NewClientForm";
@@ -22,6 +22,8 @@ import { useBlockWhatsApp } from "@/hooks/useBlockWhatsApp";
 import { useWhatsAppSettings } from "@/hooks/useWhatsAppSettings";
 import { useVisibleDueDays } from "@/lib/dueDays";
 import { useAccounts } from "@/hooks/useAccounts";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { checkForPWAUpdate } from "@/pwa";
 
 import {
   AlertDialog,
@@ -115,6 +117,25 @@ const Index = () => {
     fixedExpense,
     refetch
   } = useClients(user?.id);
+
+  const refreshApp = useCallback(async () => {
+    if (!navigator.onLine) {
+      toast({
+        title: "Sem internet",
+        description: "Conecte-se para buscar as informações mais recentes.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    await Promise.allSettled([refetch(), checkForPWAUpdate()]);
+    toast({
+      title: "Atualizado!",
+      description: "Clientes e aplicativo estão na versão mais recente.",
+    });
+  }, [refetch, toast]);
+
+  const { pullDistance, isRefreshing, pullHandlers } = usePullToRefresh(refreshApp);
 
   const {
     paidClientIds,
@@ -405,7 +426,20 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background overflow-auto">
+    <div className="min-h-screen bg-background overflow-auto overscroll-y-contain" {...pullHandlers}>
+      <div
+        aria-live="polite"
+        className={`fixed left-1/2 top-3 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold text-foreground shadow-lg transition-all duration-200 ${
+          pullDistance > 8 || isRefreshing ? "translate-y-0 opacity-100" : "-translate-y-12 opacity-0"
+        }`}
+      >
+        <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+        {isRefreshing
+          ? "Atualizando..."
+          : pullDistance >= 72
+            ? "Solte para atualizar"
+            : "Puxe para atualizar"}
+      </div>
       {/* Header card */}
       <header className="pt-4 pb-3 px-3">
         <div className="rounded-2xl border border-purple-900/50 bg-card/40 p-3 backdrop-blur-sm">
