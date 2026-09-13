@@ -164,6 +164,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const { visibleDays, toggleDay } = useVisibleDueDays();
   const [copied, setCopied] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
   const { toast } = useToast();
   const { settings: whatsAppSettings, saveSettings: saveWhatsAppSettings } = useWhatsAppSettings();
