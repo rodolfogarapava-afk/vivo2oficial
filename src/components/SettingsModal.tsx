@@ -651,8 +651,163 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
     });
   };
 
+  // ===== Backup completo (arquivo) e importação =====
+  const handleDownloadBackupFile = () => {
+    const payload = {
+      app: "cliente-vivo",
+      version: 1,
+      exported_at: new Date().toISOString(),
+      clients: clients.map((c) => ({
+        name: c.name,
+        phone: c.phone,
+        value_paid: c.value_paid,
+        due_day: c.due_day ?? 10,
+        virtual_chip: !!c.virtual_chip,
+        blocked: !!c.blocked,
+        is_resale: !!c.is_resale,
+        bonus: !!c.bonus,
+        company: c.company ?? "omega",
+        account: c.account ?? null,
+      })),
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `backup-completo-${new Date().toISOString().split("T")[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Backup gerado!",
+      description: `${clients.length} cliente(s) salvos no arquivo.`,
+    });
+  };
+
+  const parseBackupFile = (raw: string) => {
+    // Formato completo (JSON)
+    try {
+      const parsed = JSON.parse(raw);
+      const list = Array.isArray(parsed) ? parsed : parsed?.clients;
+      if (Array.isArray(list)) {
+        return list
+          .filter((c: any) => c && c.name && c.phone)
+          .map((c: any) => ({
+            name: String(c.name).trim(),
+            phone: String(c.phone).replace(/\D/g, ""),
+            value_paid: Number(c.value_paid) || 0,
+            due_day: Number(c.due_day) || 10,
+            virtual_chip: !!c.virtual_chip,
+            blocked: !!c.blocked,
+            is_resale: !!c.is_resale,
+            bonus: !!c.bonus,
+            company: c.company ? String(c.company) : "omega",
+            account: c.account === null || c.account === undefined || c.account === "" ? null : Number(c.account),
+          }));
+      }
+    } catch {
+      // segue para o formato de texto
+    }
+
+    // Formato antigo em texto: "1- *Nome* 11999999999"
+    return raw
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => /\d/.test(line))
+      .map((line) => {
+        const nameMatch = line.match(/\*(.+?)\*/);
+        const digits = (line.match(/(\d[\d\s().-]{7,})\s*$/)?.[1] || "").replace(/\D/g, "");
+        const name = (nameMatch?.[1] || line.replace(/^\d+\s*[-)]\s*/, "").replace(/[\d\s().-]+$/, "")).trim();
+        return { name, phone: digits };
+      })
+      .filter((c) => c.name && c.phone.length >= 8)
+      .map((c) => ({
+        name: c.name,
+        phone: c.phone,
+        value_paid: 0,
+        due_day: 10,
+        virtual_chip: false,
+        blocked: false,
+        is_resale: false,
+        bonus: false,
+        company: "omega",
+        account: null as number | null,
+      }));
+  };
+
+  const handleImportFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setIsImporting(true);
+    try {
+      const raw = await file.text();
+      const rows = parseBackupFile(raw);
+
+      if (rows.length === 0) {
+        toast({
+          title: "Arquivo sem clientes",
+          description: "Não encontrei clientes nesse arquivo.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Faça login",
+          description: "Entre na sua conta para importar os dados.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const existing = new Set(clients.map((c) => c.phone.replace(/\D/g, "")));
+      const novos = rows.filter((r) => !existing.has(r.phone));
+
+      if (novos.length === 0) {
+        toast({
+          title: "Nada novo para importar",
+          description: "Todos os clientes do arquivo já estão cadastrados.",
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from("clients")
+        .insert(novos.map((r) => ({ ...r, user_id: user.id })));
+
+      if (error) throw error;
+
+      toast({
+        title: "Importação concluída!",
+        description: `${novos.length} cliente(s) adicionados.`,
+      });
+      onRefresh?.();
+    } catch (error: any) {
+      toast({
+        title: "Erro na importação",
+        description: error?.message || "Não foi possível ler o arquivo.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   return (
     <>
+      <input
+        id="backup-import-input"
+        type="file"
+        accept=".json,.txt,application/json,text/plain"
+        className="hidden"
+        onChange={handleImportFile}
+      />
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="bg-purple-800 border-none rounded-2xl w-[90vw] max-w-md max-h-[80vh] overflow-hidden p-3 sm:p-6">
           <DialogHeader className="flex flex-row items-center gap-3">
