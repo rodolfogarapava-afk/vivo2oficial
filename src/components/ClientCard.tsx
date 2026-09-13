@@ -43,7 +43,7 @@ const formatPhoneDisplay = (phone: string) => {
 };
 
 export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, isPaid = false, onTogglePayment, dayPaymentSent = false }: ClientCardProps) => {
-  const { settings, formatMessage, hasDestination } = useWhatsAppSettings();
+  const { settings } = useWhatsAppSettings();
   const { hasBlockPhone, sendBlockMessage } = useBlockWhatsApp();
   const { toast } = useToast();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -143,9 +143,9 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
     const phoneWithCountry = destination.startsWith("55") ? destination : `55${destination}`;
     
     const message = settings.clientMessageTemplate
-      .replaceAll("{nome}", client.name)
-      .replaceAll("{telefone}", formatPhoneDisplay(client.phone))
-      .replaceAll("{valor}", formatCurrency(Number(client.value_paid)));
+      .replace(/\{nome\}/g, client.name)
+      .replace(/\{telefone\}/g, formatPhoneDisplay(client.phone))
+      .replace(/\{valor\}/g, formatCurrency(Number(client.value_paid)));
     
     const encodedMessage = encodeURIComponent(message);
     
@@ -223,24 +223,24 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
       >
         {compactMode ? (
           <div className="flex items-center gap-2">
-            {settings.showClientWhatsApp && client.whatsapp && <button
+            <button
               onClick={handleNumberClick}
               className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all bg-gradient-to-b from-green-400 to-green-600 shadow-[0_3px_0_0_#166534] hover:translate-y-[1px] active:translate-y-[2px]"
               title="Desmarcar pagamento"
             >
               <Check className="h-4 w-4 text-white" />
-            </button>}
+            </button>
             <h3 className={`flex-1 font-semibold text-sm whitespace-nowrap overflow-x-auto ${isResale ? 'text-white' : isNexus ? 'text-black' : 'text-white'}`}>
               {client.company !== "nexus" && <span className="mr-1">🌐</span>}
               {client.name}
             </h3>
-            <button
+            {settings.showClientWhatsApp && client.whatsapp && <button
               onClick={handleWhatsAppClick}
               className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-b from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 shadow-[0_3px_0_0_#166534] hover:translate-y-[1px] active:translate-y-[2px] transition-all"
               title="Enviar suporte via WhatsApp"
             >
               <img src={whatsappIcon} alt="WhatsApp" className="h-5 w-5 drop-shadow-sm" />
-            </button>
+            </button>}
           </div>
         ) : (
         <div className="flex items-center gap-3">

@@ -1058,6 +1058,35 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
             </div>
 
 
+            {/* ===== WhatsApp ===== */}
+            <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4 space-y-3">
+              <div>
+                <h3 className="text-sm font-semibold text-white">WhatsApp</h3>
+                <p className="text-[11px] text-purple-200">Configure o botão exibido no cartão do cliente.</p>
+              </div>
+              <div className="flex items-center justify-between gap-3 rounded-xl bg-purple-800/60 p-3">
+                <div>
+                  <p className="text-sm font-medium text-white">Mostrar logo no cartão</p>
+                  <p className="text-[11px] text-purple-200">Só aparece nos clientes com WhatsApp cadastrado.</p>
+                </div>
+                <Switch checked={showClientWhatsApp} onCheckedChange={setShowClientWhatsApp} />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-white">Mensagem pré-programada</label>
+                <textarea
+                  value={clientMessageTemplate}
+                  onChange={(event) => setClientMessageTemplate(event.target.value)}
+                  rows={3}
+                  placeholder="Olá, {nome}!"
+                  className="w-full rounded-xl border border-purple-600 bg-purple-800/60 px-3 py-2 text-sm text-white placeholder:text-purple-300 outline-none focus:ring-2 focus:ring-purple-400"
+                />
+                <p className="text-[10px] text-purple-200">Use {"{nome}"}, {"{telefone}"} e {"{valor}"}.</p>
+              </div>
+              <Button onClick={handleSaveWhatsApp} className="w-full h-10 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm">
+                Salvar WhatsApp
+              </Button>
+            </div>
+
             {/* ===== Backup ===== */}
             <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
               <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
@@ -1142,6 +1171,13 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 setEditPhone(formatPhone(numbers));
               }}
               placeholder="Telefone"
+              className="w-full h-10 sm:h-12 bg-purple-900/50 border border-purple-600 text-white rounded-xl text-sm px-3 outline-none focus:ring-2 focus:ring-purple-400"
+            />
+            <input
+              value={editWhatsapp}
+              onChange={(e) => setEditWhatsapp(formatPhone(e.target.value))}
+              placeholder="WhatsApp (opcional)"
+              inputMode="tel"
               className="w-full h-10 sm:h-12 bg-purple-900/50 border border-purple-600 text-white rounded-xl text-sm px-3 outline-none focus:ring-2 focus:ring-purple-400"
             />
             <input
