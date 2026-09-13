@@ -24,7 +24,7 @@ interface SettingsModalProps {
   clients: Client[];
   fixedExpense: number;
   onDeleteClient: (id: string) => void;
-  onEditClient: (id: string, data: { name: string; phone: string; value_paid: number; due_day: number; bonus: boolean; is_resale: boolean; company: string; account: number | null }) => void;
+  onEditClient: (id: string, data: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; bonus: boolean; is_resale: boolean; company: string; account: number | null }) => void;
   onBlockClient: (id: string, blocked: boolean) => void;
   onRefresh?: () => void;
   totalsByDay: Record<number, number>;
@@ -169,6 +169,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [destinationPhone, setDestinationPhone] = useState("");
   const [messageTemplate, setMessageTemplate] = useState("");
   const [useBusiness, setUseBusiness] = useState(false);
+  const [showClientWhatsApp, setShowClientWhatsApp] = useState(false);
+  const [clientMessageTemplate, setClientMessageTemplate] = useState("");
   const [isMessageLocked, setIsMessageLocked] = useState(true);
   const [isPhoneLocked, setIsPhoneLocked] = useState(true);
   
@@ -200,6 +202,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
+  const [editWhatsapp, setEditWhatsapp] = useState("");
   const [editValue, setEditValue] = useState("");
   const [editDueDay, setEditDueDay] = useState<number>(10);
   const [editBonus, setEditBonus] = useState<boolean>(false);
@@ -243,6 +246,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       setDestinationPhone(whatsAppSettings.destinationPhone);
       setMessageTemplate(whatsAppSettings.messageTemplate);
       setUseBusiness(whatsAppSettings.useBusiness);
+      setShowClientWhatsApp(whatsAppSettings.showClientWhatsApp);
+      setClientMessageTemplate(whatsAppSettings.clientMessageTemplate);
       
       // Load payment settings
       const paymentSettings = getPaymentSettings();
@@ -277,6 +282,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       destinationPhone,
       messageTemplate,
       useBusiness,
+      showClientWhatsApp,
+      clientMessageTemplate,
     });
     toast({
       title: "Configurações salvas!",
@@ -489,6 +496,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       setEditingClient(client);
       setEditName(client.name);
       setEditPhone(client.phone);
+      setEditWhatsapp(client.whatsapp ?? "");
       setEditValue(String(client.value_paid));
       setEditDueDay(client.due_day || 10);
       setEditBonus(Boolean(client.bonus));
@@ -504,6 +512,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
     onEditClient(editingClient.id, {
       name: editName.trim(),
       phone: editPhone.trim(),
+      whatsapp: editWhatsapp.trim() || null,
       value_paid: parseFloat(editValue),
       due_day: editDueDay,
       bonus: editBonus,
@@ -663,6 +672,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
         bonus: !!c.bonus,
         company: c.company ?? "omega",
         account: c.account ?? null,
+        whatsapp: c.whatsapp ?? null,
       })),
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -700,6 +710,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
             bonus: !!c.bonus,
             company: c.company ? String(c.company) : "omega",
             account: c.account === null || c.account === undefined || c.account === "" ? null : Number(c.account),
+            whatsapp: c.whatsapp ? String(c.whatsapp) : null,
           }));
       }
     } catch {
@@ -729,6 +740,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
         bonus: false,
         company: "omega",
         account: null as number | null,
+        whatsapp: null as string | null,
       }));
   };
 
@@ -1046,6 +1058,35 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
             </div>
 
 
+            {/* ===== WhatsApp ===== */}
+            <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4 space-y-3">
+              <div>
+                <h3 className="text-sm font-semibold text-white">WhatsApp</h3>
+                <p className="text-[11px] text-purple-200">Configure o botão exibido no cartão do cliente.</p>
+              </div>
+              <div className="flex items-center justify-between gap-3 rounded-xl bg-purple-800/60 p-3">
+                <div>
+                  <p className="text-sm font-medium text-white">Mostrar logo no cartão</p>
+                  <p className="text-[11px] text-purple-200">Só aparece nos clientes com WhatsApp cadastrado.</p>
+                </div>
+                <Switch checked={showClientWhatsApp} onCheckedChange={setShowClientWhatsApp} />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-white">Mensagem pré-programada</label>
+                <textarea
+                  value={clientMessageTemplate}
+                  onChange={(event) => setClientMessageTemplate(event.target.value)}
+                  rows={3}
+                  placeholder="Olá, {nome}!"
+                  className="w-full rounded-xl border border-purple-600 bg-purple-800/60 px-3 py-2 text-sm text-white placeholder:text-purple-300 outline-none focus:ring-2 focus:ring-purple-400"
+                />
+                <p className="text-[10px] text-purple-200">Use {"{nome}"}, {"{telefone}"} e {"{valor}"}.</p>
+              </div>
+              <Button onClick={handleSaveWhatsApp} className="w-full h-10 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm">
+                Salvar WhatsApp
+              </Button>
+            </div>
+
             {/* ===== Backup ===== */}
             <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
               <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
@@ -1130,6 +1171,13 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 setEditPhone(formatPhone(numbers));
               }}
               placeholder="Telefone"
+              className="w-full h-10 sm:h-12 bg-purple-900/50 border border-purple-600 text-white rounded-xl text-sm px-3 outline-none focus:ring-2 focus:ring-purple-400"
+            />
+            <input
+              value={editWhatsapp}
+              onChange={(e) => setEditWhatsapp(formatPhone(e.target.value))}
+              placeholder="WhatsApp (opcional)"
+              inputMode="tel"
               className="w-full h-10 sm:h-12 bg-purple-900/50 border border-purple-600 text-white rounded-xl text-sm px-3 outline-none focus:ring-2 focus:ring-purple-400"
             />
             <input

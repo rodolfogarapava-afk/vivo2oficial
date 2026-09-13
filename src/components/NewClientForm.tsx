@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAccounts } from "@/hooks/useAccounts";
 
 interface NewClientFormProps {
-  onSubmit: (client: { name: string; phone: string; value_paid: number; due_day: number; virtual_chip: boolean; is_resale: boolean; bonus: boolean; already_paid: boolean; company: string; account: number | null }) => void;
+  onSubmit: (client: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; virtual_chip: boolean; is_resale: boolean; bonus: boolean; already_paid: boolean; company: string; account: number | null }) => void;
 
   onCancel: () => void;
   isLoading: boolean;
@@ -23,6 +23,7 @@ const formatCurrency = (value: number) => {
 export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, existingPhones = [] }: NewClientFormProps) => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
   const [valuePaid, setValuePaid] = useState("");
   const [dueDay, setDueDay] = useState<number>(10);
   const [virtualChip, setVirtualChip] = useState(false);
@@ -53,6 +54,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
     onSubmit({
       name: name.trim(),
       phone: phone.trim(),
+      whatsapp: whatsapp.trim() || null,
       value_paid: parseFloat(valuePaid),
       due_day: dueDay,
       virtual_chip: virtualChip,
@@ -66,6 +68,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
 
     setName("");
     setPhone("");
+    setWhatsapp("");
     setValuePaid("");
     setDueDay(10);
     setVirtualChip(false);
@@ -140,6 +143,23 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
           {phoneError && (
             <p className="text-xs text-destructive font-medium mt-1">{phoneError}</p>
           )}
+        </div>
+
+        {/* WhatsApp opcional */}
+        <div className="space-y-2">
+          <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
+            WhatsApp (opcional)
+          </label>
+          <div className="relative">
+            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              placeholder="(00) 00000-0000"
+              value={whatsapp}
+              onChange={(e) => setWhatsapp(formatPhone(e.target.value))}
+              className="pl-12 h-14 bg-primary/30 border-primary/50 text-foreground placeholder:text-muted-foreground rounded-xl text-base"
+              inputMode="tel"
+            />
+          </div>
         </div>
 
         {/* Valor do Produto */}

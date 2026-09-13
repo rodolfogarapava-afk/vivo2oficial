@@ -59,6 +59,7 @@ export type Database = {
           user_id: string | null
           value_paid: number
           virtual_chip: boolean
+          whatsapp: string | null
         }
         Insert: {
           account?: number | null
@@ -74,6 +75,7 @@ export type Database = {
           user_id?: string | null
           value_paid: number
           virtual_chip?: boolean
+          whatsapp?: string | null
         }
         Update: {
           account?: number | null
@@ -89,6 +91,7 @@ export type Database = {
           user_id?: string | null
           value_paid?: number
           virtual_chip?: boolean
+          whatsapp?: string | null
         }
         Relationships: []
       }

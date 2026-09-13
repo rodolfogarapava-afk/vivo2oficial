@@ -4,6 +4,8 @@ interface WhatsAppSettings {
   destinationPhone: string;
   messageTemplate: string;
   useBusiness: boolean;
+  showClientWhatsApp: boolean;
+  clientMessageTemplate: string;
 }
 
 const DEFAULT_MESSAGE = `🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
@@ -43,6 +45,15 @@ const formatPhoneForMessage = (phone: string): string => {
 };
 
 const STORAGE_KEY = "whatsapp-settings";
+const DEFAULT_CLIENT_MESSAGE = "Olá, {nome}!";
+
+const withDefaults = (settings: Partial<WhatsAppSettings>): WhatsAppSettings => ({
+  destinationPhone: settings.destinationPhone ?? "",
+  messageTemplate: settings.messageTemplate ?? DEFAULT_MESSAGE,
+  useBusiness: settings.useBusiness ?? false,
+  showClientWhatsApp: settings.showClientWhatsApp ?? false,
+  clientMessageTemplate: settings.clientMessageTemplate ?? DEFAULT_CLIENT_MESSAGE,
+});
 
 // Custom event for settings updates
 const SETTINGS_UPDATED_EVENT = "whatsapp-settings-updated";
@@ -52,7 +63,7 @@ export const useWhatsAppSettings = () => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
-        return JSON.parse(saved);
+        return withDefaults(JSON.parse(saved));
       } catch (e) {
         console.error("Error loading WhatsApp settings:", e);
       }
@@ -61,6 +72,8 @@ export const useWhatsAppSettings = () => {
       destinationPhone: "",
       messageTemplate: DEFAULT_MESSAGE,
       useBusiness: false,
+      showClientWhatsApp: false,
+      clientMessageTemplate: DEFAULT_CLIENT_MESSAGE,
     };
   });
 
@@ -70,7 +83,7 @@ export const useWhatsAppSettings = () => {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         try {
-          setSettings(JSON.parse(saved));
+          setSettings(withDefaults(JSON.parse(saved)));
         } catch (e) {
           console.error("Error loading WhatsApp settings:", e);
         }

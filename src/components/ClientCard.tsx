@@ -43,7 +43,7 @@ const formatPhoneDisplay = (phone: string) => {
 };
 
 export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, isPaid = false, onTogglePayment, dayPaymentSent = false }: ClientCardProps) => {
-  const { settings, formatMessage, hasDestination } = useWhatsAppSettings();
+  const { settings } = useWhatsAppSettings();
   const { hasBlockPhone, sendBlockMessage } = useBlockWhatsApp();
   const { toast } = useToast();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -130,24 +130,22 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
 
 
   const handleWhatsApp = () => {
-    if (!hasDestination) {
+    const destination = client.whatsapp?.replace(/\D/g, "") ?? "";
+    if (!destination) {
       toast({
-        title: "Configure o WhatsApp",
-        description: "Vá em Configurações e defina o número de destino.",
+        title: "WhatsApp não cadastrado",
+        description: "Edite o cliente e informe o WhatsApp.",
         variant: "destructive",
       });
       return;
     }
 
-    const destinationPhone = settings.destinationPhone.replace(/\D/g, "");
-    const phoneWithCountry = destinationPhone.startsWith("55") ? destinationPhone : `55${destinationPhone}`;
+    const phoneWithCountry = destination.startsWith("55") ? destination : `55${destination}`;
     
-    const message = formatMessage(
-      client.name,
-      client.phone,
-      formatCurrency(Number(client.value_paid)),
-      client.virtual_chip
-    );
+    const message = settings.clientMessageTemplate
+      .replace(/\{nome\}/g, client.name)
+      .replace(/\{telefone\}/g, formatPhoneDisplay(client.phone))
+      .replace(/\{valor\}/g, formatCurrency(Number(client.value_paid)));
     
     const encodedMessage = encodeURIComponent(message);
     
@@ -236,13 +234,13 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
               {client.company !== "nexus" && <span className="mr-1">🌐</span>}
               {client.name}
             </h3>
-            <button
+            {settings.showClientWhatsApp && client.whatsapp && <button
               onClick={handleWhatsAppClick}
               className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-b from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 shadow-[0_3px_0_0_#166534] hover:translate-y-[1px] active:translate-y-[2px] transition-all"
               title="Enviar suporte via WhatsApp"
             >
               <img src={whatsappIcon} alt="WhatsApp" className="h-5 w-5 drop-shadow-sm" />
-            </button>
+            </button>}
           </div>
         ) : (
         <div className="flex items-center gap-3">
@@ -327,7 +325,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
               
               <div className="flex gap-2">
                 {/* WhatsApp button */}
-                <button
+                {settings.showClientWhatsApp && client.whatsapp && <button
                   onClick={handleWhatsAppClick}
                   onTouchStart={handleTouchStart}
                   onTouchEnd={handleTouchEnd}
@@ -341,7 +339,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                   } hover:translate-y-[2px] active:shadow-none active:translate-y-[4px]`}
                 >
                   <img src={whatsappIcon} alt="WhatsApp" className="h-6 w-6 drop-shadow-sm" />
-                </button>
+                </button>}
               </div>
           </div>
         </div>
