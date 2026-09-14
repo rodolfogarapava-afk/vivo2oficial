@@ -10,6 +10,8 @@ const ENDPOINTS: Record<string, string> = {
   managergroup: `${API}/datapackmanagergroup`,
   blockgroup: `${API}/datapackblockgroup`,
   packages: `${API}/datapackpackages`,
+  consumption5G: `${API}/datapackconsumption5G`,
+  vivosync: `${API}/datapackvivosync`,
 }
 
 const ALLOWED_ACTIONS = new Set([
@@ -21,6 +23,10 @@ const ALLOWED_ACTIONS = new Set([
   'getAbbreviatedData',
   'loadView',
   'probe',
+  'loadViewVivoSync',
+  'loadLinesVivoSync',
+  'loadViewBlockVoice',
+  'loadLinesBlockVoice',
   'listGroups',
   'getLines',
   'lines',
@@ -119,13 +125,23 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'probe') {
-      const g1 = await call('listGroups', { startRow: 0, fetchSize: 50, hasOverBalanceMonetaryVoice: true, hasHibridService: false }, jar, ENDPOINTS.voiceconsumption)
-      const gl = (g1.json as { groupList?: Array<Record<string, unknown>> } | null)?.groupList ?? []
-      const out: Array<Record<string, unknown>> = [{ step: 'listGroups', status: g1.status, preview: JSON.stringify(g1.json).slice(0, 900) }]
-      const group = gl[0] ?? null
-      for (const flags of [true, false]) {
-        const r = await call('loadingLines', { group, startRow: 0, fetchSize: 60, hasOverBalanceMonetaryVoice: flags, hasHibridService: false, lineTypeFilter: 'T' }, jar, ENDPOINTS.voiceconsumption)
-        out.push({ step: `loadingLines(${flags})`, status: r.status, preview: JSON.stringify(r.json ?? r.text).slice(0, 1200) })
+      const out: Array<Record<string, unknown>> = []
+      const tries: Array<[string, string, string, Record<string, unknown>]> = [
+        ['consumption5G', 'GET', 'loadView', { technology: '5G', startRow: 0, fetchSize: 60 }],
+        ['consumption', 'GET', 'loadView', { technology: '4G', startRow: 0, fetchSize: 60, filter: 'all_lines' }],
+        ['consumption', 'POST', 'loadView', { technology: '4G', startRow: 0, fetchSize: 60 }],
+        ['consumption', 'POST', 'listLines', { group: { id: 0, technology: '4G' }, startRow: 0, fetchSize: 60 }],
+        ['vivosync', 'POST', 'loadViewVivoSync', { startRow: 0, fetchSize: 60 }],
+        ['vivosync', 'POST', 'loadLinesVivoSync', { startRow: 0, fetchSize: 60 }],
+        ['blockgroup', 'POST', 'loadViewBlockVoice', { startRow: 0, fetchSize: 60 }],
+        ['blockgroup', 'POST', 'loadLinesBlockVoice', { startRow: 0, fetchSize: 60 }],
+      ]
+      for (const [ep, method, act, extra] of tries) {
+        const base = ENDPOINTS[ep]
+        const r = method === 'GET'
+          ? await get(`${base}?${new URLSearchParams({ action: act, ...Object.fromEntries(Object.entries(extra).map(([k, v]) => [k, String(v)])) })}`, jar)
+          : await call(act, extra, jar, base)
+        out.push({ ep, act, status: r.status, preview: JSON.stringify(r.json ?? r.text).slice(0, 500) })
       }
       result.probes = out
     } else if (action !== 'login') {
