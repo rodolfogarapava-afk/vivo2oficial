@@ -74,7 +74,7 @@ const DEFAULT_CLIENT_MESSAGE = `*👷{nome}!*
 const withDefaults = (settings: Partial<WhatsAppSettings>): WhatsAppSettings => ({
   destinationPhone: settings.destinationPhone ?? "",
   messageTemplate: settings.messageTemplate ?? DEFAULT_MESSAGE,
-  useBusiness: settings.useBusiness ?? false,
+  useBusiness: settings.useBusiness ?? true,
   showClientWhatsApp: settings.showClientWhatsApp ?? true,
   clientMessageTemplate:
     settings.clientMessageTemplate && !LEGACY_CLIENT_MESSAGES.includes(settings.clientMessageTemplate)

@@ -174,7 +174,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   
   const [destinationPhone, setDestinationPhone] = useState("");
   const [messageTemplate, setMessageTemplate] = useState("");
-  const [useBusiness, setUseBusiness] = useState(false);
+  const [useBusiness, setUseBusiness] = useState(true);
   const [showClientWhatsApp, setShowClientWhatsApp] = useState(false);
   const [clientMessageTemplate, setClientMessageTemplate] = useState("");
   const [isMessageLocked, setIsMessageLocked] = useState(true);
