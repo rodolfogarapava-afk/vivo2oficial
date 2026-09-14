@@ -103,6 +103,8 @@ Deno.serve(async (req) => {
       const url = ENDPOINTS[payload.endpoint ?? 'consumption'] ?? BASE
       const next = await call(action, payload.extra ?? {}, jar, url)
       result.data = { status: next.status, body: next.json ?? next.text }
+      const after = await call('welcome', {}, jar)
+      result.sessionStillValid = after.status === 200
     }
 
 
