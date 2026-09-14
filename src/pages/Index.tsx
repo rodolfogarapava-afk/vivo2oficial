@@ -24,6 +24,7 @@ import { useVisibleDueDays } from "@/lib/dueDays";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { isFreeLine } from "@/hooks/useFreeLineColor";
 import { checkForPWAUpdate } from "@/pwa";
+import { usePanelPhones } from "@/hooks/usePanelPhones";
 
 import {
   AlertDialog,
@@ -93,6 +94,7 @@ const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const { hasBlockPhone, sendBlockMessage, sendCancelMessage, settings: blockSettings } = useBlockWhatsApp();
   const { settings: whatsappSettings } = useWhatsAppSettings();
+  const { isInPanel } = usePanelPhones();
   
   const { 
     clients, 
@@ -699,6 +701,7 @@ const Index = () => {
               isPaid={isClientPaid(client.id)}
               onTogglePayment={togglePayment}
               dayPaymentSent={sentPaymentDays.includes(client.due_day || 10)}
+              inPanel={isInPanel(client.phone)}
             />
           ))
         )}
