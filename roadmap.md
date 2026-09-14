@@ -31,5 +31,7 @@
 - [x] Gasto fixo salvo na nuvem (39,99 não volta mais para 60)
 - [x] Valor de cada pagamento guardado no momento da marcação
 
+- [x] Lista "Vence amanhã" com botão de cobrar no WhatsApp (um toque) e marcar como pago
+
 ## Pendente
-- [ ] Mensagem de cobrança automática no WhatsApp: explicar limites e, se aprovado, criar "Cobrança de amanhã" com aviso e envio em um toque
+- [ ] Envio automático de verdade (sem tocar): exige a API oficial do WhatsApp Business (cadastro + aprovação + custo por mensagem) - aguardando decisão
