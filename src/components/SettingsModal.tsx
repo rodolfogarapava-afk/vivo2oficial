@@ -1026,11 +1026,11 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 <textarea
                   value={clientMessageTemplate}
                   onChange={(event) => setClientMessageTemplate(event.target.value)}
-                  rows={3}
+                  rows={10}
                   placeholder="Olá, {nome}!"
                   className="w-full rounded-xl border border-purple-600 bg-purple-800/60 px-3 py-2 text-sm text-white placeholder:text-purple-300 outline-none focus:ring-2 focus:ring-purple-400"
                 />
-                <p className="text-[10px] text-purple-200">Use {"{nome}"}, {"{telefone}"} e {"{valor}"}.</p>
+                <p className="text-[10px] text-purple-200">Use {"{nome}"}, {"{telefone}"}, {"{valor}"}, {"{data}"} e {"{hora}"}.</p>
               </div>
               <Button onClick={handleSaveWhatsApp} className="w-full h-10 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm">
                 Salvar WhatsApp
