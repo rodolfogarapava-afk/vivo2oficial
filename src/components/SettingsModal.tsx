@@ -515,6 +515,19 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
     setSyncPlan(vivo.buildPlan(panelLines, clients));
   };
 
+  const handleOpenPanelList = async () => {
+    const panelLines = await vivo.fetchLines();
+    if (!panelLines || panelLines.length === 0) return;
+    onOpenChange(false);
+    setTimeout(() => setShowPanelList(true), 150);
+  };
+
+  const gigaForPhone = (phone: string) => {
+    const key = (phone ?? "").replace(/\D/g, "");
+    const match = clients.find((c) => (c.phone ?? "").replace(/\D/g, "") === key);
+    return Number(match?.data_gb ?? 0);
+  };
+
   const handleApplyPanel = async () => {
     if (!syncPlan) return;
     const { data } = await supabase.auth.getUser();
