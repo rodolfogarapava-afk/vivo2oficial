@@ -125,25 +125,32 @@ Deno.serve(async (req) => {
       cookies: Object.keys(jar),
     }
 
-    if (action === 'probe') {
-      const out: Array<Record<string, unknown>> = []
+    if (action === 'lines' || action === 'listLines' || action === 'probe') {
       const gv = await call('loadViewBlockVoice', { startRow: 1, fetchSize: 10 }, jar, ENDPOINTS.blockgroup)
-      const groups = (gv.json as { groups?: Array<Record<string, unknown>> } | null)?.groups ?? []
-      const raio = groups.find((g) => String(g.name).toUpperCase() === 'RAIO') ?? groups[0]
-      const attempts: Array<[string, string, Record<string, unknown>]> = [
-        ['blockgroup', 'loadLinesBlockVoice', { group: raio, startRow: 1, fetchSize: 10, filter: 'all_lines' }],
-        ['blockgroup', 'listLines', { group: raio, startRow: 1, fetchSize: 10, filter: 'all_lines' }],
-        ['blockgroup', 'listLines', { groupId: (raio as { id: number }).id, startRow: 1, fetchSize: 10, filter: 'all_lines' }],
-        ['voiceconsumption', 'listLines', { group: raio, startRow: 1, fetchSize: 10 }],
-        ['voiceconsumption', 'loadingLines', { group: raio, startRow: 1, fetchSize: 10, hasOverBalanceMonetaryVoice: true, hasHibridService: false, lineTypeFilter: 'T' }],
-      ]
-      for (const [ep, act, body] of attempts) {
-        const r = await call(act, body, jar, ENDPOINTS[ep])
-        out.push({ ep, act, status: r.status, preview: JSON.stringify(r.json ?? r.text).slice(0, 900) })
+      const groups = (gv.json as { groups?: Array<{ id: number; name: string; totalLines: number }> } | null)?.groups ?? []
+      const all: Array<{ group: string; name: string; phone: string; blocked: boolean }> = []
+      for (const g of groups) {
+        const pageSize = 10
+        const pages = Math.max(1, Math.ceil((g.totalLines || 0) / pageSize))
+        for (let page = 1; page <= pages; page++) {
+          const startRow = (page - 1) * pageSize + 1
+          const r = await call('listLines', { groupId: g.id, startRow, fetchSize: pageSize, filter: 'all_lines' }, jar, ENDPOINTS.blockgroup)
+          const rows = Array.isArray(r.json) ? r.json as Array<Record<string, unknown>> : []
+          if (!rows.length) break
+          for (const row of rows) {
+            all.push({
+              group: g.name,
+              name: String(row.userName ?? ''),
+              phone: String(row.lineNumber ?? ''),
+              blocked: Boolean(row.blocked || row.blockedManager),
+            })
+          }
+        }
       }
-      result.probes = out
-    } else if (action !== 'login') {
-      const base = ENDPOINTS[payload.endpoint ?? 'consumption'] ?? BASE
+      result.groups = groups.map((g) => ({ id: g.id, name: g.name, totalLines: g.totalLines }))
+      result.lines = all
+      result.total = all.length
+    } else if (action !== 'login') {      const base = ENDPOINTS[payload.endpoint ?? 'consumption'] ?? BASE
       let next
       if ((payload.method ?? 'POST').toUpperCase() === 'GET') {
         const qs = new URLSearchParams({ action })
