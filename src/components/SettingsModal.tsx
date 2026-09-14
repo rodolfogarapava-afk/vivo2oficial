@@ -202,6 +202,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [showClientList, setShowClientList] = useState(false);
+  const [showPanelList, setShowPanelList] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
@@ -512,6 +513,19 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
     const panelLines = await vivo.fetchLines();
     if (!panelLines || panelLines.length === 0) return;
     setSyncPlan(vivo.buildPlan(panelLines, clients));
+  };
+
+  const handleOpenPanelList = async () => {
+    const panelLines = await vivo.fetchLines();
+    if (!panelLines || panelLines.length === 0) return;
+    onOpenChange(false);
+    setTimeout(() => setShowPanelList(true), 150);
+  };
+
+  const gigaForPhone = (phone: string) => {
+    const key = (phone ?? "").replace(/\D/g, "");
+    const match = clients.find((c) => (c.phone ?? "").replace(/\D/g, "") === key);
+    return Number(match?.data_gb ?? 0);
   };
 
   const handleApplyPanel = async () => {
@@ -931,6 +945,15 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 {vivo.isLoading ? <Loader2 className="h-5 w-5 mr-2 animate-spin" /> : <CloudDownload className="h-5 w-5 mr-2" />}
                 {vivo.isLoading ? "Lendo o painel..." : "Conferir painel Vivo"}
               </Button>
+              <Button
+                type="button"
+                disabled={vivo.isLoading}
+                onClick={handleOpenPanelList}
+                className="w-full h-12 mt-2 bg-purple-700 hover:bg-purple-600 text-white rounded-xl font-bold"
+              >
+                {vivo.isLoading ? <Loader2 className="h-5 w-5 mr-2 animate-spin" /> : <Users className="h-5 w-5 mr-2" />}
+                Lista de nomes do gestor
+              </Button>
               {syncPlan && (
                 <div className="mt-3 space-y-2 text-xs text-white/80">
                   <p>Novas linhas para adicionar: <strong className="text-white">{syncPlan.toAdd.length}</strong></p>
@@ -1205,6 +1228,54 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
           </div>
         </DialogContent>
       </Dialog>
+
+      {showPanelList && createPortal(
+        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60 p-4">
+          <div className="bg-purple-800 rounded-2xl p-4 w-full max-w-md h-[85dvh] min-h-0 flex flex-col overflow-hidden">
+            <div className="flex items-center gap-3 mb-4">
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  setShowPanelList(false);
+                  setTimeout(() => onOpenChange(true), 150);
+                }}
+                className="text-white hover:bg-purple-700"
+                aria-label="Voltar para configurações"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <h3 className="text-lg font-bold text-white">Nomes no gestor ({vivo.lines?.length ?? 0})</h3>
+            </div>
+            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain pr-1 pb-4 touch-pan-y">
+              {(vivo.lines ?? []).map((line) => {
+                const giga = gigaForPhone(line.phone);
+                return (
+                  <div
+                    key={line.phone}
+                    className="flex items-center gap-2 rounded-xl bg-purple-900/70 px-3 py-3 text-white"
+                  >
+                    <span className="flex-1 text-left text-sm font-semibold whitespace-normal break-words">
+                      {line.name.trim() || "LIVRE"}
+                    </span>
+                    <span className="shrink-0 text-sm font-bold text-green-300 tabular-nums whitespace-nowrap">
+                      {formatPhoneDisplay(line.phone)}
+                    </span>
+                    <span className="shrink-0 text-sm font-bold text-blue-300 tabular-nums whitespace-nowrap">
+                      {giga > 0 ? `${giga} GB` : "—"}
+                    </span>
+                  </div>
+                );
+              })}
+              {(vivo.lines ?? []).length === 0 && (
+                <p className="py-8 text-center text-sm text-purple-200">Nenhuma linha no painel.</p>
+              )}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
 
       {showClientList && createPortal(
         <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60 p-4">
