@@ -717,6 +717,7 @@ const Index = () => {
         open={showChipNet}
         onOpenChange={setShowChipNet}
         ownerUserId={user?.id}
+        panelLabel={otherPanelLabel}
         onSwitched={() => refetch()}
       />
 
