@@ -326,7 +326,13 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                     : 'text-green-500'
             }`}>
               {formatCurrency(client.bonus ? 0 : Number(client.value_paid))}
+              {Number(client.data_gb ?? 0) > 0 && (
+                <span className={`ml-2 text-[10px] font-bold ${isNexus && !client.blocked ? 'text-black/70' : isResale && !client.blocked ? 'text-white/90' : client.bonus && !client.blocked ? 'text-black/70' : 'text-blue-400'}`}>
+                  {Number(client.data_gb)} GB
+                </span>
+              )}
             </p>
+
           </div>
           
           
