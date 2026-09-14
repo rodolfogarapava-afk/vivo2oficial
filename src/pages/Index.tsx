@@ -439,6 +439,11 @@ const Index = () => {
     );
   }
 
+  // Acesso vencido / sem token
+  if (isBlocked) {
+    return <AccessBlocked onUnlocked={() => void reloadAccess()} onSignOut={() => void signOut()} />;
+  }
+
   return (
     <div className="min-h-[100dvh] bg-background overflow-visible touch-pan-y" {...pullHandlers}>
       <div
