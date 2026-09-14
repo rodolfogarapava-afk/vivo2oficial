@@ -118,6 +118,10 @@ const Index = () => {
     refetch
   } = useClients(user?.id);
 
+  const { isAdmin, isBlocked, reload: reloadAccess } = useAccessControl(user?.id);
+  const { otherPanelLabel } = usePanelNames(user?.id);
+
+
   const refreshApp = useCallback(async () => {
     if (!navigator.onLine) {
       toast({
