@@ -19,6 +19,8 @@ import whatsappIcon from "@/assets/whatsapp-icon.png";
 import { useFixedExpense } from "@/hooks/useFixedExpense";
 import { ALL_DUE_DAYS, useVisibleDueDays } from "@/lib/dueDays";
 import { formatClientName } from "@/lib/formatName";
+import { AccessTokensSection } from "@/components/AccessTokensSection";
+import { PanelNamesSection } from "@/components/PanelNamesSection";
 
 interface SettingsModalProps {
   open: boolean;
