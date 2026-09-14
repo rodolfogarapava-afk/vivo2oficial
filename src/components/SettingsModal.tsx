@@ -1229,6 +1229,54 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
         </DialogContent>
       </Dialog>
 
+      {showPanelList && createPortal(
+        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60 p-4">
+          <div className="bg-purple-800 rounded-2xl p-4 w-full max-w-md h-[85dvh] min-h-0 flex flex-col overflow-hidden">
+            <div className="flex items-center gap-3 mb-4">
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  setShowPanelList(false);
+                  setTimeout(() => onOpenChange(true), 150);
+                }}
+                className="text-white hover:bg-purple-700"
+                aria-label="Voltar para configurações"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <h3 className="text-lg font-bold text-white">Nomes no gestor ({vivo.lines?.length ?? 0})</h3>
+            </div>
+            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain pr-1 pb-4 touch-pan-y">
+              {(vivo.lines ?? []).map((line) => {
+                const giga = gigaForPhone(line.phone);
+                return (
+                  <div
+                    key={line.phone}
+                    className="flex items-center gap-2 rounded-xl bg-purple-900/70 px-3 py-3 text-white"
+                  >
+                    <span className="flex-1 text-left text-sm font-semibold whitespace-normal break-words">
+                      {line.name.trim() || "LIVRE"}
+                    </span>
+                    <span className="shrink-0 text-sm font-bold text-green-300 tabular-nums whitespace-nowrap">
+                      {formatPhoneDisplay(line.phone)}
+                    </span>
+                    <span className="shrink-0 text-sm font-bold text-blue-300 tabular-nums whitespace-nowrap">
+                      {giga > 0 ? `${giga} GB` : "—"}
+                    </span>
+                  </div>
+                );
+              })}
+              {(vivo.lines ?? []).length === 0 && (
+                <p className="py-8 text-center text-sm text-purple-200">Nenhuma linha no painel.</p>
+              )}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {showClientList && createPortal(
         <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60 p-4">
           <div className="bg-purple-800 rounded-2xl p-4 w-full max-w-md h-[85dvh] min-h-0 flex flex-col overflow-hidden">
