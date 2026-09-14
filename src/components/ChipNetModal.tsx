@@ -14,6 +14,8 @@ interface ChipNetModalProps {
   onOpenChange: (open: boolean) => void;
   /** Current (main panel) user id, used to link the two panels. */
   ownerUserId?: string;
+  /** Name of the other panel (resale), defined by the admin. */
+  panelLabel?: string;
   onSwitched?: () => void;
 }
 
