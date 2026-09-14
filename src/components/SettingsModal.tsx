@@ -1021,6 +1021,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   <p className="text-[11px] text-purple-200">Só aparece nos clientes com WhatsApp cadastrado.</p>
                 </div>
                 <Switch
+                  className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-600"
                   checked={showClientWhatsApp}
                   onCheckedChange={(checked) => {
                     setShowClientWhatsApp(checked);
