@@ -21,3 +21,6 @@
 - [x] Cliente "Livre" com fundo branco e somente as bordas verdes e grossas
 - [x] Mostrar o número de telefone em cada linha da Lista de clientes (inclusive nas livres)
 
+- [x] Sincronizar linhas do painel Vivo para o app (linha sem nome entra como Livre)
+- [x] Campo de giga por cliente (com botões +2, +5, +10) e giga no cartão
+- [x] Trocar o "Online" por "Gestor", que abre o painel Vivo Gestão
