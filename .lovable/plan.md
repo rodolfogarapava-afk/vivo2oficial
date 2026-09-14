@@ -38,7 +38,7 @@ Um botão novo **Ganhos** (ícone de gráfico) na fileira de cima da tela inicia
 
 Sem isso o relatório sairia com número errado:
 
-1. **O gasto fixo não está salvo na sua conta.** Hoje ele só existe no内存 do seu celular: ao abrir em outro aparelho ou depois de limpar dados, volta para 60. Vou criar o registro da sua conta no banco (hoje ele **não existe**) e gravar 39,99 lá.
+1. **O gasto fixo não está salvo na sua conta.** Hoje ele só existe na memória do seu celular: ao abrir em outro aparelho ou depois de limpar dados, volta para 60. Vou criar o registro da sua conta no banco (hoje ele **não existe**) e gravar 39,99 lá.
 2. **O valor de cada pagamento não é guardado.** Hoje o app marca "pagou" sem anotar quanto. Se você mudar o preço de um cliente depois, o mês antigo seria recalculado errado. Vou gravar o valor junto da marcação.
 3. **Conferir se marcar pago chega no banco.** A tabela de pagamentos está **vazia** — nenhum pagamento registrado chegou lá até hoje. Vou testar marcando um cliente e conferindo o registro real antes de contar qualquer coisa.
 
