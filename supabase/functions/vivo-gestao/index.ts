@@ -126,22 +126,16 @@ Deno.serve(async (req) => {
 
     if (action === 'probe') {
       const out: Array<Record<string, unknown>> = []
-      const tries: Array<[string, string, string, Record<string, unknown>]> = [
-        ['consumption5G', 'GET', 'loadView', { technology: '5G', startRow: 0, fetchSize: 60 }],
-        ['consumption', 'GET', 'loadView', { technology: '4G', startRow: 0, fetchSize: 60, filter: 'all_lines' }],
-        ['consumption', 'POST', 'loadView', { technology: '4G', startRow: 0, fetchSize: 60 }],
-        ['consumption', 'POST', 'listLines', { group: { id: 0, technology: '4G' }, startRow: 0, fetchSize: 60 }],
-        ['vivosync', 'POST', 'loadViewVivoSync', { startRow: 0, fetchSize: 60 }],
-        ['vivosync', 'POST', 'loadLinesVivoSync', { startRow: 0, fetchSize: 60 }],
-        ['blockgroup', 'POST', 'loadViewBlockVoice', { startRow: 0, fetchSize: 60 }],
-        ['blockgroup', 'POST', 'loadLinesBlockVoice', { startRow: 0, fetchSize: 60 }],
+      const variants: Array<Record<string, unknown>> = [
+        { startRow: 1, fetchSize: 10 },
+        { startRow: 0, fetchSize: 10 },
+        { startRow: 1, fetchSize: 3 },
+        { startRow: 0, fetchSize: 3, filter: 'all_lines' },
+        { startRow: 1, fetchSize: 10, orderBy: 'name', orderType: 'asc' },
       ]
-      for (const [ep, method, act, extra] of tries) {
-        const base = ENDPOINTS[ep]
-        const r = method === 'GET'
-          ? await get(`${base}?${new URLSearchParams({ action: act, ...Object.fromEntries(Object.entries(extra).map(([k, v]) => [k, String(v)])) })}`, jar)
-          : await call(act, extra, jar, base)
-        out.push({ ep, act, status: r.status, preview: JSON.stringify(r.json ?? r.text).slice(0, 500) })
+      for (const v of variants) {
+        const r = await call('loadViewBlockVoice', v, jar, ENDPOINTS.blockgroup)
+        out.push({ v: JSON.stringify(v), status: r.status, preview: JSON.stringify(r.json ?? r.text).slice(0, 700) })
       }
       result.probes = out
     } else if (action !== 'login') {
