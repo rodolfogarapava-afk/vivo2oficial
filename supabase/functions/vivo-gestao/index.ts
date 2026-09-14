@@ -4,6 +4,7 @@ const BASE = 'https://vivogestao.vivoempresas.com.br/Portal/api/datapackcompanyi
 
 const ALLOWED_ACTIONS = new Set([
   'login',
+  'welcome',
   'listLines',
   'getLines',
   'lines',
