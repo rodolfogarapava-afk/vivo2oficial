@@ -242,6 +242,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [isBlockMessageLocked, setIsBlockMessageLocked] = useState(true);
   const [isUnblockMessageLocked, setIsUnblockMessageLocked] = useState(true);
   const [isCancelMessageLocked, setIsCancelMessageLocked] = useState(true);
+  const [isClientMessageLocked, setIsClientMessageLocked] = useState(true);
 
   useEffect(() => {
     if (open) {
