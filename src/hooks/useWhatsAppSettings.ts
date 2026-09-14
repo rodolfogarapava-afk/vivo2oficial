@@ -97,6 +97,39 @@ export const useWhatsAppSettings = () => {
     return withDefaults({});
   });
 
+  // Load client WhatsApp settings from the cloud so they survive cache cleanup
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        const userId = userData?.user?.id;
+        if (!userId) return;
+        const { data } = await supabase
+          .from("profiles")
+          .select("whatsapp_show_card, whatsapp_client_message")
+          .eq("user_id", userId)
+          .maybeSingle();
+        if (cancelled || !data) return;
+        setSettings((prev) => {
+          const merged = withDefaults({
+            ...prev,
+            showClientWhatsApp:
+              data.whatsapp_show_card === null || data.whatsapp_show_card === undefined
+                ? prev.showClientWhatsApp
+                : data.whatsapp_show_card,
+            clientMessageTemplate: data.whatsapp_client_message ?? prev.clientMessageTemplate,
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+          return merged;
+        });
+      } catch {}
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Listen for settings updates from other components
   useEffect(() => {
     const handleStorageChange = () => {
