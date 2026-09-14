@@ -142,10 +142,16 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
 
     const phoneWithCountry = destination.startsWith("55") ? destination : `55${destination}`;
     
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("pt-BR");
+    const timeStr = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
     const message = settings.clientMessageTemplate
       .replace(/\{nome\}/g, client.name)
       .replace(/\{telefone\}/g, formatPhoneDisplay(client.phone))
-      .replace(/\{valor\}/g, formatCurrency(Number(client.value_paid)));
+      .replace(/\{valor\}/g, formatCurrency(Number(client.value_paid)))
+      .replace(/\{data\}/g, dateStr)
+      .replace(/\{hora\}/g, timeStr);
     
     const encodedMessage = encodeURIComponent(message);
     
