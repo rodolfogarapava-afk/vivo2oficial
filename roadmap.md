@@ -19,3 +19,5 @@
 - [x] Organizar a edição em um botão Lista de clientes com confirmação de exclusão
 - [x] Cliente "Livre" com cartão verde, ✅ e sempre no topo; ao trocar o nome volta ao normal
 - [x] Cliente "Livre" com fundo branco e somente as bordas verdes e grossas
+- [x] Mostrar o número de telefone em cada linha da Lista de clientes (inclusive nas livres)
+
