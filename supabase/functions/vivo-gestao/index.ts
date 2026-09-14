@@ -19,6 +19,7 @@ const ALLOWED_ACTIONS = new Set([
   'listGroups',
   'loadingLines',
   'getAbbreviatedData',
+  'loadView',
   'getLines',
   'lines',
   'listClients',
@@ -37,6 +38,22 @@ function collectCookies(res: Response, jar: Record<string, string>) {
 
 function cookieHeader(jar: Record<string, string>) {
   return Object.entries(jar).map(([k, v]) => `${k}=${v}`).join('; ')
+}
+
+async function get(url: string, jar: Record<string, string>) {
+  const res = await fetch(url, {
+    headers: {
+      'Accept': 'application/json, text/plain, */*',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
+      'Referer': 'https://vivogestao.vivoempresas.com.br/Portal/data/',
+      Cookie: cookieHeader(jar),
+    },
+  })
+  collectCookies(res, jar)
+  const text = await res.text()
+  let json: unknown = null
+  try { json = JSON.parse(text) } catch { /* not json */ }
+  return { status: res.status, json, text: text.slice(0, 6000) }
 }
 
 async function call(action: string, body: Record<string, unknown>, jar: Record<string, string>, url: string = BASE) {
@@ -71,7 +88,7 @@ Deno.serve(async (req) => {
       })
     }
 
-    let payload: { action?: string; endpoint?: string; extra?: Record<string, unknown> } = {}
+    let payload: { action?: string; endpoint?: string; method?: string; extra?: Record<string, unknown> } = {}
     if (req.method === 'POST') {
       try { payload = await req.json() } catch { payload = {} }
     }
@@ -100,8 +117,15 @@ Deno.serve(async (req) => {
     }
 
     if (action !== 'login') {
-      const url = ENDPOINTS[payload.endpoint ?? 'consumption'] ?? BASE
-      const next = await call(action, payload.extra ?? {}, jar, url)
+      const base = ENDPOINTS[payload.endpoint ?? 'consumption'] ?? BASE
+      let next
+      if ((payload.method ?? 'POST').toUpperCase() === 'GET') {
+        const qs = new URLSearchParams({ action })
+        for (const [k, v] of Object.entries(payload.extra ?? {})) qs.set(k, String(v))
+        next = await get(`${base}?${qs.toString()}`, jar)
+      } else {
+        next = await call(action, payload.extra ?? {}, jar, base)
+      }
       result.data = { status: next.status, body: next.json ?? next.text }
       const after = await call('welcome', {}, jar)
       result.sessionStillValid = after.status === 200
