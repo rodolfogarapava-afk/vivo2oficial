@@ -1313,7 +1313,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   {Number(client.value_paid) > 0 && (
                     <Star className="h-4 w-4 mr-2 shrink-0 fill-current text-green-400" aria-label="Valor cadastrado" />
                   )}
-                  <span className="flex-1 text-left whitespace-normal break-words">{client.name}</span>
+                  <span className="flex-1 text-left whitespace-normal break-words">{formatClientName(client.name)}</span>
                   {client.phone?.replace(/\D/g, "") ? (
                     <span className="ml-2 shrink-0 text-sm font-bold text-green-300 tabular-nums whitespace-nowrap">
                       {formatPhoneDisplay(client.phone)}
