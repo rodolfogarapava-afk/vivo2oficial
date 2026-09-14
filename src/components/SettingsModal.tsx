@@ -25,7 +25,7 @@ interface SettingsModalProps {
   clients: Client[];
   fixedExpense: number;
   onDeleteClient: (id: string) => void;
-  onEditClient: (id: string, data: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; bonus: boolean; is_resale: boolean; company: string; account: number | null; data_gb?: number }) => void;
+  onEditClient: (id: string, data: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; bonus: boolean; is_resale: boolean; company: string; account: number | null; data_gb?: number; data_used_gb?: number }) => void;
   onBlockClient: (id: string, blocked: boolean) => void;
   onRefresh?: () => void;
   totalsByDay: Record<number, number>;
@@ -214,6 +214,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [editCompany, setEditCompany] = useState<string>("omega");
   const [editAccount, setEditAccount] = useState<number | null>(null);
   const [editDataGb, setEditDataGb] = useState<string>("0");
+  const [editDataUsedGb, setEditDataUsedGb] = useState<string>("0");
   const [syncPlan, setSyncPlan] = useState<SyncPlan | null>(null);
 
 
@@ -556,6 +557,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       setEditCompany("omega");
       setEditAccount(client.account ?? null);
       setEditDataGb(String(client.data_gb ?? 0));
+      setEditDataUsedGb(String(client.data_used_gb ?? 0));
     }, 100);
   };
 
@@ -573,6 +575,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       company: editCompany,
       account: editAccount,
       data_gb: Number(editDataGb.replace(",", ".")) || 0,
+      data_used_gb: Number(editDataUsedGb.replace(",", ".")) || 0,
     });
 
     setEditingClient(null);
@@ -1397,6 +1400,26 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                     +{gb}
                   </button>
                 ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-white/70 mb-2">Giga já usado pelo cliente</p>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  value={editDataUsedGb}
+                  onChange={(e) => setEditDataUsedGb(e.target.value)}
+                  placeholder="Usado"
+                  className="flex-1 h-10 sm:h-12 bg-purple-900/50 border border-purple-600 text-white rounded-xl text-sm px-3 outline-none focus:ring-2 focus:ring-purple-400"
+                />
+                <button
+                  type="button"
+                  onClick={() => setEditDataUsedGb("0")}
+                  className="h-10 sm:h-12 px-3 rounded-xl bg-purple-700 hover:bg-purple-600 text-white text-xs font-bold"
+                >
+                  Zerar
+                </button>
               </div>
             </div>
             <div>
