@@ -20,6 +20,7 @@ const ALLOWED_ACTIONS = new Set([
   'loadingLines',
   'getAbbreviatedData',
   'loadView',
+  'probe',
   'getLines',
   'lines',
   'listClients',
@@ -116,7 +117,29 @@ Deno.serve(async (req) => {
       cookies: Object.keys(jar),
     }
 
-    if (action !== 'login') {
+    if (action === 'probe') {
+      const probes: Array<[string, string, string, Record<string, unknown>]> = [
+        ['consumption', 'GET', 'loadView', { technology: '4G', startRow: 0, fetchSize: 60 }],
+        ['consumption', 'GET', 'loadView', { startRow: 0, fetchSize: 60 }],
+        ['consumption', 'GET', 'listGroups', { startRow: 0, fetchSize: 20 }],
+        ['blockgroup', 'GET', 'listGroups', { startRow: 0, fetchSize: 20 }],
+        ['blockgroup', 'GET', 'listLines', { startRow: 0, fetchSize: 60, filter: 'all_lines' }],
+        ['managergroup', 'GET', 'loadView', { startRow: 0, fetchSize: 60 }],
+        ['managergroup', 'GET', 'listGroups', { startRow: 0, fetchSize: 20 }],
+        ['voiceconsumption', 'GET', 'loadView', { startRow: 0, fetchSize: 60 }],
+        ['packages', 'GET', 'loadView', { startRow: 0, fetchSize: 60 }],
+      ]
+      const out: Array<Record<string, unknown>> = []
+      for (const [ep, method, act, extra] of probes) {
+        const base = ENDPOINTS[ep]
+        const r = method === 'GET'
+          ? await get(`${base}?${new URLSearchParams({ action: act, ...Object.fromEntries(Object.entries(extra).map(([k, v]) => [k, String(v)])) })}`, jar)
+          : await call(act, extra, jar, base)
+        const body = r.json ?? r.text
+        out.push({ ep, act, status: r.status, preview: JSON.stringify(body).slice(0, 300) })
+      }
+      result.probes = out
+    } else if (action !== 'login') {
       const base = ENDPOINTS[payload.endpoint ?? 'consumption'] ?? BASE
       let next
       if ((payload.method ?? 'POST').toUpperCase() === 'GET') {
