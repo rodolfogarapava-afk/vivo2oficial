@@ -157,6 +157,20 @@ export const useWhatsAppSettings = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
     // Dispatch event to notify other components
     window.dispatchEvent(new Event(SETTINGS_UPDATED_EVENT));
+    (async () => {
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        const userId = userData?.user?.id;
+        if (!userId) return;
+        await supabase
+          .from("profiles")
+          .update({
+            whatsapp_show_card: newSettings.showClientWhatsApp,
+            whatsapp_client_message: newSettings.clientMessageTemplate,
+          })
+          .eq("user_id", userId);
+      } catch {}
+    })();
   }, []);
 
   const formatMessage = useCallback((clientName: string, clientPhone: string, clientValue: string, virtualChip: boolean = false) => {
