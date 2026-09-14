@@ -94,13 +94,7 @@ export const useWhatsAppSettings = () => {
         console.error("Error loading WhatsApp settings:", e);
       }
     }
-    return {
-      destinationPhone: "",
-      messageTemplate: DEFAULT_MESSAGE,
-      useBusiness: false,
-      showClientWhatsApp: false,
-      clientMessageTemplate: DEFAULT_CLIENT_MESSAGE,
-    };
+    return withDefaults({});
   });
 
   // Listen for settings updates from other components
