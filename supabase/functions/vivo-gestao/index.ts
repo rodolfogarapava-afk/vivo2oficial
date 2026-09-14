@@ -1,11 +1,24 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 
-const BASE = 'https://vivogestao.vivoempresas.com.br/Portal/api/datapackcompanyinfo'
+const API = 'https://vivogestao.vivoempresas.com.br/Portal/api'
+const BASE = `${API}/datapackcompanyinfo`
+
+const ENDPOINTS: Record<string, string> = {
+  companyinfo: `${API}/datapackcompanyinfo`,
+  consumption: `${API}/datapackconsumption`,
+  voiceconsumption: `${API}/voiceconsumption`,
+  managergroup: `${API}/datapackmanagergroup`,
+  blockgroup: `${API}/datapackblockgroup`,
+  packages: `${API}/datapackpackages`,
+}
 
 const ALLOWED_ACTIONS = new Set([
   'login',
   'welcome',
   'listLines',
+  'listGroups',
+  'loadingLines',
+  'getAbbreviatedData',
   'getLines',
   'lines',
   'listClients',
@@ -26,8 +39,8 @@ function cookieHeader(jar: Record<string, string>) {
   return Object.entries(jar).map(([k, v]) => `${k}=${v}`).join('; ')
 }
 
-async function call(action: string, body: Record<string, unknown>, jar: Record<string, string>) {
-  const res = await fetch(BASE, {
+async function call(action: string, body: Record<string, unknown>, jar: Record<string, string>, url: string = BASE) {
+  const res = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -58,7 +71,7 @@ Deno.serve(async (req) => {
       })
     }
 
-    let payload: { action?: string; extra?: Record<string, unknown> } = {}
+    let payload: { action?: string; endpoint?: string; extra?: Record<string, unknown> } = {}
     if (req.method === 'POST') {
       try { payload = await req.json() } catch { payload = {} }
     }
@@ -87,7 +100,8 @@ Deno.serve(async (req) => {
     }
 
     if (action !== 'login') {
-      const next = await call(action, payload.extra ?? {}, jar)
+      const url = ENDPOINTS[payload.endpoint ?? 'consumption'] ?? BASE
+      const next = await call(action, payload.extra ?? {}, jar, url)
       result.data = { status: next.status, body: next.json ?? next.text }
     }
 
