@@ -335,7 +335,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
               
               <div className="flex gap-2">
                 {/* WhatsApp button */}
-                {settings.showClientWhatsApp && client.whatsapp && <button
+                {settings.showClientWhatsApp && (client.whatsapp || client.phone) && <button
                   onClick={handleWhatsAppClick}
                   onTouchStart={handleTouchStart}
                   onTouchEnd={handleTouchEnd}
