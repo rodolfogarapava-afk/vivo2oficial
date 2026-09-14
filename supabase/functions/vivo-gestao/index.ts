@@ -21,6 +21,7 @@ const ALLOWED_ACTIONS = new Set([
   'getAbbreviatedData',
   'loadView',
   'probe',
+  'listGroups',
   'getLines',
   'lines',
   'listClients',
@@ -119,15 +120,10 @@ Deno.serve(async (req) => {
 
     if (action === 'probe') {
       const probes: Array<[string, string, string, Record<string, unknown>]> = [
-        ['consumption', 'GET', 'loadView', { technology: '4G', startRow: 0, fetchSize: 60 }],
-        ['consumption', 'GET', 'loadView', { startRow: 0, fetchSize: 60 }],
-        ['consumption', 'GET', 'listGroups', { startRow: 0, fetchSize: 20 }],
-        ['blockgroup', 'GET', 'listGroups', { startRow: 0, fetchSize: 20 }],
-        ['blockgroup', 'GET', 'listLines', { startRow: 0, fetchSize: 60, filter: 'all_lines' }],
-        ['managergroup', 'GET', 'loadView', { startRow: 0, fetchSize: 60 }],
-        ['managergroup', 'GET', 'listGroups', { startRow: 0, fetchSize: 20 }],
-        ['voiceconsumption', 'GET', 'loadView', { startRow: 0, fetchSize: 60 }],
-        ['packages', 'GET', 'loadView', { startRow: 0, fetchSize: 60 }],
+        ['voiceconsumption', 'POST', 'listGroups', { startRow: 0, fetchSize: 20, hasOverBalanceMonetaryVoice: false, hasHibridService: false }],
+        ['voiceconsumption', 'POST', 'loadingLines', { group: null, startRow: 0, fetchSize: 60, hasOverBalanceMonetaryVoice: false, hasHibridService: false, lineTypeFilter: 'T' }],
+        ['voiceconsumption', 'POST', 'listLines', { group: null, startRow: 0, fetchSize: 60 }],
+        ['voiceconsumption', 'GET', 'listGroups', { startRow: 0, fetchSize: 20 }],
       ]
       const out: Array<Record<string, unknown>> = []
       for (const [ep, method, act, extra] of probes) {
