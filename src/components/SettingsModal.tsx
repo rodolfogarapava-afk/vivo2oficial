@@ -19,6 +19,8 @@ import whatsappIcon from "@/assets/whatsapp-icon.png";
 import { useFixedExpense } from "@/hooks/useFixedExpense";
 import { ALL_DUE_DAYS, useVisibleDueDays } from "@/lib/dueDays";
 import { formatClientName } from "@/lib/formatName";
+import { AccessTokensSection } from "@/components/AccessTokensSection";
+import { PanelNamesSection } from "@/components/PanelNamesSection";
 
 interface SettingsModalProps {
   open: boolean;
@@ -39,6 +41,8 @@ interface SettingsModalProps {
   onBlockClick?: () => void;
   onUnblockClick?: () => void;
   hasBlockedClients?: boolean;
+  isAdmin?: boolean;
+  userId?: string;
 }
 
 const formatCurrency = (value: number) => {
@@ -156,7 +160,7 @@ const saveBlockSettings = (settings: BlockSettings) => {
   localStorage.setItem(BLOCK_STORAGE_KEY, JSON.stringify(settings));
 };
 
-export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDeleteClient, onEditClient, onBlockClient, onRefresh, totalsByDay, remainingByDay, onResaleClick, showPaymentCards, onTogglePaymentCards, onPaymentSent, onCancelClick, onBlockClick, onUnblockClick, hasBlockedClients }: SettingsModalProps) => {
+export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDeleteClient, onEditClient, onBlockClient, onRefresh, totalsByDay, remainingByDay, onResaleClick, showPaymentCards, onTogglePaymentCards, onPaymentSent, onCancelClick, onBlockClick, onUnblockClick, hasBlockedClients, isAdmin, userId }: SettingsModalProps) => {
   const { visibleDays, toggleDay } = useVisibleDueDays();
   const [copied, setCopied] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -894,6 +898,15 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
 
           <div className="space-y-3 sm:space-y-4 mt-3 sm:mt-4 overflow-y-auto max-h-[calc(80vh-80px)] pr-1">
 
+            {/* ===== ADM: tokens e nomes dos painéis ===== */}
+            {isAdmin && (
+              <>
+                <AccessTokensSection />
+                <PanelNamesSection userId={userId} />
+              </>
+            )}
+
+
             {/* ===== Ações Rápidas ===== */}
             <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
               <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
@@ -931,8 +944,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
               </Button>
             </div>
 
-            {/* ===== Painel Vivo Gestão ===== */}
-            <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
+            {/* ===== Painel Vivo Gestão (somente ADM) ===== */}
+            <div className={`bg-purple-900/50 rounded-xl p-3 sm:p-4 ${isAdmin ? "" : "hidden"}`}>
               <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                 <Signal className="h-4 w-4" />
                 Painel Vivo Gestão

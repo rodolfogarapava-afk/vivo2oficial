@@ -27,6 +27,9 @@ import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { isFreeLine } from "@/hooks/useFreeLineColor";
 import { checkForPWAUpdate } from "@/pwa";
 import { usePanelPhones } from "@/hooks/usePanelPhones";
+import { useAccessControl } from "@/hooks/useAccessControl";
+import { usePanelNames } from "@/hooks/usePanelNames";
+import { AccessBlocked } from "@/components/AccessBlocked";
 
 import {
   AlertDialog,
@@ -114,6 +117,10 @@ const Index = () => {
     fixedExpense,
     refetch
   } = useClients(user?.id);
+
+  const { isAdmin, isBlocked, reload: reloadAccess } = useAccessControl(user?.id);
+  const { otherPanelLabel } = usePanelNames(user?.id);
+
 
   const refreshApp = useCallback(async () => {
     if (!navigator.onLine) {
@@ -432,6 +439,11 @@ const Index = () => {
     );
   }
 
+  // Acesso vencido / sem token
+  if (isBlocked) {
+    return <AccessBlocked onUnlocked={() => void reloadAccess()} onSignOut={() => void signOut()} />;
+  }
+
   return (
     <div className="min-h-[100dvh] bg-background overflow-visible touch-pan-y" {...pullHandlers}>
       <div
@@ -450,19 +462,21 @@ const Index = () => {
       {/* Header card */}
       <header className="pt-4 pb-3 px-3">
         <div className="rounded-2xl border border-purple-900/50 bg-card/40 p-3 backdrop-blur-sm">
-          {/* Top row: Online / Chip Net / Novo */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="[&>button]:w-full [&>button]:h-11 [&>button]:rounded-xl [&>button]:border-2 [&>button]:border-green-500/70 [&>button]:bg-transparent [&>button]:text-green-400 [&>button]:justify-center [&>button]:text-xs [&>button]:font-bold">
-              <OfflineIndicator />
-            </div>
+          {/* Top row: Gestor (ADM) / Painel parceiro / Novo */}
+          <div className={`grid gap-2 ${isAdmin ? "grid-cols-3" : "grid-cols-2"}`}>
+            {isAdmin && (
+              <div className="[&>button]:w-full [&>button]:h-11 [&>button]:rounded-xl [&>button]:border-2 [&>button]:border-green-500/70 [&>button]:bg-transparent [&>button]:text-green-400 [&>button]:justify-center [&>button]:text-xs [&>button]:font-bold">
+                <OfflineIndicator />
+              </div>
+            )}
             <button
               type="button"
               onClick={() => setShowChipNet(true)}
               className="flex items-center justify-center gap-1.5 h-11 rounded-xl bg-gradient-to-b from-cyan-500 to-cyan-700 border border-cyan-300/50 shadow-[0_3px_0_0_#155e75] hover:translate-y-[1px] active:translate-y-[2px] transition-all"
-              title="Painel CHIP NET"
+              title={`Painel ${otherPanelLabel}`}
             >
               <Signal className="h-4 w-4 text-white" strokeWidth={2.5} />
-              <span className="text-xs font-extrabold text-white uppercase tracking-wider">Chip Net</span>
+              <span className="truncate text-xs font-extrabold text-white uppercase tracking-wider">{otherPanelLabel}</span>
             </button>
             <button
               type="button"
@@ -703,6 +717,7 @@ const Index = () => {
         open={showChipNet}
         onOpenChange={setShowChipNet}
         ownerUserId={user?.id}
+        panelLabel={otherPanelLabel}
         onSwitched={() => refetch()}
       />
 
@@ -778,6 +793,8 @@ const Index = () => {
         onBlockClick={handleBlockClick}
         onUnblockClick={handleUnblockClick}
         hasBlockedClients={hasBlockedClients}
+        isAdmin={isAdmin}
+        userId={user?.id}
       />
 
       {/* Monthly report */}

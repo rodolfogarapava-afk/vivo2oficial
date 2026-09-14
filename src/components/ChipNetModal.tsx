@@ -14,6 +14,8 @@ interface ChipNetModalProps {
   onOpenChange: (open: boolean) => void;
   /** Current (main panel) user id, used to link the two panels. */
   ownerUserId?: string;
+  /** Name of the other panel (resale), defined by the admin. */
+  panelLabel?: string;
   onSwitched?: () => void;
 }
 
@@ -25,8 +27,9 @@ const normalizeUsername = (value: string) =>
     .toLowerCase()
     .replace(/[^a-z0-9._-]/g, "");
 
-export const ChipNetModal = ({ open, onOpenChange, ownerUserId, onSwitched }: ChipNetModalProps) => {
+export const ChipNetModal = ({ open, onOpenChange, ownerUserId, panelLabel, onSwitched }: ChipNetModalProps) => {
   const { toast } = useToast();
+  const label = (panelLabel || "CHIP NET").toUpperCase();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -55,9 +58,9 @@ export const ChipNetModal = ({ open, onOpenChange, ownerUserId, onSwitched }: Ch
         if (newUserId && ownerUserId && newUserId !== ownerUserId) {
           await supabase
             .from("panel_links")
-            .insert({ owner_user_id: ownerUserId, partner_user_id: newUserId, partner_label: "CHIP NET" });
+            .insert({ owner_user_id: ownerUserId, partner_user_id: newUserId, partner_label: label });
         }
-        toast({ title: "Painel CHIP NET criado!", description: `Bem-vindo, ${user}.` });
+        toast({ title: `Painel ${label} criado!`, description: `Bem-vindo, ${user}.` });
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -66,9 +69,9 @@ export const ChipNetModal = ({ open, onOpenChange, ownerUserId, onSwitched }: Ch
         if (newUserId && ownerUserId && newUserId !== ownerUserId) {
           await supabase
             .from("panel_links")
-            .insert({ owner_user_id: ownerUserId, partner_user_id: newUserId, partner_label: "CHIP NET" });
+            .insert({ owner_user_id: ownerUserId, partner_user_id: newUserId, partner_label: label });
         }
-        toast({ title: "Painel CHIP NET", description: `Conectado como ${user}.` });
+        toast({ title: `Painel ${label}`, description: `Conectado como ${user}.` });
       }
 
       setUsername("");
@@ -97,7 +100,7 @@ export const ChipNetModal = ({ open, onOpenChange, ownerUserId, onSwitched }: Ch
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-foreground">
             <Signal className="h-5 w-5 text-cyan-400" />
-            Painel CHIP NET
+            Painel {label}
           </DialogTitle>
         </DialogHeader>
 
@@ -156,7 +159,7 @@ export const ChipNetModal = ({ open, onOpenChange, ownerUserId, onSwitched }: Ch
         </button>
 
         <p className="text-[11px] leading-snug text-muted-foreground">
-          O painel CHIP NET é uma conta separada com a mesma tela e as mesmas funções — cada um vê apenas as suas
+          O painel {label} é uma conta separada com a mesma tela e as mesmas funções — cada um vê apenas as suas
           próprias linhas. A busca por telefone consulta os dois painéis.
         </p>
       </DialogContent>
