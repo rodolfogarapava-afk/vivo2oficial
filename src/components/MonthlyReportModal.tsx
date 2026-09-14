@@ -20,6 +20,9 @@ interface MonthlyReportModalProps {
 const money = (value: number) =>
   value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+const compactMoney = (value: number) =>
+  value.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
+
 const SummaryBox = ({
   title,
   value,
@@ -204,17 +207,20 @@ export const MonthlyReportModal = ({
             <h4 className="mb-2 text-xs font-extrabold uppercase tracking-wide text-purple-200">
               Últimos {report.history.length} meses
             </h4>
-            <div className="flex gap-2 overflow-x-auto pb-1 touch-pan-y">
+            <div className="grid grid-cols-6 gap-1">
               {report.history.map((point) => (
                 <div
                   key={point.key}
-                  className={`shrink-0 rounded-lg px-3 py-2 text-center ${
+                  className={`min-w-0 rounded-lg px-1 py-2 text-center ${
                     point.key === monthKey ? "bg-purple-700" : "bg-purple-950/40"
                   }`}
                 >
-                  <p className="text-[10px] font-bold text-purple-200 uppercase">{point.label}</p>
-                  <p className="text-xs font-extrabold text-white tabular-nums">
-                    {money(point.total)}
+                  <p className="text-[9px] font-bold text-purple-200 uppercase">{point.label}</p>
+                  <p
+                    className="text-[10px] font-extrabold text-white tabular-nums"
+                    title={money(point.total)}
+                  >
+                    {compactMoney(point.total)}
                   </p>
                 </div>
               ))}
