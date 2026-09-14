@@ -280,6 +280,17 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
     return digits;
   };
 
+  // Exibição do número na lista (celular 11 dígitos e fixo 10 dígitos)
+  const formatPhoneDisplay = (phone: string) => {
+    const numbers = (phone || "").replace(/\D/g, "");
+    if (numbers.length === 11)
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7)}`;
+    if (numbers.length === 10)
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 6)}-${numbers.slice(6)}`;
+    return phone || "";
+  };
+
+
   const handleSaveWhatsApp = () => {
     saveWhatsAppSettings({
       destinationPhone,
@@ -1141,15 +1152,21 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   type="button"
                   variant="ghost"
                   onClick={() => handleStartEdit(client)}
-                  className="w-full min-h-12 h-auto justify-start bg-purple-900/70 hover:bg-purple-700 text-white rounded-xl px-4 py-3"
+                  className="w-full min-h-12 h-auto justify-start bg-purple-900/70 hover:bg-purple-700 text-white rounded-xl px-3 py-3"
                 >
                   <Pencil className="h-4 w-4 mr-3 shrink-0" />
                   {Number(client.value_paid) > 0 && (
                     <Star className="h-4 w-4 mr-2 shrink-0 fill-current text-green-400" aria-label="Valor cadastrado" />
                   )}
-                  <span className="text-left whitespace-normal break-words">{client.name}</span>
+                  <span className="flex-1 text-left whitespace-normal break-words">{client.name}</span>
+                  {client.phone?.replace(/\D/g, "") ? (
+                    <span className="ml-2 shrink-0 text-sm font-bold text-green-300 tabular-nums whitespace-nowrap">
+                      {formatPhoneDisplay(client.phone)}
+                    </span>
+                  ) : null}
                 </Button>
               ))}
+
               {clients.length === 0 && (
                 <p className="py-8 text-center text-sm text-purple-200">Nenhum cliente cadastrado.</p>
               )}
