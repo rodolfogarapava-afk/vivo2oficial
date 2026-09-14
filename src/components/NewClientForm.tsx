@@ -3,6 +3,7 @@ import { User, Phone, Star, Store, Sparkles, CheckCircle2, Building2 } from "luc
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAccounts } from "@/hooks/useAccounts";
+import { formatClientName } from "@/lib/formatName";
 
 interface NewClientFormProps {
   onSubmit: (client: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; virtual_chip: boolean; is_resale: boolean; bonus: boolean; already_paid: boolean; company: string; account: number | null }) => void;
@@ -52,7 +53,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
     if (!name.trim() || !phone.trim() || !valuePaid || phoneError) return;
 
     onSubmit({
-      name: name.trim(),
+      name: formatClientName(name),
       phone: phone.trim(),
       whatsapp: whatsapp.trim() || null,
       value_paid: parseFloat(valuePaid),

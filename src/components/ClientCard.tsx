@@ -4,6 +4,7 @@ import { Client } from "@/hooks/useClients";
 import { useWhatsAppSettings } from "@/hooks/useWhatsAppSettings";
 import { useBlockWhatsApp } from "@/hooks/useBlockWhatsApp";
 import { isFreeLine } from "@/hooks/useFreeLineColor";
+import { formatClientName } from "@/lib/formatName";
 import { useToast } from "@/hooks/use-toast";
 import whatsappIcon from "@/assets/whatsapp-icon.png";
 import {
@@ -249,7 +250,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             <h3 className={`flex-1 font-semibold text-sm whitespace-nowrap overflow-x-auto ${isResale ? 'text-white' : isNexus ? 'text-black' : 'text-white'}`}>
               {isFree && <span className="mr-1">✅</span>}
               {showGlobe && <span className="mr-1">🌐</span>}
-              {client.name}
+              {formatClientName(client.name)}
             </h3>
             {settings.showClientWhatsApp && (client.whatsapp || client.phone) && <button
               onClick={handleWhatsAppClick}
@@ -314,7 +315,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
               {client.phone.replace(/\D/g, "").length === 0 && <span className="mr-1">⚠️</span>}
               {isFree && <span className="mr-1">✅</span>}
               {showGlobe && <span className="mr-1">🌐</span>}
-              {client.name}
+              {formatClientName(client.name)}
               {client.blocked && <span className="ml-2 text-[10px] font-bold text-red-400 no-underline">(BLOQUEADO)</span>}
               {client.bonus && !client.blocked && <span className="ml-2 text-[10px] font-bold text-yellow-600">★ BÔNUS</span>}
             </h3>

@@ -18,6 +18,7 @@ import { useAccounts } from "@/hooks/useAccounts";
 import whatsappIcon from "@/assets/whatsapp-icon.png";
 import { useFixedExpense } from "@/hooks/useFixedExpense";
 import { ALL_DUE_DAYS, useVisibleDueDays } from "@/lib/dueDays";
+import { formatClientName } from "@/lib/formatName";
 
 interface SettingsModalProps {
   open: boolean;
@@ -565,7 +566,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
     if (!editingClient || !editName.trim() || !editPhone.trim() || !editValue) return;
     
     onEditClient(editingClient.id, {
-      name: editName.trim(),
+      name: formatClientName(editName),
       phone: editPhone.trim(),
       whatsapp: editWhatsapp.trim() || null,
       value_paid: parseFloat(editValue),
