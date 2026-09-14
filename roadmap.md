@@ -33,5 +33,7 @@
 
 - [x] Lista "Vence amanhã" com botão de cobrar no WhatsApp (um toque) e marcar como pago
 
+- [x] Minha conta como ADM: tokens de acesso (30 dias/vitalício), nome dos painéis e botão Gestor só no meu app
+
 ## Pendente
 - [ ] Envio automático de verdade (sem tocar): exige a API oficial do WhatsApp Business (cadastro + aprovação + custo por mensagem) - aguardando decisão
