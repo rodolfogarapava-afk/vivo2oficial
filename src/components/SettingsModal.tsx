@@ -174,7 +174,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   
   const [destinationPhone, setDestinationPhone] = useState("");
   const [messageTemplate, setMessageTemplate] = useState("");
-  const [useBusiness, setUseBusiness] = useState(false);
+  const [useBusiness, setUseBusiness] = useState(true);
   const [showClientWhatsApp, setShowClientWhatsApp] = useState(false);
   const [clientMessageTemplate, setClientMessageTemplate] = useState("");
   const [isMessageLocked, setIsMessageLocked] = useState(true);
@@ -1166,6 +1166,41 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                     toast({ title: checked ? "Logo ligada" : "Logo desligada", description: checked ? "O ícone do WhatsApp aparece no cartão." : "O ícone do WhatsApp não aparece no cartão." });
                   }}
                 />
+              </div>
+              <div className="rounded-xl bg-purple-800/60 p-3 space-y-2">
+                <div>
+                  <p className="text-sm font-medium text-white">Enviar pelo</p>
+                  <p className="text-[11px] text-purple-200">Escolha qual WhatsApp abre ao enviar as mensagens.</p>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { label: "WhatsApp Business", value: true },
+                    { label: "WhatsApp normal", value: false },
+                  ].map((option) => (
+                    <button
+                      key={option.label}
+                      type="button"
+                      onClick={() => {
+                        setUseBusiness(option.value);
+                        saveWhatsAppSettings({
+                          destinationPhone,
+                          messageTemplate,
+                          useBusiness: option.value,
+                          showClientWhatsApp,
+                          clientMessageTemplate,
+                        });
+                        toast({ title: "Pronto", description: `As mensagens vão abrir no ${option.label}.` });
+                      }}
+                      className={`rounded-xl px-2 py-2 text-xs font-bold ${
+                        useBusiness === option.value
+                          ? "bg-green-600 text-white"
+                          : "border border-purple-500 bg-purple-900/50 text-purple-100"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between gap-2">
