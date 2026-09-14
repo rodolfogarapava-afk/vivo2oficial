@@ -126,16 +126,18 @@ Deno.serve(async (req) => {
 
     if (action === 'probe') {
       const out: Array<Record<string, unknown>> = []
-      const variants: Array<Record<string, unknown>> = [
-        { startRow: 1, fetchSize: 10 },
-        { startRow: 0, fetchSize: 10 },
-        { startRow: 1, fetchSize: 3 },
-        { startRow: 0, fetchSize: 3, filter: 'all_lines' },
-        { startRow: 1, fetchSize: 10, orderBy: 'name', orderType: 'asc' },
-      ]
-      for (const v of variants) {
-        const r = await call('loadViewBlockVoice', v, jar, ENDPOINTS.blockgroup)
-        out.push({ v: JSON.stringify(v), status: r.status, preview: JSON.stringify(r.json ?? r.text).slice(0, 700) })
+      const gv = await call('loadViewBlockVoice', { startRow: 1, fetchSize: 50 }, jar, ENDPOINTS.blockgroup)
+      const groups = (gv.json as { groups?: Array<{ id: number; name: string; totalLines: number }> } | null)?.groups ?? []
+      out.push({ step: 'groups', list: groups.map((g) => ({ id: g.id, name: g.name, totalLines: g.totalLines })) })
+      for (const g of groups) {
+        for (const body of [
+          { action: 'loadLinesBlockVoice', group: g, startRow: 1, fetchSize: 100 },
+          { action: 'loadLinesBlockVoice', groupId: g.id, startRow: 1, fetchSize: 100 },
+        ]) {
+          const r = await call(body.action as string, body as Record<string, unknown>, jar, ENDPOINTS.blockgroup)
+          out.push({ step: `lines g${g.id} ${Object.keys(body).join(',')}`, status: r.status, preview: JSON.stringify(r.json ?? r.text).slice(0, 900) })
+          if (r.status === 200) break
+        }
       }
       result.probes = out
     } else if (action !== 'login') {
