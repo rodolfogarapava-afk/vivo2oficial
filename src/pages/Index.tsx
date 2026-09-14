@@ -745,13 +745,15 @@ const Index = () => {
       />
 
       {/* Monthly report */}
-      <MonthlyReportModal
-        open={showReport}
-        onClose={() => setShowReport(false)}
-        clients={clients}
-        fixedExpense={fixedExpense}
-        userId={user?.id}
-      />
+      {showReport && (
+        <MonthlyReportModal
+          open
+          onClose={() => setShowReport(false)}
+          clients={clients}
+          fixedExpense={fixedExpense}
+          userId={user?.id}
+        />
+      )}
 
       {/* Install PWA Banner */}
       <InstallPWA />
