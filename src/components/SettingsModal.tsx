@@ -1255,18 +1255,28 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
             <div className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain pr-1 pb-4 touch-pan-y">
               {(vivo.lines ?? []).map((line) => {
                 const giga = gigaForPhone(line.phone);
+                const isFree = !line.name.trim();
+                const lineKey = (line.phone ?? "").replace(/\D/g, "");
+                const inApp = !isFree && clients.some((c) => (c.phone ?? "").replace(/\D/g, "") === lineKey);
                 return (
                   <div
                     key={line.phone}
-                    className="flex items-center gap-2 rounded-xl bg-purple-900/70 px-3 py-3 text-white"
+                    className={`flex items-center gap-2 rounded-xl px-3 py-3 ${
+                      isFree
+                        ? "bg-green-900/60 text-white"
+                        : inApp
+                          ? "bg-purple-900/70 text-white"
+                          : "bg-red-300 text-red-950"
+                    }`}
                   >
+                    <span className="shrink-0" aria-hidden>{isFree ? "🟢" : inApp ? "" : "🔵"}</span>
                     <span className="flex-1 text-left text-sm font-semibold whitespace-normal break-words">
                       {line.name.trim() || "LIVRE"}
                     </span>
-                    <span className="shrink-0 text-sm font-bold text-green-300 tabular-nums whitespace-nowrap">
+                    <span className={`shrink-0 text-sm font-bold tabular-nums whitespace-nowrap ${inApp || isFree ? "text-green-300" : "text-red-900"}`}>
                       {formatPhoneDisplay(line.phone)}
                     </span>
-                    <span className="shrink-0 text-sm font-bold text-blue-300 tabular-nums whitespace-nowrap">
+                    <span className={`shrink-0 text-sm font-bold tabular-nums whitespace-nowrap ${inApp || isFree ? "text-blue-300" : "text-red-900"}`}>
                       {giga > 0 ? `${giga} GB` : "—"}
                     </span>
                   </div>
