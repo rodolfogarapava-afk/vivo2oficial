@@ -1,11 +1,12 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Loader2, LogOut, Search, X, Lock, Unlock, Ban, Save, Mail, UserPlus, Eye, EyeOff, Signal, RefreshCw, TrendingUp } from "lucide-react";
+import { Settings, Loader2, LogOut, Search, X, Lock, Unlock, Ban, Save, Mail, UserPlus, Eye, EyeOff, Signal, RefreshCw, TrendingUp, CalendarClock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ClientCard } from "@/components/ClientCard";
 import { NewClientForm } from "@/components/NewClientForm";
 import { SettingsModal } from "@/components/SettingsModal";
 import { MonthlyReportModal } from "@/components/MonthlyReportModal";
+import { DueTomorrowModal } from "@/components/DueTomorrowModal";
 import { InstallPWA } from "@/components/InstallPWA";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { ResaleModal } from "@/components/ResaleModal";
@@ -66,6 +67,7 @@ const Index = () => {
   const [showForm, setShowForm] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showReport, setShowReport] = useState(false);
+  const [showDueTomorrow, setShowDueTomorrow] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDueDay, setSelectedDueDay] = useState<number | null>(null);
