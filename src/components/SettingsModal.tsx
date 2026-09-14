@@ -25,7 +25,7 @@ interface SettingsModalProps {
   clients: Client[];
   fixedExpense: number;
   onDeleteClient: (id: string) => void;
-  onEditClient: (id: string, data: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; bonus: boolean; is_resale: boolean; company: string; account: number | null }) => void;
+  onEditClient: (id: string, data: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; bonus: boolean; is_resale: boolean; company: string; account: number | null; data_gb?: number }) => void;
   onBlockClient: (id: string, blocked: boolean) => void;
   onRefresh?: () => void;
   totalsByDay: Record<number, number>;
