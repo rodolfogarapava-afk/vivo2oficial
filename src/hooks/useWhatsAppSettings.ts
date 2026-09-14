@@ -45,14 +45,40 @@ const formatPhoneForMessage = (phone: string): string => {
 };
 
 const STORAGE_KEY = "whatsapp-settings";
-const DEFAULT_CLIENT_MESSAGE = "Olá, {nome}!";
+const LEGACY_CLIENT_MESSAGES = ["", "Olá, {nome}!"];
+const DEFAULT_CLIENT_MESSAGE = `*👷{nome}!*
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+*♻️LINHA ATUALIZADA♻️*
+
+
+
+*🚨Ativa e desativa modo ✈️ avião*
+
+
+
+*🌐VIVO 200GB*
+
+*📱Número: {telefone}*
+
+*📅Data: {data}*
+
+*🕕 Horas: {hora}*
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+*✅Preferência gera preferência✅*`;
 
 const withDefaults = (settings: Partial<WhatsAppSettings>): WhatsAppSettings => ({
   destinationPhone: settings.destinationPhone ?? "",
   messageTemplate: settings.messageTemplate ?? DEFAULT_MESSAGE,
   useBusiness: settings.useBusiness ?? false,
-  showClientWhatsApp: settings.showClientWhatsApp ?? false,
-  clientMessageTemplate: settings.clientMessageTemplate ?? DEFAULT_CLIENT_MESSAGE,
+  showClientWhatsApp: settings.showClientWhatsApp ?? true,
+  clientMessageTemplate:
+    settings.clientMessageTemplate && !LEGACY_CLIENT_MESSAGES.includes(settings.clientMessageTemplate)
+      ? settings.clientMessageTemplate
+      : DEFAULT_CLIENT_MESSAGE,
 });
 
 // Custom event for settings updates
