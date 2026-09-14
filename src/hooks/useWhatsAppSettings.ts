@@ -82,6 +82,39 @@ const withDefaults = (settings: Partial<WhatsAppSettings>): WhatsAppSettings => 
       : DEFAULT_CLIENT_MESSAGE,
 });
 
+// Reads what is saved on this device
+const readStoredSettings = (): WhatsAppSettings => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return withDefaults(JSON.parse(saved));
+  } catch (e) {
+    console.error("Error loading WhatsApp settings:", e);
+  }
+  return withDefaults({});
+};
+
+// Creates the account record when it is missing, or updates the saved values
+const saveProfileToCloud = async (
+  userId: string,
+  values: { showClientWhatsApp: boolean; clientMessageTemplate: string }
+) => {
+  try {
+    const { error } = await supabase
+      .from("profiles")
+      .upsert(
+        {
+          user_id: userId,
+          whatsapp_show_card: values.showClientWhatsApp,
+          whatsapp_client_message: values.clientMessageTemplate,
+        },
+        { onConflict: "user_id" }
+      );
+    if (error) console.error("Erro ao salvar o WhatsApp na nuvem:", error.message);
+  } catch (err) {
+    console.error("Erro ao salvar o WhatsApp na nuvem:", err);
+  }
+};
+
 // Custom event for settings updates
 const SETTINGS_UPDATED_EVENT = "whatsapp-settings-updated";
 
@@ -111,7 +144,16 @@ export const useWhatsAppSettings = () => {
           .select("whatsapp_show_card, whatsapp_client_message")
           .eq("user_id", userId)
           .maybeSingle();
-        if (cancelled || !data) return;
+        if (cancelled) return;
+        if (!data) {
+          // No record yet: create it with what is saved on this device
+          const stored = readStoredSettings();
+          await saveProfileToCloud(userId, {
+            showClientWhatsApp: stored.showClientWhatsApp,
+            clientMessageTemplate: stored.clientMessageTemplate,
+          });
+          return;
+        }
         setSettings((prev) => {
           const merged = withDefaults({
             ...prev,
@@ -163,13 +205,10 @@ export const useWhatsAppSettings = () => {
         const { data: userData } = await supabase.auth.getUser();
         const userId = userData?.user?.id;
         if (!userId) return;
-        await supabase
-          .from("profiles")
-          .update({
-            whatsapp_show_card: newSettings.showClientWhatsApp,
-            whatsapp_client_message: newSettings.clientMessageTemplate,
-          })
-          .eq("user_id", userId);
+        await saveProfileToCloud(userId, {
+          showClientWhatsApp: newSettings.showClientWhatsApp,
+          clientMessageTemplate: newSettings.clientMessageTemplate,
+        });
       } catch {}
     })();
   }, []);

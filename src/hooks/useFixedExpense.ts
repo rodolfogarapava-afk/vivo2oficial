@@ -16,6 +16,21 @@ const readStored = (): number => {
   return DEFAULT_VALUE;
 };
 
+// Creates the account record when it is missing, or updates the saved value
+const saveToCloud = async (value: number) => {
+  try {
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
+    if (!userId) return;
+    const { error } = await supabase
+      .from("profiles")
+      .upsert({ user_id: userId, fixed_expense: value }, { onConflict: "user_id" });
+    if (error) console.error("Erro ao salvar o gasto na nuvem:", error.message);
+  } catch (err) {
+    console.error("Erro ao salvar o gasto na nuvem:", err);
+  }
+};
+
 export const useFixedExpense = () => {
   const [fixedExpense, setFixedExpenseState] = useState<number>(() => readStored());
 
@@ -42,8 +57,13 @@ export const useFixedExpense = () => {
           .select("fixed_expense")
           .eq("user_id", userId)
           .maybeSingle();
+        if (cancelled) return;
         const remote = data?.fixed_expense;
-        if (cancelled || remote === null || remote === undefined) return;
+        if (remote === null || remote === undefined) {
+          // Nothing saved yet (or no record at all): keep this device's value safe in the cloud
+          await saveToCloud(readStored());
+          return;
+        }
         const value = Number(remote);
         if (!Number.isFinite(value) || value < 0) return;
         localStorage.setItem(STORAGE_KEY, String(value));
@@ -61,14 +81,7 @@ export const useFixedExpense = () => {
     localStorage.setItem(STORAGE_KEY, String(v));
     setFixedExpenseState(v);
     window.dispatchEvent(new Event(EVENT_NAME));
-    (async () => {
-      try {
-        const { data: userData } = await supabase.auth.getUser();
-        const userId = userData?.user?.id;
-        if (!userId) return;
-        await supabase.from("profiles").update({ fixed_expense: v }).eq("user_id", userId);
-      } catch {}
-    })();
+    void saveToCloud(v);
   }, []);
 
   return { fixedExpense, setFixedExpense };
