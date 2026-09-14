@@ -202,6 +202,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [showClientList, setShowClientList] = useState(false);
+  const [showPanelList, setShowPanelList] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
