@@ -23,6 +23,7 @@ const ALLOWED_ACTIONS = new Set([
   'getAbbreviatedData',
   'loadView',
   'probe',
+  'listLines',
   'loadViewVivoSync',
   'loadLinesVivoSync',
   'loadViewBlockVoice',
@@ -127,17 +128,18 @@ Deno.serve(async (req) => {
     if (action === 'probe') {
       const out: Array<Record<string, unknown>> = []
       const gv = await call('loadViewBlockVoice', { startRow: 1, fetchSize: 10 }, jar, ENDPOINTS.blockgroup)
-      const groups = (gv.json as { groups?: Array<{ id: number; name: string; totalLines: number }> } | null)?.groups ?? []
-      out.push({ step: 'groups', list: groups.map((g) => ({ id: g.id, name: g.name, totalLines: g.totalLines })) })
-      for (const g of groups) {
-        for (const body of [
-          { action: 'loadLinesBlockVoice', group: g, startRow: 1, fetchSize: 10 },
-          { action: 'loadLinesBlockVoice', groupId: g.id, startRow: 1, fetchSize: 10 },
-        ]) {
-          const r = await call(body.action as string, body as Record<string, unknown>, jar, ENDPOINTS.blockgroup)
-          out.push({ step: `lines g${g.id} ${Object.keys(body).join(',')}`, status: r.status, preview: JSON.stringify(r.json ?? r.text).slice(0, 900) })
-          if (r.status === 200) break
-        }
+      const groups = (gv.json as { groups?: Array<Record<string, unknown>> } | null)?.groups ?? []
+      const raio = groups.find((g) => String(g.name).toUpperCase() === 'RAIO') ?? groups[0]
+      const attempts: Array<[string, string, Record<string, unknown>]> = [
+        ['blockgroup', 'loadLinesBlockVoice', { group: raio, startRow: 1, fetchSize: 10, filter: 'all_lines' }],
+        ['blockgroup', 'listLines', { group: raio, startRow: 1, fetchSize: 10, filter: 'all_lines' }],
+        ['blockgroup', 'listLines', { groupId: (raio as { id: number }).id, startRow: 1, fetchSize: 10, filter: 'all_lines' }],
+        ['voiceconsumption', 'listLines', { group: raio, startRow: 1, fetchSize: 10 }],
+        ['voiceconsumption', 'loadingLines', { group: raio, startRow: 1, fetchSize: 10, hasOverBalanceMonetaryVoice: true, hasHibridService: false, lineTypeFilter: 'T' }],
+      ]
+      for (const [ep, act, body] of attempts) {
+        const r = await call(act, body, jar, ENDPOINTS[ep])
+        out.push({ ep, act, status: r.status, preview: JSON.stringify(r.json ?? r.text).slice(0, 900) })
       }
       result.probes = out
     } else if (action !== 'login') {
