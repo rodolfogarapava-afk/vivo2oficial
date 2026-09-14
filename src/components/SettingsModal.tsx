@@ -945,6 +945,15 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 {vivo.isLoading ? <Loader2 className="h-5 w-5 mr-2 animate-spin" /> : <CloudDownload className="h-5 w-5 mr-2" />}
                 {vivo.isLoading ? "Lendo o painel..." : "Conferir painel Vivo"}
               </Button>
+              <Button
+                type="button"
+                disabled={vivo.isLoading}
+                onClick={handleOpenPanelList}
+                className="w-full h-12 mt-2 bg-purple-700 hover:bg-purple-600 text-white rounded-xl font-bold"
+              >
+                {vivo.isLoading ? <Loader2 className="h-5 w-5 mr-2 animate-spin" /> : <Users className="h-5 w-5 mr-2" />}
+                Lista de nomes do gestor
+              </Button>
               {syncPlan && (
                 <div className="mt-3 space-y-2 text-xs text-white/80">
                   <p>Novas linhas para adicionar: <strong className="text-white">{syncPlan.toAdd.length}</strong></p>
