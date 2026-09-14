@@ -944,8 +944,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
               </Button>
             </div>
 
-            {/* ===== Painel Vivo Gestão ===== */}
-            <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
+            {/* ===== Painel Vivo Gestão (somente ADM) ===== */}
+            <div className={`bg-purple-900/50 rounded-xl p-3 sm:p-4 ${isAdmin ? "" : "hidden"}`}>
               <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                 <Signal className="h-4 w-4" />
                 Painel Vivo Gestão
