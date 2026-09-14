@@ -22,6 +22,7 @@ import { useBlockWhatsApp } from "@/hooks/useBlockWhatsApp";
 import { useWhatsAppSettings } from "@/hooks/useWhatsAppSettings";
 import { useVisibleDueDays } from "@/lib/dueDays";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { isFreeLine } from "@/hooks/useFreeLineColor";
 import { checkForPWAUpdate } from "@/pwa";
 
 import {
@@ -198,6 +199,9 @@ const Index = () => {
     if (hidePaidClients) {
       result = result.filter(client => !paidClientIds.includes(client.id));
     }
+
+    // Linhas livres (nome começando com "LIVRE") sempre no topo da lista
+    result = [...result].sort((a, b) => Number(isFreeLine(b.name)) - Number(isFreeLine(a.name)));
 
     return result;
   }, [clients, searchQuery, selectedDueDay, hidePaidClients, paidClientIds]);

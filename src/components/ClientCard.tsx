@@ -296,6 +296,8 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                   ? 'text-black'
                   : isResale
                     ? 'text-white'
+                  : isFree
+                    ? freeLight ? 'text-black' : 'text-white'
                   : isNexus
                     ? 'text-black'
                     : isPaid
@@ -305,12 +307,13 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                         : 'text-foreground'
             }`}>
               {client.phone.replace(/\D/g, "").length === 0 && <span className="mr-1">⚠️</span>}
+              {isFree && <span className="mr-1">✅</span>}
               {client.company !== "nexus" && <span className="mr-1">🌐</span>}
               {client.name}
               {client.blocked && <span className="ml-2 text-[10px] font-bold text-red-400 no-underline">(BLOQUEADO)</span>}
               {client.bonus && !client.blocked && <span className="ml-2 text-[10px] font-bold text-yellow-600">★ BÔNUS</span>}
             </h3>
-            <div className={`flex items-center gap-1 ${isResale && !client.blocked ? 'text-white/80' : client.bonus && !client.blocked ? 'text-black/70' : isNexus && !client.blocked ? 'text-black/70' : 'text-muted-foreground'}`}>
+            <div className={`flex items-center gap-1 ${isResale && !client.blocked ? 'text-white/80' : client.bonus && !client.blocked ? 'text-black/70' : isFree ? (freeLight ? 'text-black/70' : 'text-white/80') : isNexus && !client.blocked ? 'text-black/70' : 'text-muted-foreground'}`}>
               <Phone className={`h-3 w-3 flex-shrink-0`} />
               <span className={`text-xs whitespace-nowrap ${client.blocked ? 'line-through text-red-400/60' : ''}`}>{formatPhoneDisplay(client.phone)}</span>
             </div>
@@ -321,6 +324,8 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                   ? 'text-black'
                   : isResale
                     ? 'text-white'
+                  : isFree
+                    ? freeLight ? 'text-green-800' : 'text-white'
                   : isNexus
                     ? 'text-green-700'
                     : 'text-green-500'
