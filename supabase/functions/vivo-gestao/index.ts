@@ -14,28 +14,6 @@ const ENDPOINTS: Record<string, string> = {
   vivosync: `${API}/datapackvivosync`,
 }
 
-const ALLOWED_ACTIONS = new Set([
-  'login',
-  'welcome',
-  'listLines',
-  'listGroups',
-  'loadingLines',
-  'getAbbreviatedData',
-  'loadView',
-  'probe',
-  'listLines',
-  'loadViewVivoSync',
-  'loadLinesVivoSync',
-  'loadViewBlockVoice',
-  'loadLinesBlockVoice',
-  'listGroups',
-  'getLines',
-  'lines',
-  'listClients',
-  'consultaLinhas',
-  'linhas',
-])
-
 function collectCookies(res: Response, jar: Record<string, string>) {
   const raw = (res.headers as unknown as { getSetCookie?: () => string[] }).getSetCookie?.() ?? []
   for (const c of raw) {
@@ -85,6 +63,42 @@ async function call(action: string, body: Record<string, unknown>, jar: Record<s
   return { status: res.status, json, text: text.slice(0, 4000) }
 }
 
+type PanelLine = {
+  group: string
+  groupId: number | null
+  name: string
+  phone: string
+  blocked: boolean
+  raw?: Record<string, unknown>
+}
+
+async function fetchAllLines(jar: Record<string, string>, includeRaw = false) {
+  const gv = await call('loadViewBlockVoice', { startRow: 1, fetchSize: 10 }, jar, ENDPOINTS.blockgroup)
+  const groups = (gv.json as { groups?: Array<{ id: number; name: string; totalLines: number }> } | null)?.groups ?? []
+  const all: PanelLine[] = []
+  for (const g of groups) {
+    const pageSize = 10
+    const pages = Math.max(1, Math.ceil((g.totalLines || 0) / pageSize))
+    for (let page = 1; page <= pages; page++) {
+      const startRow = (page - 1) * pageSize + 1
+      const r = await call('listLines', { groupId: g.id, startRow, fetchSize: pageSize, filter: 'all_lines' }, jar, ENDPOINTS.blockgroup)
+      const rows = Array.isArray(r.json) ? r.json as Array<Record<string, unknown>> : []
+      if (!rows.length) break
+      for (const row of rows) {
+        all.push({
+          group: g.name,
+          groupId: g.id ?? null,
+          name: String(row.userName ?? '').trim(),
+          phone: String(row.lineNumber ?? '').replace(/\D/g, ''),
+          blocked: Boolean(row.blocked || row.blockedManager),
+          ...(includeRaw ? { raw: row } : {}),
+        })
+      }
+    }
+  }
+  return { groups: groups.map((g) => ({ id: g.id, name: g.name, totalLines: g.totalLines })), lines: all }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
@@ -97,19 +111,24 @@ Deno.serve(async (req) => {
       })
     }
 
-    let payload: { action?: string; endpoint?: string; method?: string; extra?: Record<string, unknown> } = {}
+    let payload: {
+      action?: string
+      endpoint?: string
+      method?: string
+      extra?: Record<string, unknown>
+      verbose?: boolean
+    } = {}
     if (req.method === 'POST') {
       try { payload = await req.json() } catch { payload = {} }
     }
-    const action = payload.action ?? 'login'
-    if (!ALLOWED_ACTIONS.has(action)) {
-      return new Response(JSON.stringify({ error: `acao nao permitida: ${action}` }), {
+    const action = payload.action ?? 'sync'
+    if (!/^[A-Za-z0-9_]{1,40}$/.test(action)) {
+      return new Response(JSON.stringify({ error: 'acao invalida' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
     const jar: Record<string, string> = {}
-    // establish a session cookie first (some flows bind the session to the initial JSESSIONID)
     const boot = await fetch('https://vivogestao.vivoempresas.com.br/Portal/data/login', {
       headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36' },
     })
@@ -119,51 +138,39 @@ Deno.serve(async (req) => {
     const login = await call('login', { user, password }, jar)
     const welcome = await call('welcome', {}, jar)
 
-    const result: Record<string, unknown> = {
-      login: { status: login.status, body: login.json ?? login.text },
-      welcome: { status: welcome.status, body: welcome.json ?? welcome.text },
-      cookies: Object.keys(jar),
+    const result: Record<string, unknown> = {}
+    if (payload.verbose || action === 'login' || action === 'probe') {
+      result.login = { status: login.status, body: login.json ?? login.text }
+      result.welcome = { status: welcome.status, body: welcome.json ?? welcome.text }
+      result.cookies = Object.keys(jar)
     }
 
-    if (action === 'lines' || action === 'listLines' || action === 'probe') {
-      const gv = await call('loadViewBlockVoice', { startRow: 1, fetchSize: 10 }, jar, ENDPOINTS.blockgroup)
-      const groups = (gv.json as { groups?: Array<{ id: number; name: string; totalLines: number }> } | null)?.groups ?? []
-      const all: Array<{ group: string; name: string; phone: string; blocked: boolean }> = []
-      for (const g of groups) {
-        const pageSize = 10
-        const pages = Math.max(1, Math.ceil((g.totalLines || 0) / pageSize))
-        for (let page = 1; page <= pages; page++) {
-          const startRow = (page - 1) * pageSize + 1
-          const r = await call('listLines', { groupId: g.id, startRow, fetchSize: pageSize, filter: 'all_lines' }, jar, ENDPOINTS.blockgroup)
-          const rows = Array.isArray(r.json) ? r.json as Array<Record<string, unknown>> : []
-          if (!rows.length) break
-          for (const row of rows) {
-            all.push({
-              group: g.name,
-              name: String(row.userName ?? ''),
-              phone: String(row.lineNumber ?? ''),
-              blocked: Boolean(row.blocked || row.blockedManager),
-            })
-          }
-        }
-      }
-      result.groups = groups.map((g) => ({ id: g.id, name: g.name, totalLines: g.totalLines }))
-      result.lines = all
-      result.total = all.length
-    } else if (action !== 'login') {      const base = ENDPOINTS[payload.endpoint ?? 'consumption'] ?? BASE
+    if (action === 'sync' || action === 'lines' || action === 'listLines') {
+      const { groups, lines } = await fetchAllLines(jar, Boolean(payload.verbose))
+      result.groups = groups
+      result.lines = lines
+      result.total = lines.length
+    } else if (action === 'probe') {
+      const base = ENDPOINTS[payload.endpoint ?? 'consumption'] ?? BASE
+      const probeAction = String(payload.extra?.probeAction ?? 'loadView')
+      const extra = { ...(payload.extra ?? {}) }
+      delete extra.probeAction
       let next
       if ((payload.method ?? 'POST').toUpperCase() === 'GET') {
-        const qs = new URLSearchParams({ action })
-        for (const [k, v] of Object.entries(payload.extra ?? {})) qs.set(k, String(v))
+        const qs = new URLSearchParams({ action: probeAction })
+        for (const [k, v] of Object.entries(extra)) qs.set(k, String(v))
         next = await get(`${base}?${qs.toString()}`, jar)
       } else {
-        next = await call(action, payload.extra ?? {}, jar, base)
+        next = await call(probeAction, extra, jar, base)
       }
       result.data = { status: next.status, body: next.json ?? next.text }
       const after = await call('welcome', {}, jar)
       result.sessionStillValid = after.status === 200
+    } else if (action !== 'login') {
+      const base = ENDPOINTS[payload.endpoint ?? 'consumption'] ?? BASE
+      const next = await call(action, payload.extra ?? {}, jar, base)
+      result.data = { status: next.status, body: next.json ?? next.text }
     }
-
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

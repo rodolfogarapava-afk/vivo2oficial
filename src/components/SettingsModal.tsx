@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Download, FileText, Copy, Check, MessageCircle, Save, ArrowLeft, Palette, Pencil, Trash2, X, Users, Lock, LockOpen, Unlock, Building2, RefreshCw, CloudDownload, CreditCard, Send, Ban, Search, Star, Store, ShoppingCart, Eye, EyeOff, Calendar, Upload, Loader2 } from "lucide-react";
+import { Download, FileText, Signal, Copy, Check, MessageCircle, Save, ArrowLeft, Palette, Pencil, Trash2, X, Users, Lock, LockOpen, Unlock, Building2, RefreshCw, CloudDownload, CreditCard, Send, Ban, Search, Star, Store, ShoppingCart, Eye, EyeOff, Calendar, Upload, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useVivoPanel, type SyncPlan } from "@/hooks/useVivoPanel";
 import { Switch } from "@/components/ui/switch";
 import { Client } from "@/hooks/useClients";
 import { useState, useEffect } from "react";
@@ -24,7 +25,7 @@ interface SettingsModalProps {
   clients: Client[];
   fixedExpense: number;
   onDeleteClient: (id: string) => void;
-  onEditClient: (id: string, data: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; bonus: boolean; is_resale: boolean; company: string; account: number | null }) => void;
+  onEditClient: (id: string, data: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; bonus: boolean; is_resale: boolean; company: string; account: number | null; data_gb?: number }) => void;
   onBlockClient: (id: string, blocked: boolean) => void;
   onRefresh?: () => void;
   totalsByDay: Record<number, number>;
@@ -211,6 +212,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [editIsResale, setEditIsResale] = useState<boolean>(false);
   const [editCompany, setEditCompany] = useState<string>("omega");
   const [editAccount, setEditAccount] = useState<number | null>(null);
+  const [editDataGb, setEditDataGb] = useState<string>("0");
+  const [syncPlan, setSyncPlan] = useState<SyncPlan | null>(null);
 
 
   // Fixed expense settings
@@ -503,6 +506,26 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   };
 
 
+  const vivo = useVivoPanel();
+
+  const handleCheckPanel = async () => {
+    const panelLines = await vivo.fetchLines();
+    if (!panelLines || panelLines.length === 0) return;
+    setSyncPlan(vivo.buildPlan(panelLines, clients));
+  };
+
+  const handleApplyPanel = async () => {
+    if (!syncPlan) return;
+    const { data } = await supabase.auth.getUser();
+    const uid = data.user?.id;
+    if (!uid) return;
+    const ok = await vivo.applyPlan(syncPlan, uid);
+    if (ok) {
+      setSyncPlan(null);
+      onRefresh?.();
+    }
+  };
+
   const handleStartEdit = (client: Client) => {
     // Close the settings dialog first to release focus trap
     setShowClientList(false);
@@ -518,6 +541,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       setEditIsResale(Boolean(client.is_resale));
       setEditCompany("omega");
       setEditAccount(client.account ?? null);
+      setEditDataGb(String(client.data_gb ?? 0));
     }, 100);
   };
 
@@ -534,6 +558,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       is_resale: editIsResale,
       company: editCompany,
       account: editAccount,
+      data_gb: Number(editDataGb.replace(",", ".")) || 0,
     });
 
     setEditingClient(null);
@@ -888,6 +913,61 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
               </Button>
             </div>
 
+            {/* ===== Painel Vivo Gestão ===== */}
+            <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
+              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                <Signal className="h-4 w-4" />
+                Painel Vivo Gestão
+              </h3>
+              <p className="text-xs text-white/70 mb-3">
+                Puxa as linhas do painel. Linha sem nome entra como <strong>Livre</strong>.
+              </p>
+              <Button
+                type="button"
+                disabled={vivo.isLoading}
+                onClick={handleCheckPanel}
+                className="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold"
+              >
+                {vivo.isLoading ? <Loader2 className="h-5 w-5 mr-2 animate-spin" /> : <CloudDownload className="h-5 w-5 mr-2" />}
+                {vivo.isLoading ? "Lendo o painel..." : "Conferir painel Vivo"}
+              </Button>
+              {syncPlan && (
+                <div className="mt-3 space-y-2 text-xs text-white/80">
+                  <p>Novas linhas para adicionar: <strong className="text-white">{syncPlan.toAdd.length}</strong></p>
+                  <p>Nomes para atualizar: <strong className="text-white">{syncPlan.toUpdate.length}</strong></p>
+                  <p>Iguais: <strong className="text-white">{syncPlan.unchanged}</strong></p>
+                  <p>No app e não no painel: <strong className="text-white">{syncPlan.notInPanel.length}</strong></p>
+                  {syncPlan.toAdd.length > 0 && (
+                    <div className="max-h-32 overflow-y-auto rounded-lg bg-purple-950/60 p-2">
+                      {syncPlan.toAdd.map((l) => (
+                        <p key={l.phone}>{l.name} — {formatPhoneDisplay(l.phone)}</p>
+                      ))}
+                    </div>
+                  )}
+                  {syncPlan.toUpdate.length > 0 && (
+                    <div className="max-h-32 overflow-y-auto rounded-lg bg-purple-950/60 p-2">
+                      {syncPlan.toUpdate.map((u) => (
+                        <p key={u.id}>{u.from} → {u.to}</p>
+                      ))}
+                    </div>
+                  )}
+                  {syncPlan.toAdd.length + syncPlan.toUpdate.length > 0 ? (
+                    <Button
+                      type="button"
+                      disabled={vivo.isApplying}
+                      onClick={handleApplyPanel}
+                      className="w-full h-12 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold"
+                    >
+                      {vivo.isApplying ? <Loader2 className="h-5 w-5 mr-2 animate-spin" /> : <Check className="h-5 w-5 mr-2" />}
+                      Aplicar no aplicativo
+                    </Button>
+                  ) : (
+                    <p className="font-bold text-green-400">Tudo igual ao painel!</p>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* ===== Atalhos (Revenda / Ocultar) ===== */}
             <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
               <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
@@ -1225,6 +1305,29 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
               placeholder="Valor"
               className="w-full h-10 sm:h-12 bg-purple-900/50 border border-purple-600 text-white rounded-xl text-sm px-3 outline-none focus:ring-2 focus:ring-purple-400"
             />
+            <div>
+              <p className="text-xs text-white/70 mb-2">Giga da linha</p>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  value={editDataGb}
+                  onChange={(e) => setEditDataGb(e.target.value)}
+                  placeholder="Giga"
+                  className="flex-1 h-10 sm:h-12 bg-purple-900/50 border border-purple-600 text-white rounded-xl text-sm px-3 outline-none focus:ring-2 focus:ring-purple-400"
+                />
+                {[2, 5, 10].map((gb) => (
+                  <button
+                    key={gb}
+                    type="button"
+                    onClick={() => setEditDataGb(String((Number(editDataGb.replace(",", ".")) || 0) + gb))}
+                    className="h-10 sm:h-12 px-3 rounded-xl bg-green-600 hover:bg-green-500 text-white text-xs font-bold"
+                  >
+                    +{gb}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div>
               <p className="text-xs text-white/70 mb-2">Dia de Vencimento</p>
               <div className="grid grid-cols-6 gap-1.5">

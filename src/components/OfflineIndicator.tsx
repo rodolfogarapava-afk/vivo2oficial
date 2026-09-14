@@ -1,18 +1,12 @@
-import { Wifi, WifiOff, RefreshCw } from "lucide-react";
+import { WifiOff, ExternalLink } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { VIVO_PANEL_URL } from "@/hooks/useVivoPanel";
 
 export const OfflineIndicator = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const queryClient = useQueryClient();
 
   useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
-      // Auto-sync when back online
-      handleSync();
-    };
+    const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
     window.addEventListener("online", handleOnline);
@@ -24,41 +18,23 @@ export const OfflineIndicator = () => {
     };
   }, []);
 
-  const handleSync = async () => {
-    if (!navigator.onLine) return;
-    
-    setIsSyncing(true);
-    await queryClient.invalidateQueries({ queryKey: ["clients"] });
-    setTimeout(() => setIsSyncing(false), 1000);
-  };
+  if (!isOnline) {
+    return (
+      <span className="flex items-center gap-1.5 rounded-full bg-yellow-500/20 px-2 py-1 text-xs font-medium text-yellow-400">
+        <WifiOff className="h-3 w-3" />
+        Offline
+      </span>
+    );
+  }
 
   return (
-    <button 
-      onClick={handleSync}
-      disabled={!isOnline || isSyncing}
-      className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium transition-colors ${
-        isOnline 
-          ? "bg-green-500/20 text-green-400 hover:bg-green-500/30" 
-          : "bg-yellow-500/20 text-yellow-400"
-      }`}
-      title={isOnline ? "Clique para sincronizar" : "Sem conexão"}
+    <button
+      onClick={() => window.open(VIVO_PANEL_URL, "_blank", "noopener,noreferrer")}
+      className="flex items-center gap-1.5 rounded-full bg-green-500/20 px-2 py-1 text-xs font-medium text-green-400 transition-colors hover:bg-green-500/30"
+      title="Abrir o painel Vivo Gestão"
     >
-      {isSyncing ? (
-        <>
-          <RefreshCw className="h-3 w-3 animate-spin" />
-          <span>Sincronizando...</span>
-        </>
-      ) : isOnline ? (
-        <>
-          <Wifi className="h-3 w-3" />
-          <span>Online</span>
-        </>
-      ) : (
-        <>
-          <WifiOff className="h-3 w-3" />
-          <span>Offline</span>
-        </>
-      )}
+      <ExternalLink className="h-3 w-3" />
+      <span>Gestor</span>
     </button>
   );
 };
