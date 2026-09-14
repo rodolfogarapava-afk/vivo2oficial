@@ -122,24 +122,33 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          fixed_expense: number | null
           id: string
           updated_at: string
           user_id: string
           whatsapp: string | null
+          whatsapp_client_message: string | null
+          whatsapp_show_card: boolean | null
         }
         Insert: {
           created_at?: string
+          fixed_expense?: number | null
           id?: string
           updated_at?: string
           user_id: string
           whatsapp?: string | null
+          whatsapp_client_message?: string | null
+          whatsapp_show_card?: boolean | null
         }
         Update: {
           created_at?: string
+          fixed_expense?: number | null
           id?: string
           updated_at?: string
           user_id?: string
           whatsapp?: string | null
+          whatsapp_client_message?: string | null
+          whatsapp_show_card?: boolean | null
         }
         Relationships: []
       }

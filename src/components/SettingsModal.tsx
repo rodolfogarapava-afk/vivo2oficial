@@ -242,6 +242,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [isBlockMessageLocked, setIsBlockMessageLocked] = useState(true);
   const [isUnblockMessageLocked, setIsUnblockMessageLocked] = useState(true);
   const [isCancelMessageLocked, setIsCancelMessageLocked] = useState(true);
+  const [isClientMessageLocked, setIsClientMessageLocked] = useState(true);
 
   useEffect(() => {
     if (open) {
@@ -1019,16 +1020,41 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   <p className="text-sm font-medium text-white">Mostrar logo no cartão</p>
                   <p className="text-[11px] text-purple-200">Só aparece nos clientes com WhatsApp cadastrado.</p>
                 </div>
-                <Switch checked={showClientWhatsApp} onCheckedChange={setShowClientWhatsApp} />
+                <Switch
+                  checked={showClientWhatsApp}
+                  onCheckedChange={(checked) => {
+                    setShowClientWhatsApp(checked);
+                    saveWhatsAppSettings({
+                      destinationPhone,
+                      messageTemplate,
+                      useBusiness,
+                      showClientWhatsApp: checked,
+                      clientMessageTemplate,
+                    });
+                    toast({ title: checked ? "Logo ligada" : "Logo desligada", description: checked ? "O ícone do WhatsApp aparece no cartão." : "O ícone do WhatsApp não aparece no cartão." });
+                  }}
+                />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-white">Mensagem pré-programada</label>
+                <div className="flex items-center justify-between gap-2">
+                  <label className="text-xs font-medium text-white">Mensagem pré-programada</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsClientMessageLocked((prev) => !prev)}
+                    className="flex items-center gap-1 rounded-lg border border-purple-500 bg-purple-800/60 px-2 py-1 text-[11px] font-medium text-white"
+                    title={isClientMessageLocked ? "Abrir cadeado para editar" : "Fechar cadeado"}
+                  >
+                    {isClientMessageLocked ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
+                    {isClientMessageLocked ? "Bloqueado" : "Editando"}
+                  </button>
+                </div>
                 <textarea
                   value={clientMessageTemplate}
                   onChange={(event) => setClientMessageTemplate(event.target.value)}
+                  readOnly={isClientMessageLocked}
                   rows={10}
                   placeholder="Olá, {nome}!"
-                  className="w-full rounded-xl border border-purple-600 bg-purple-800/60 px-3 py-2 text-sm text-white placeholder:text-purple-300 outline-none focus:ring-2 focus:ring-purple-400"
+                  className={`w-full rounded-xl border border-purple-600 bg-purple-800/60 px-3 py-2 text-sm text-white placeholder:text-purple-300 outline-none focus:ring-2 focus:ring-purple-400 ${isClientMessageLocked ? "opacity-80" : ""}`}
                 />
                 <p className="text-[10px] text-purple-200">Use {"{nome}"}, {"{telefone}"}, {"{valor}"}, {"{data}"} e {"{hora}"}.</p>
               </div>
