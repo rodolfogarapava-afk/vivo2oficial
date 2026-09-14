@@ -209,6 +209,11 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
   // Linha livre: nome cadastrado começando com "LIVRE" -> bordas verdes grossas, ✅ e sempre no topo.
   const isFree = !client.blocked && isFreeLine(client.name);
 
+  // Barra de consumo de giga (franquia anotada no app)
+  const totalGb = Number(client.data_gb ?? 0);
+  const usedGb = Number(client.data_used_gb ?? 0);
+  const usedPercent = totalGb > 0 ? Math.min(100, Math.round((usedGb / totalGb) * 100)) : 0;
+
   return (
     <>
       <div 
@@ -332,6 +337,33 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                 </span>
               )}
             </p>
+
+            {totalGb > 0 && (
+              <div className="mt-1">
+                <div className={`h-2 w-full rounded-full overflow-hidden ${isNexus || client.bonus ? 'bg-black/10' : 'bg-white/15'}`}>
+                  <div
+                    className={`h-full rounded-full transition-all ${
+                      usedPercent >= 100 ? 'bg-red-500' : usedPercent >= 80 ? 'bg-yellow-400' : 'bg-blue-500'
+                    }`}
+                    style={{ width: `${usedPercent}%` }}
+                  />
+                </div>
+                <p className={`mt-0.5 text-[10px] font-semibold ${
+                  usedPercent >= 100
+                    ? 'text-red-500'
+                    : isNexus && !client.blocked
+                      ? 'text-black/70'
+                      : client.bonus && !client.blocked
+                        ? 'text-black/70'
+                        : isResale && !client.blocked
+                          ? 'text-white/90'
+                          : 'text-muted-foreground'
+                }`}>
+                  {usedGb} de {totalGb} GB usados ({usedPercent}%)
+                  {usedPercent >= 100 && " • franquia esgotada"}
+                </p>
+              </div>
+            )}
 
           </div>
           

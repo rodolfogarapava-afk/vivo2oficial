@@ -1,0 +1,1 @@
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS data_used_gb numeric NOT NULL DEFAULT 0;
