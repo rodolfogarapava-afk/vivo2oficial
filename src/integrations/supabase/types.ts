@@ -52,6 +52,7 @@ export type Database = {
           company: string
           created_at: string
           data_gb: number
+          data_used_gb: number
           due_day: number | null
           id: string
           is_resale: boolean
@@ -69,6 +70,7 @@ export type Database = {
           company?: string
           created_at?: string
           data_gb?: number
+          data_used_gb?: number
           due_day?: number | null
           id?: string
           is_resale?: boolean
@@ -86,6 +88,7 @@ export type Database = {
           company?: string
           created_at?: string
           data_gb?: number
+          data_used_gb?: number
           due_day?: number | null
           id?: string
           is_resale?: boolean
