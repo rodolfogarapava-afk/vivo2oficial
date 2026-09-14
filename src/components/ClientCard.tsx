@@ -200,8 +200,9 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
   const isNexus = client.company !== "nexus";
   const isResale = client.is_resale === true;
   const { freeLineColor } = useFreeLineColor();
-  const isFree = !client.blocked && !isPaid && isFreeLine(client.name);
-  const freeLight = isFree && freeLineColor === "light";
+  // Linha livre: nome cadastrado começando com "LIVRE" -> cartão verde, ✅ e sempre no topo.
+  const isFree = !client.blocked && isFreeLine(client.name);
+  const freeLight = freeLineColor === "light";
 
   return (
     <>
@@ -213,6 +214,10 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
               ? 'from-orange-500 to-orange-700 border-orange-400 shadow-[0_6px_0_0_#9a3412] hover:shadow-[0_4px_0_0_#9a3412]'
             : client.bonus
               ? 'from-white to-white border-yellow-400 shadow-[0_6px_0_0_#a16207] hover:shadow-[0_4px_0_0_#a16207]'
+              : isFree
+                ? freeLight
+                  ? 'from-green-300 to-green-400 border-green-500 shadow-[0_6px_0_0_#15803d] hover:shadow-[0_4px_0_0_#15803d]'
+                  : 'from-green-600 to-green-800 border-green-500 shadow-[0_6px_0_0_#14532d] hover:shadow-[0_4px_0_0_#14532d]'
               : isNexus
                 ? 'from-white to-white border-gray-300 shadow-[0_6px_0_0_#9ca3af] hover:shadow-[0_4px_0_0_#9ca3af]'
                 : isPaid
@@ -230,7 +235,8 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             >
               <Check className="h-4 w-4 text-white" />
             </button>
-            <h3 className={`flex-1 font-semibold text-sm whitespace-nowrap overflow-x-auto ${isResale ? 'text-white' : isNexus ? 'text-black' : 'text-white'}`}>
+            <h3 className={`flex-1 font-semibold text-sm whitespace-nowrap overflow-x-auto ${isFree ? (freeLight ? 'text-black' : 'text-white') : isResale ? 'text-white' : isNexus ? 'text-black' : 'text-white'}`}>
+              {isFree && <span className="mr-1">✅</span>}
               {client.company !== "nexus" && <span className="mr-1">🌐</span>}
               {client.name}
             </h3>
@@ -254,9 +260,13 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                   ? 'bg-gradient-to-b from-green-400 to-green-600 shadow-[0_4px_0_0_#166534] hover:shadow-[0_2px_0_0_#166534]'
                   : client.bonus
                     ? 'bg-gradient-to-b from-yellow-300 to-yellow-500 shadow-[0_4px_0_0_#a16207] hover:shadow-[0_2px_0_0_#a16207]'
-                    : isNexus
-                      ? 'bg-gray-200 shadow-[0_4px_0_0_#9ca3af] hover:shadow-[0_2px_0_0_#9ca3af]'
-                      : 'bg-purple-900'
+                    : isFree
+                      ? freeLight
+                        ? 'bg-gradient-to-b from-green-400 to-green-600 shadow-[0_4px_0_0_#15803d] hover:shadow-[0_2px_0_0_#15803d]'
+                        : 'bg-gradient-to-b from-green-500 to-green-700 shadow-[0_4px_0_0_#14532d] hover:shadow-[0_2px_0_0_#14532d]'
+                      : isNexus
+                        ? 'bg-gray-200 shadow-[0_4px_0_0_#9ca3af] hover:shadow-[0_2px_0_0_#9ca3af]'
+                        : 'bg-purple-900'
             } hover:translate-y-[1px] active:translate-y-[2px]`}
           >
             {isPaid && !client.blocked ? (
@@ -286,6 +296,8 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                   ? 'text-black'
                   : isResale
                     ? 'text-white'
+                  : isFree
+                    ? freeLight ? 'text-black' : 'text-white'
                   : isNexus
                     ? 'text-black'
                     : isPaid
@@ -295,12 +307,13 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                         : 'text-foreground'
             }`}>
               {client.phone.replace(/\D/g, "").length === 0 && <span className="mr-1">⚠️</span>}
+              {isFree && <span className="mr-1">✅</span>}
               {client.company !== "nexus" && <span className="mr-1">🌐</span>}
               {client.name}
               {client.blocked && <span className="ml-2 text-[10px] font-bold text-red-400 no-underline">(BLOQUEADO)</span>}
               {client.bonus && !client.blocked && <span className="ml-2 text-[10px] font-bold text-yellow-600">★ BÔNUS</span>}
             </h3>
-            <div className={`flex items-center gap-1 ${isResale && !client.blocked ? 'text-white/80' : client.bonus && !client.blocked ? 'text-black/70' : isNexus && !client.blocked ? 'text-black/70' : 'text-muted-foreground'}`}>
+            <div className={`flex items-center gap-1 ${isResale && !client.blocked ? 'text-white/80' : client.bonus && !client.blocked ? 'text-black/70' : isFree ? (freeLight ? 'text-black/70' : 'text-white/80') : isNexus && !client.blocked ? 'text-black/70' : 'text-muted-foreground'}`}>
               <Phone className={`h-3 w-3 flex-shrink-0`} />
               <span className={`text-xs whitespace-nowrap ${client.blocked ? 'line-through text-red-400/60' : ''}`}>{formatPhoneDisplay(client.phone)}</span>
             </div>
@@ -311,6 +324,8 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                   ? 'text-black'
                   : isResale
                     ? 'text-white'
+                  : isFree
+                    ? freeLight ? 'text-green-800' : 'text-white'
                   : isNexus
                     ? 'text-green-700'
                     : 'text-green-500'
