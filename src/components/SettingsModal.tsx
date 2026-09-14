@@ -39,6 +39,8 @@ interface SettingsModalProps {
   onBlockClick?: () => void;
   onUnblockClick?: () => void;
   hasBlockedClients?: boolean;
+  isAdmin?: boolean;
+  userId?: string;
 }
 
 const formatCurrency = (value: number) => {
