@@ -1,0 +1,92 @@
+import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
+
+const BASE = 'https://vivogestao.vivoempresas.com.br/Portal/api/datapackcompanyinfo'
+
+const ALLOWED_ACTIONS = new Set([
+  'login',
+  'listLines',
+  'getLines',
+  'lines',
+  'listClients',
+  'consultaLinhas',
+  'linhas',
+])
+
+function collectCookies(res: Response, jar: Record<string, string>) {
+  const raw = (res.headers as unknown as { getSetCookie?: () => string[] }).getSetCookie?.() ?? []
+  for (const c of raw) {
+    const [pair] = c.split(';')
+    const idx = pair.indexOf('=')
+    if (idx > 0) jar[pair.slice(0, idx).trim()] = pair.slice(idx + 1).trim()
+  }
+}
+
+function cookieHeader(jar: Record<string, string>) {
+  return Object.entries(jar).map(([k, v]) => `${k}=${v}`).join('; ')
+}
+
+async function call(action: string, body: Record<string, unknown>, jar: Record<string, string>) {
+  const res = await fetch(BASE, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json, text/plain, */*',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
+      'Origin': 'https://vivogestao.vivoempresas.com.br',
+      'Referer': 'https://vivogestao.vivoempresas.com.br/Portal/data/login',
+      ...(Object.keys(jar).length ? { Cookie: cookieHeader(jar) } : {}),
+    },
+    body: JSON.stringify({ ...body, action }),
+  })
+  collectCookies(res, jar)
+  const text = await res.text()
+  let json: unknown = null
+  try { json = JSON.parse(text) } catch { /* not json */ }
+  return { status: res.status, json, text: text.slice(0, 4000) }
+}
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
+
+  try {
+    const user = Deno.env.get('VIVO_GESTAO_USER')
+    const password = Deno.env.get('VIVO_GESTAO_PASSWORD')
+    if (!user || !password) {
+      return new Response(JSON.stringify({ error: 'Credenciais do Vivo Gestao nao configuradas' }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    let payload: { action?: string; extra?: Record<string, unknown> } = {}
+    if (req.method === 'POST') {
+      try { payload = await req.json() } catch { payload = {} }
+    }
+    const action = payload.action ?? 'login'
+    if (!ALLOWED_ACTIONS.has(action)) {
+      return new Response(JSON.stringify({ error: `acao nao permitida: ${action}` }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const jar: Record<string, string> = {}
+    const login = await call('login', { user, password }, jar)
+
+    const result: Record<string, unknown> = {
+      login: { status: login.status, body: login.json ?? login.text },
+      cookies: Object.keys(jar),
+    }
+
+    if (action !== 'login') {
+      const next = await call(action, payload.extra ?? {}, jar)
+      result.data = { status: next.status, body: next.json ?? next.text }
+    }
+
+    return new Response(JSON.stringify(result), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  } catch (e) {
+    return new Response(JSON.stringify({ error: String(e) }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+})
