@@ -126,13 +126,13 @@ Deno.serve(async (req) => {
 
     if (action === 'probe') {
       const out: Array<Record<string, unknown>> = []
-      const gv = await call('loadViewBlockVoice', { startRow: 1, fetchSize: 50 }, jar, ENDPOINTS.blockgroup)
+      const gv = await call('loadViewBlockVoice', { startRow: 1, fetchSize: 10 }, jar, ENDPOINTS.blockgroup)
       const groups = (gv.json as { groups?: Array<{ id: number; name: string; totalLines: number }> } | null)?.groups ?? []
       out.push({ step: 'groups', list: groups.map((g) => ({ id: g.id, name: g.name, totalLines: g.totalLines })) })
       for (const g of groups) {
         for (const body of [
-          { action: 'loadLinesBlockVoice', group: g, startRow: 1, fetchSize: 100 },
-          { action: 'loadLinesBlockVoice', groupId: g.id, startRow: 1, fetchSize: 100 },
+          { action: 'loadLinesBlockVoice', group: g, startRow: 1, fetchSize: 10 },
+          { action: 'loadLinesBlockVoice', groupId: g.id, startRow: 1, fetchSize: 10 },
         ]) {
           const r = await call(body.action as string, body as Record<string, unknown>, jar, ENDPOINTS.blockgroup)
           out.push({ step: `lines g${g.id} ${Object.keys(body).join(',')}`, status: r.status, preview: JSON.stringify(r.json ?? r.text).slice(0, 900) })
