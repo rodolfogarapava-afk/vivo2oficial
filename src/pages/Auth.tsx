@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Mail, Lock, Phone } from "lucide-react";
+import { Loader2, Mail, Lock, Phone, KeyRound } from "lucide-react";
+import { redeemAccessToken } from "@/hooks/useAccessControl";
 import vivoLogo from "@/assets/vivo-logo.png";
 
 const emailSchema = z.string().email("Email inválido");
 const passwordSchema = z.string().min(6, "A senha deve ter no mínimo 6 caracteres");
 const whatsappSchema = z.string().regex(/^\d{10,11}$/, "WhatsApp deve ter 10 ou 11 dígitos").optional().or(z.literal(""));
+const tokenSchema = z.string().trim().min(6, "Informe o token de acesso").max(40, "Token muito longo");
 
 type AuthMode = "login" | "signup" | "forgot" | "reset";
 
@@ -24,8 +26,9 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [accessToken, setAccessToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; whatsapp?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; whatsapp?: string; token?: string }>({});
   
   const { signIn, signUp, resetPassword, updatePassword, user, loading } = useAuth();
   const { toast } = useToast();
@@ -38,7 +41,7 @@ const Auth = () => {
   }, [user, loading, navigate, mode]);
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string; whatsapp?: string } = {};
+    const newErrors: { email?: string; password?: string; whatsapp?: string; token?: string } = {};
     
     if (mode !== "reset") {
       const emailResult = emailSchema.safeParse(email);
@@ -51,6 +54,13 @@ const Auth = () => {
       const passwordResult = passwordSchema.safeParse(password);
       if (!passwordResult.success) {
         newErrors.password = passwordResult.error.errors[0].message;
+      }
+    }
+
+    if (mode === "signup") {
+      const tokenResult = tokenSchema.safeParse(accessToken);
+      if (!tokenResult.success) {
+        newErrors.token = tokenResult.error.errors[0].message;
       }
     }
 
@@ -112,10 +122,26 @@ const Auth = () => {
             });
           }
         } else {
-          toast({
-            title: "Conta criada!",
-            description: "Seu cadastro foi realizado com sucesso.",
-          });
+          try {
+            const result = await redeemAccessToken(accessToken);
+            toast({
+              title: "Conta criada!",
+              description:
+                result.plan === "lifetime"
+                  ? "Acesso vitalício liberado."
+                  : "Acesso liberado por 30 dias.",
+            });
+          } catch (redeemError) {
+            const message = redeemError instanceof Error ? redeemError.message : "";
+            toast({
+              title: "Conta criada, mas o token não foi aceito",
+              description:
+                message === "TOKEN_NOT_FOUND"
+                  ? "Esse token não existe, já foi usado ou foi cancelado. Fale com o administrador."
+                  : "Confirme seu e-mail, entre e digite o token novamente.",
+              variant: "destructive",
+            });
+          }
         }
       } else if (mode === "forgot") {
         const { error } = await resetPassword(email);
@@ -243,6 +269,32 @@ const Auth = () => {
               </div>
               {errors.whatsapp && (
                 <p className="text-red-300 text-sm">{errors.whatsapp}</p>
+              )}
+            </div>
+          )}
+
+          {/* Access token - signup only */}
+          {mode === "signup" && (
+            <div className="space-y-2">
+              <Label htmlFor="token" className="text-purple-100">Token de acesso</Label>
+              <div className="relative">
+                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-300" />
+                <Input
+                  id="token"
+                  value={accessToken}
+                  onChange={(e) => {
+                    setAccessToken(e.target.value.toUpperCase());
+                    setErrors((prev) => ({ ...prev, token: undefined }));
+                  }}
+                  placeholder="RAIO-XXXX-XXXX"
+                  autoCapitalize="characters"
+                  className="pl-10 bg-purple-800 border-purple-600 text-white placeholder:text-purple-300 tracking-widest"
+                />
+              </div>
+              {errors.token ? (
+                <p className="text-red-300 text-sm">{errors.token}</p>
+              ) : (
+                <p className="text-purple-300 text-xs">Peça o token ao administrador.</p>
               )}
             </div>
           )}
