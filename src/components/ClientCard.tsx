@@ -25,6 +25,8 @@ interface ClientCardProps {
   isPaid?: boolean;
   onTogglePayment?: (clientId: string) => void;
   dayPaymentSent?: boolean;
+  /** null = desconhecido (mostra o globo), true = está no gestor, false = não está */
+  inPanel?: boolean | null;
 }
 
 const formatCurrency = (value: number) => {
