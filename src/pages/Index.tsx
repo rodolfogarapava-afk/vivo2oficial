@@ -778,6 +778,8 @@ const Index = () => {
         onBlockClick={handleBlockClick}
         onUnblockClick={handleUnblockClick}
         hasBlockedClients={hasBlockedClients}
+        isAdmin={isAdmin}
+        userId={user?.id}
       />
 
       {/* Monthly report */}
