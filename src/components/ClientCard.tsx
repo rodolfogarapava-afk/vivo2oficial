@@ -202,7 +202,8 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
   const { freeLineColor } = useFreeLineColor();
   // Linha livre: nome cadastrado começando com "LIVRE" -> cartão verde, ✅ e sempre no topo.
   const isFree = !client.blocked && isFreeLine(client.name);
-  const freeLight = freeLineColor === "light";
+  // Sempre verde escuro com letras brancas (melhor leitura).
+  const freeLight = false;
 
   return (
     <>
