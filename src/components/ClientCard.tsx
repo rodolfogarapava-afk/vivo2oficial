@@ -25,6 +25,8 @@ interface ClientCardProps {
   isPaid?: boolean;
   onTogglePayment?: (clientId: string) => void;
   dayPaymentSent?: boolean;
+  /** null = desconhecido (mostra o globo), true = está no gestor, false = não está */
+  inPanel?: boolean | null;
 }
 
 const formatCurrency = (value: number) => {
@@ -42,7 +44,8 @@ const formatPhoneDisplay = (phone: string) => {
   return phone;
 };
 
-export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, isPaid = false, onTogglePayment, dayPaymentSent = false }: ClientCardProps) => {
+export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, isPaid = false, onTogglePayment, dayPaymentSent = false, inPanel = null }: ClientCardProps) => {
+  const showGlobe = client.company !== "nexus" && inPanel !== false;
   const { settings } = useWhatsAppSettings();
   const { hasBlockPhone, sendBlockMessage } = useBlockWhatsApp();
   const { toast } = useToast();
@@ -245,7 +248,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             </button>
             <h3 className={`flex-1 font-semibold text-sm whitespace-nowrap overflow-x-auto ${isResale ? 'text-white' : isNexus ? 'text-black' : 'text-white'}`}>
               {isFree && <span className="mr-1">✅</span>}
-              {client.company !== "nexus" && <span className="mr-1">🌐</span>}
+              {showGlobe && <span className="mr-1">🌐</span>}
               {client.name}
             </h3>
             {settings.showClientWhatsApp && (client.whatsapp || client.phone) && <button
@@ -310,7 +313,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             }`}>
               {client.phone.replace(/\D/g, "").length === 0 && <span className="mr-1">⚠️</span>}
               {isFree && <span className="mr-1">✅</span>}
-              {client.company !== "nexus" && <span className="mr-1">🌐</span>}
+              {showGlobe && <span className="mr-1">🌐</span>}
               {client.name}
               {client.blocked && <span className="ml-2 text-[10px] font-bold text-red-400 no-underline">(BLOQUEADO)</span>}
               {client.bonus && !client.blocked && <span className="ml-2 text-[10px] font-bold text-yellow-600">★ BÔNUS</span>}
