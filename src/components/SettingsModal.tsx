@@ -158,7 +158,7 @@ const saveBlockSettings = (settings: BlockSettings) => {
   localStorage.setItem(BLOCK_STORAGE_KEY, JSON.stringify(settings));
 };
 
-export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDeleteClient, onEditClient, onBlockClient, onRefresh, totalsByDay, remainingByDay, onResaleClick, showPaymentCards, onTogglePaymentCards, onPaymentSent, onCancelClick, onBlockClick, onUnblockClick, hasBlockedClients }: SettingsModalProps) => {
+export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDeleteClient, onEditClient, onBlockClient, onRefresh, totalsByDay, remainingByDay, onResaleClick, showPaymentCards, onTogglePaymentCards, onPaymentSent, onCancelClick, onBlockClick, onUnblockClick, hasBlockedClients, isAdmin, userId }: SettingsModalProps) => {
   const { visibleDays, toggleDay } = useVisibleDueDays();
   const [copied, setCopied] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
