@@ -27,6 +27,9 @@ import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { isFreeLine } from "@/hooks/useFreeLineColor";
 import { checkForPWAUpdate } from "@/pwa";
 import { usePanelPhones } from "@/hooks/usePanelPhones";
+import { useAccessControl } from "@/hooks/useAccessControl";
+import { usePanelNames } from "@/hooks/usePanelNames";
+import { AccessBlocked } from "@/components/AccessBlocked";
 
 import {
   AlertDialog,
