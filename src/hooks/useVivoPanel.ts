@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { formatClientName } from "@/lib/formatName";
 
 export const VIVO_PANEL_URL = "https://vivogestao.vivoempresas.com.br/Portal/data/login";
 
@@ -22,7 +23,7 @@ export interface SyncPlan {
 const digits = (value?: string | null) => (value ?? "").replace(/\D/g, "");
 
 const panelName = (line: PanelLine) => {
-  const clean = line.name.trim();
+  const clean = formatClientName(line.name);
   return clean.length > 0 ? clean : "LIVRE";
 };
 

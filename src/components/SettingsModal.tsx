@@ -18,6 +18,7 @@ import { useAccounts } from "@/hooks/useAccounts";
 import whatsappIcon from "@/assets/whatsapp-icon.png";
 import { useFixedExpense } from "@/hooks/useFixedExpense";
 import { ALL_DUE_DAYS, useVisibleDueDays } from "@/lib/dueDays";
+import { formatClientName } from "@/lib/formatName";
 
 interface SettingsModalProps {
   open: boolean;
@@ -565,7 +566,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
     if (!editingClient || !editName.trim() || !editPhone.trim() || !editValue) return;
     
     onEditClient(editingClient.id, {
-      name: editName.trim(),
+      name: formatClientName(editName),
       phone: editPhone.trim(),
       whatsapp: editWhatsapp.trim() || null,
       value_paid: parseFloat(editValue),
@@ -1312,7 +1313,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   {Number(client.value_paid) > 0 && (
                     <Star className="h-4 w-4 mr-2 shrink-0 fill-current text-green-400" aria-label="Valor cadastrado" />
                   )}
-                  <span className="flex-1 text-left whitespace-normal break-words">{client.name}</span>
+                  <span className="flex-1 text-left whitespace-normal break-words">{formatClientName(client.name)}</span>
                   {client.phone?.replace(/\D/g, "") ? (
                     <span className="ml-2 shrink-0 text-sm font-bold text-green-300 tabular-nums whitespace-nowrap">
                       {formatPhoneDisplay(client.phone)}
