@@ -130,11 +130,12 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
 
 
   const handleWhatsApp = () => {
-    const destination = client.whatsapp?.replace(/\D/g, "") ?? "";
+    const destination =
+      (client.whatsapp?.replace(/\D/g, "") || client.phone?.replace(/\D/g, "")) ?? "";
     if (!destination) {
       toast({
-        title: "WhatsApp não cadastrado",
-        description: "Edite o cliente e informe o WhatsApp.",
+        title: "Telefone não cadastrado",
+        description: "Edite o cliente e informe o número.",
         variant: "destructive",
       });
       return;
@@ -242,7 +243,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
               {client.company !== "nexus" && <span className="mr-1">🌐</span>}
               {client.name}
             </h3>
-            {settings.showClientWhatsApp && client.whatsapp && <button
+            {settings.showClientWhatsApp && (client.whatsapp || client.phone) && <button
               onClick={handleWhatsAppClick}
               className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-b from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 shadow-[0_3px_0_0_#166534] hover:translate-y-[1px] active:translate-y-[2px] transition-all"
               title="Enviar suporte via WhatsApp"
@@ -334,7 +335,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
               
               <div className="flex gap-2">
                 {/* WhatsApp button */}
-                {settings.showClientWhatsApp && client.whatsapp && <button
+                {settings.showClientWhatsApp && (client.whatsapp || client.phone) && <button
                   onClick={handleWhatsAppClick}
                   onTouchStart={handleTouchStart}
                   onTouchEnd={handleTouchEnd}
