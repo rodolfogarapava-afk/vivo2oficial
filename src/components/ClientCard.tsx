@@ -130,11 +130,12 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
 
 
   const handleWhatsApp = () => {
-    const destination = client.whatsapp?.replace(/\D/g, "") ?? "";
+    const destination =
+      (client.whatsapp?.replace(/\D/g, "") || client.phone?.replace(/\D/g, "")) ?? "";
     if (!destination) {
       toast({
-        title: "WhatsApp não cadastrado",
-        description: "Edite o cliente e informe o WhatsApp.",
+        title: "Telefone não cadastrado",
+        description: "Edite o cliente e informe o número.",
         variant: "destructive",
       });
       return;
