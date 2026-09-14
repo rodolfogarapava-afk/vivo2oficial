@@ -1,11 +1,12 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Loader2, LogOut, Search, X, Lock, Unlock, Ban, Save, Mail, UserPlus, Eye, EyeOff, Signal, RefreshCw, TrendingUp } from "lucide-react";
+import { Settings, Loader2, LogOut, Search, X, Lock, Unlock, Ban, Save, Mail, UserPlus, Eye, EyeOff, Signal, RefreshCw, TrendingUp, CalendarClock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ClientCard } from "@/components/ClientCard";
 import { NewClientForm } from "@/components/NewClientForm";
 import { SettingsModal } from "@/components/SettingsModal";
 import { MonthlyReportModal } from "@/components/MonthlyReportModal";
+import { DueTomorrowModal } from "@/components/DueTomorrowModal";
 import { InstallPWA } from "@/components/InstallPWA";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { ResaleModal } from "@/components/ResaleModal";
@@ -66,6 +67,7 @@ const Index = () => {
   const [showForm, setShowForm] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showReport, setShowReport] = useState(false);
+  const [showDueTomorrow, setShowDueTomorrow] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDueDay, setSelectedDueDay] = useState<number | null>(null);
@@ -139,6 +141,22 @@ const Index = () => {
     totalsByDay,
     remainingByDay,
   } = usePaymentTracking(clients, fixedExpense, user?.id);
+
+  // Clientes que vencem amanhã e ainda não pagaram este mês
+  const dueTomorrowClients = useMemo(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const day = tomorrow.getDate();
+    return clients
+      .filter(
+        (c) =>
+          Number(c.due_day ?? 10) === day &&
+          !String(c.name || "").toUpperCase().includes("CANCELADO") &&
+          !c.bonus &&
+          !paidClientIds.includes(c.id)
+      )
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [clients, paidClientIds]);
 
   // Busca o telefone nos dois painéis (principal + CHIP NET)
   useEffect(() => {
@@ -599,6 +617,24 @@ const Index = () => {
         </button>
       </div>
 
+      {/* Cobrança de amanhã */}
+      <div className="mx-3 mt-2">
+        <button
+          type="button"
+          onClick={() => setShowDueTomorrow(true)}
+          className="flex w-full items-center justify-between rounded-xl border border-purple-700/60 bg-purple-950/40 px-3 py-2 active:scale-[0.99]"
+          aria-label="Abrir lista de quem vence amanhã"
+        >
+          <span className="flex items-center gap-2">
+            <CalendarClock className="h-4 w-4 text-white" />
+            <span className="text-xs font-extrabold uppercase text-white">Vence amanhã</span>
+          </span>
+          <span className="rounded-full bg-green-600 px-2 py-0.5 text-[11px] font-extrabold text-white tabular-nums">
+            {dueTomorrowClients.length}
+          </span>
+        </button>
+      </div>
+
 
 
 
@@ -754,6 +790,16 @@ const Index = () => {
           userId={user?.id}
         />
       )}
+
+      {/* Cobrança de amanhã */}
+      <DueTomorrowModal
+        open={showDueTomorrow}
+        onClose={() => setShowDueTomorrow(false)}
+        clients={dueTomorrowClients}
+        template={whatsappSettings.clientMessageTemplate}
+        useBusiness={whatsappSettings.useBusiness}
+        onTogglePayment={togglePayment}
+      />
 
       {/* Install PWA Banner */}
       <InstallPWA />
