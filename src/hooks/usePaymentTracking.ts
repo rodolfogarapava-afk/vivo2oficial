@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { Client } from "@/hooks/useClients";
 import { supabase } from "@/integrations/supabase/client";
 import { ALL_DUE_DAYS } from "@/lib/dueDays";
+import { useToast } from "@/hooks/use-toast";
 
 const getCurrentMonth = () => {
   const now = new Date();
@@ -42,6 +43,7 @@ const saveLocalPayments = (ids: string[]) => {
 export const usePaymentTracking = (clients: Client[], fixedExpense: number, userId?: string) => {
   const [paidClientIds, setPaidClientIds] = useState<string[]>(() => getLocalPayments());
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   // Fetch paid clients from DB on mount and when userId changes
   useEffect(() => {
@@ -94,35 +96,52 @@ export const usePaymentTracking = (clients: Client[], fixedExpense: number, user
       setPaidClientIds(newIds);
       saveLocalPayments(newIds);
 
+      // Keep the value charged today, so past months stay correct if the price changes
+      const client = clients.find((c) => c.id === clientId);
+      const amount = client ? Number(client.value_paid) : null;
+
       try {
         if (isPaid) {
-          // Remove from DB
-          await supabase
+          const { error } = await supabase
             .from("client_payments")
             .delete()
             .eq("user_id", userId)
             .eq("client_id", clientId)
             .eq("month", currentMonth);
+
+          if (error) throw error;
         } else {
-          // Insert into DB (upsert)
-          await supabase.from("client_payments").upsert(
-            {
-              user_id: userId,
-              client_id: clientId,
-              month: currentMonth,
-              paid: true,
-            },
-            { onConflict: "user_id,client_id,month" }
-          );
+          const { error } = await supabase
+            .from("client_payments")
+            .upsert(
+              {
+                user_id: userId,
+                client_id: clientId,
+                month: currentMonth,
+                paid: true,
+                amount,
+                paid_at: new Date().toISOString(),
+              },
+              { onConflict: "user_id,client_id,month" }
+            );
+
+          if (error) throw error;
         }
       } catch (err) {
         console.error("Error toggling payment:", err);
         // Revert on failure
         setPaidClientIds(paidClientIds);
         saveLocalPayments(paidClientIds);
+        toast({
+          title: "Não foi possível salvar",
+          description: isPaid
+            ? "A marcação de pagamento não foi removida."
+            : "O pagamento não foi registrado. Tente de novo.",
+          variant: "destructive",
+        });
       }
     },
-    [userId, paidClientIds]
+    [userId, paidClientIds, clients, toast]
   );
 
   const isClientPaid = useCallback(
@@ -156,5 +175,3 @@ export const usePaymentTracking = (clients: Client[], fixedExpense: number, user
     isLoading,
   };
 };
-
-

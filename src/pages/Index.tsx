@@ -1,10 +1,11 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Loader2, LogOut, Search, X, Lock, Unlock, Ban, Save, Mail, UserPlus, Eye, EyeOff, Signal, RefreshCw } from "lucide-react";
+import { Settings, Loader2, LogOut, Search, X, Lock, Unlock, Ban, Save, Mail, UserPlus, Eye, EyeOff, Signal, RefreshCw, TrendingUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ClientCard } from "@/components/ClientCard";
 import { NewClientForm } from "@/components/NewClientForm";
 import { SettingsModal } from "@/components/SettingsModal";
+import { MonthlyReportModal } from "@/components/MonthlyReportModal";
 import { InstallPWA } from "@/components/InstallPWA";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { ResaleModal } from "@/components/ResaleModal";
@@ -64,6 +65,7 @@ const getSentPaymentDaysFromStorage = (): number[] => {
 const Index = () => {
   const [showForm, setShowForm] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showReport, setShowReport] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDueDay, setSelectedDueDay] = useState<number | null>(null);
@@ -564,7 +566,7 @@ const Index = () => {
       </header>
 
       {/* Financial totals */}
-      <div className="mx-3 grid grid-cols-3 gap-2">
+      <div className="mx-3 grid grid-cols-4 gap-2">
         <div className="min-w-0 rounded-xl border border-purple-700/60 bg-purple-950/40 px-2 py-3 text-center">
           <p className="text-[9px] font-bold uppercase text-purple-300">Total</p>
           <p className="mt-1 truncate text-xs font-extrabold text-white" title={totalGross.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}>
@@ -583,6 +585,18 @@ const Index = () => {
             {totalProfit.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           </p>
         </div>
+        <button
+          type="button"
+          onClick={() => setShowReport(true)}
+          className="min-w-0 rounded-xl border border-purple-500/70 bg-purple-800 px-2 py-3 text-center transition-transform active:scale-95"
+          aria-label="Abrir relatório de ganhos"
+        >
+          <span className="flex items-center justify-center gap-1">
+            <TrendingUp className="h-3 w-3 text-purple-300" />
+            <span className="text-[9px] font-bold uppercase text-purple-300">Ganhos</span>
+          </span>
+          <span className="mt-1 block text-xs font-extrabold text-white">Ver mês</span>
+        </button>
       </div>
 
 
@@ -729,6 +743,17 @@ const Index = () => {
         onUnblockClick={handleUnblockClick}
         hasBlockedClients={hasBlockedClients}
       />
+
+      {/* Monthly report */}
+      {showReport && (
+        <MonthlyReportModal
+          open
+          onClose={() => setShowReport(false)}
+          clients={clients}
+          fixedExpense={fixedExpense}
+          userId={user?.id}
+        />
+      )}
 
       {/* Install PWA Banner */}
       <InstallPWA />

@@ -16,29 +16,35 @@ export type Database = {
     Tables: {
       client_payments: {
         Row: {
+          amount: number | null
           client_id: string
           created_at: string
           id: string
           month: string
           paid: boolean
+          paid_at: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          amount?: number | null
           client_id: string
           created_at?: string
           id?: string
           month: string
           paid?: boolean
+          paid_at?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          amount?: number | null
           client_id?: string
           created_at?: string
           id?: string
           month?: string
           paid?: boolean
+          paid_at?: string
           updated_at?: string
           user_id?: string
         }

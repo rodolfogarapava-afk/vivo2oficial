@@ -24,3 +24,12 @@
 - [x] Sincronizar linhas do painel Vivo para o app (linha sem nome entra como Livre)
 - [x] Campo de giga por cliente (com botões +2, +5, +10) e giga no cartão
 - [x] Trocar o "Online" por "Gestor", que abre o painel Vivo Gestão
+- [x] Padronizar nomes no estilo "Juarez de Sousa Jardim"
+- [x] 🌐 só aparece para clientes que estão no painel do gestor
+
+- [x] Tela de relatório de ganhos por mês (botão Ganhos na tela inicial)
+- [x] Gasto fixo salvo na nuvem (39,99 não volta mais para 60)
+- [x] Valor de cada pagamento guardado no momento da marcação
+
+## Pendente
+- [ ] Mensagem de cobrança automática no WhatsApp: explicar limites e, se aprovado, criar "Cobrança de amanhã" com aviso e envio em um toque
