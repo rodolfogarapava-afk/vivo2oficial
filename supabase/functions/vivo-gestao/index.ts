@@ -69,10 +69,19 @@ Deno.serve(async (req) => {
     }
 
     const jar: Record<string, string> = {}
+    // establish a session cookie first (some flows bind the session to the initial JSESSIONID)
+    const boot = await fetch('https://vivogestao.vivoempresas.com.br/Portal/data/login', {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36' },
+    })
+    collectCookies(boot, jar)
+    await boot.body?.cancel()
+
     const login = await call('login', { user, password }, jar)
+    const welcome = await call('welcome', {}, jar)
 
     const result: Record<string, unknown> = {
       login: { status: login.status, body: login.json ?? login.text },
+      welcome: { status: welcome.status, body: welcome.json ?? welcome.text },
       cookies: Object.keys(jar),
     }
 
@@ -80,6 +89,7 @@ Deno.serve(async (req) => {
       const next = await call(action, payload.extra ?? {}, jar)
       result.data = { status: next.status, body: next.json ?? next.text }
     }
+
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
