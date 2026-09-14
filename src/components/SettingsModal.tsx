@@ -896,6 +896,15 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
 
           <div className="space-y-3 sm:space-y-4 mt-3 sm:mt-4 overflow-y-auto max-h-[calc(80vh-80px)] pr-1">
 
+            {/* ===== ADM: tokens e nomes dos painéis ===== */}
+            {isAdmin && (
+              <>
+                <AccessTokensSection />
+                <PanelNamesSection userId={userId} />
+              </>
+            )}
+
+
             {/* ===== Ações Rápidas ===== */}
             <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
               <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
