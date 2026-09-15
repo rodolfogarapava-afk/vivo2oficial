@@ -259,6 +259,45 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_panel_client: {
+        Args: {
+          p_account?: number
+          p_bonus?: boolean
+          p_company?: string
+          p_due_day?: number
+          p_is_resale?: boolean
+          p_name: string
+          p_panel_user: string
+          p_phone: string
+          p_value: number
+          p_virtual_chip?: boolean
+          p_whatsapp?: string
+        }
+        Returns: {
+          account: number | null
+          blocked: boolean
+          bonus: boolean
+          company: string
+          created_at: string
+          data_gb: number
+          data_used_gb: number
+          due_day: number | null
+          id: string
+          is_resale: boolean
+          name: string
+          phone: string
+          user_id: string | null
+          value_paid: number
+          virtual_chip: boolean
+          whatsapp: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "clients"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       find_phone_across_panels: {
         Args: { p_phone: string }
         Returns: {
