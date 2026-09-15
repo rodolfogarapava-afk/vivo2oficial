@@ -46,8 +46,13 @@ export const AccessTokensSection = () => {
   const createToken = async (plan: "30d" | "lifetime") => {
     setCreating(true);
     try {
-      await callAction({ action: "create", plan });
-      toast({ title: "Token criado!", description: plan === "lifetime" ? "Vitalício" : "30 dias" });
+      const data = await callAction({ action: "create", plan });
+      const created = data?.token as AccessToken | undefined;
+      if (created) setTokens((prev) => [created, ...prev.filter((t) => t.id !== created.id)]);
+      toast({
+        title: "Token criado!",
+        description: created?.code ?? (plan === "lifetime" ? "Vitalício" : "30 dias"),
+      });
       await load();
     } catch {
       toast({ title: "Erro", description: "Não foi possível criar o token.", variant: "destructive" });

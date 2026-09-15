@@ -10,7 +10,7 @@ import { DueTomorrowModal } from "@/components/DueTomorrowModal";
 import { InstallPWA } from "@/components/InstallPWA";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { ResaleModal } from "@/components/ResaleModal";
-import { ChipNetModal } from "@/components/ChipNetModal";
+import { PartnerPanelModal } from "@/components/PartnerPanelModal";
 import { supabase } from "@/integrations/supabase/client";
 
 
@@ -119,7 +119,8 @@ const Index = () => {
   } = useClients(user?.id);
 
   const { isAdmin, isBlocked, reload: reloadAccess } = useAccessControl(user?.id);
-  const { otherPanelLabel } = usePanelNames(user?.id);
+  const { otherPanelLabel, others: linkedPanels } = usePanelNames(user?.id);
+  const otherPanelUserId = linkedPanels[0]?.userId;
 
 
   const refreshApp = useCallback(async () => {
@@ -713,12 +714,11 @@ const Index = () => {
         clients={clients}
       />
 
-      <ChipNetModal
+      <PartnerPanelModal
         open={showChipNet}
         onOpenChange={setShowChipNet}
-        ownerUserId={user?.id}
+        partnerUserId={otherPanelUserId}
         panelLabel={otherPanelLabel}
-        onSwitched={() => refetch()}
       />
 
 
