@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { Loader2, RefreshCw, Signal, X } from "lucide-react";
+import { Loader2, Plus, RefreshCw, Signal, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ClientCard } from "@/components/ClientCard";
+import { NewClientForm } from "@/components/NewClientForm";
 import { isFreeLine } from "@/hooks/useFreeLineColor";
+import { useFixedExpense } from "@/hooks/useFixedExpense";
+import { useToast } from "@/hooks/use-toast";
 import type { Client } from "@/hooks/useClients";
 
 interface PartnerPanelModalProps {
