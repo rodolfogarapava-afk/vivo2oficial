@@ -274,6 +274,19 @@ export type Database = {
         }
         Returns: boolean
       }
+      list_panel_clients: {
+        Args: { p_panel_user: string }
+        Returns: {
+          blocked: boolean
+          data_gb: number
+          data_used_gb: number
+          due_day: number
+          id: string
+          name: string
+          phone: string
+          value_paid: number
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "user"
