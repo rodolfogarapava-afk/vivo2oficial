@@ -162,6 +162,15 @@ export const PartnerPanelModal = ({
       </div>
 
       <div className="flex-1 space-y-3 overflow-y-auto px-3 pb-6">
+        {showForm && (
+          <NewClientForm
+            onSubmit={(client) => void handleCreate(client)}
+            onCancel={() => setShowForm(false)}
+            isLoading={saving}
+            fixedExpense={fixedExpense}
+            existingPhones={clients.map((c) => c.phone)}
+          />
+        )}
         {loading && clients.length === 0 ? (
           <div className="flex justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-foreground/60" />
