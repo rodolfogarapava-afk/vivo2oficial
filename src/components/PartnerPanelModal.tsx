@@ -30,6 +30,10 @@ export const PartnerPanelModal = ({
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const { fixedExpense } = useFixedExpense();
+  const { toast } = useToast();
 
   const load = useCallback(async () => {
     if (!partnerUserId) return;
