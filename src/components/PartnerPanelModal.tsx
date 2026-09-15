@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { Loader2, RefreshCw, Signal, X } from "lucide-react";
+import { Loader2, Plus, RefreshCw, Signal, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ClientCard } from "@/components/ClientCard";
+import { NewClientForm } from "@/components/NewClientForm";
 import { isFreeLine } from "@/hooks/useFreeLineColor";
+import { useFixedExpense } from "@/hooks/useFixedExpense";
+import { useToast } from "@/hooks/use-toast";
 import type { Client } from "@/hooks/useClients";
 
 interface PartnerPanelModalProps {
@@ -27,6 +30,10 @@ export const PartnerPanelModal = ({
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const { fixedExpense } = useFixedExpense();
+  const { toast } = useToast();
 
   const load = useCallback(async () => {
     if (!partnerUserId) return;
@@ -63,6 +70,52 @@ export const PartnerPanelModal = ({
     [clients],
   );
 
+  const handleCreate = async (client: {
+    name: string;
+    phone: string;
+    whatsapp: string | null;
+    value_paid: number;
+    due_day: number;
+    virtual_chip: boolean;
+    is_resale: boolean;
+    bonus: boolean;
+    company: string;
+    account: number | null;
+  }) => {
+    if (!partnerUserId) return;
+    setSaving(true);
+    try {
+      const { error: rpcError } = await (supabase.rpc as unknown as (
+        fn: string,
+        args: Record<string, unknown>,
+      ) => Promise<{ error: { message: string } | null }>)("add_panel_client", {
+        p_panel_user: partnerUserId,
+        p_name: client.name,
+        p_phone: client.phone,
+        p_value: client.value_paid,
+        p_due_day: client.due_day,
+        p_virtual_chip: client.virtual_chip,
+        p_is_resale: client.is_resale,
+        p_bonus: client.bonus,
+        p_company: client.company,
+        p_account: client.account,
+        p_whatsapp: client.whatsapp,
+      });
+      if (rpcError) throw new Error(rpcError.message);
+      toast({ title: "Cliente cadastrado!", description: `Adicionado no painel ${label}.` });
+      setShowForm(false);
+      await load();
+    } catch (err) {
+      toast({
+        title: "Erro",
+        description: err instanceof Error ? err.message : "Não foi possível cadastrar.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (!open) return null;
 
   return createPortal(
@@ -72,6 +125,14 @@ export const PartnerPanelModal = ({
         <h2 className="min-w-0 flex-1 truncate text-base font-extrabold uppercase tracking-wider text-foreground">
           Painel {label}
         </h2>
+        <button
+          type="button"
+          onClick={() => setShowForm((v) => !v)}
+          className="flex h-9 items-center gap-1 rounded-xl bg-green-600 px-3 text-[11px] font-extrabold uppercase tracking-wider text-white"
+        >
+          <Plus className="h-4 w-4" />
+          Novo
+        </button>
         <button
           type="button"
           onClick={() => void load()}
@@ -101,6 +162,15 @@ export const PartnerPanelModal = ({
       </div>
 
       <div className="flex-1 space-y-3 overflow-y-auto px-3 pb-6">
+        {showForm && (
+          <NewClientForm
+            onSubmit={(client) => void handleCreate(client)}
+            onCancel={() => setShowForm(false)}
+            isLoading={saving}
+            fixedExpense={fixedExpense}
+            existingPhones={clients.map((c) => c.phone)}
+          />
+        )}
         {loading && clients.length === 0 ? (
           <div className="flex justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-foreground/60" />
