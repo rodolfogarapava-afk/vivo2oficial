@@ -70,6 +70,52 @@ export const PartnerPanelModal = ({
     [clients],
   );
 
+  const handleCreate = async (client: {
+    name: string;
+    phone: string;
+    whatsapp: string | null;
+    value_paid: number;
+    due_day: number;
+    virtual_chip: boolean;
+    is_resale: boolean;
+    bonus: boolean;
+    company: string;
+    account: number | null;
+  }) => {
+    if (!partnerUserId) return;
+    setSaving(true);
+    try {
+      const { error: rpcError } = await (supabase.rpc as unknown as (
+        fn: string,
+        args: Record<string, unknown>,
+      ) => Promise<{ error: { message: string } | null }>)("add_panel_client", {
+        p_panel_user: partnerUserId,
+        p_name: client.name,
+        p_phone: client.phone,
+        p_value: client.value_paid,
+        p_due_day: client.due_day,
+        p_virtual_chip: client.virtual_chip,
+        p_is_resale: client.is_resale,
+        p_bonus: client.bonus,
+        p_company: client.company,
+        p_account: client.account,
+        p_whatsapp: client.whatsapp,
+      });
+      if (rpcError) throw new Error(rpcError.message);
+      toast({ title: "Cliente cadastrado!", description: `Adicionado no painel ${label}.` });
+      setShowForm(false);
+      await load();
+    } catch (err) {
+      toast({
+        title: "Erro",
+        description: err instanceof Error ? err.message : "Não foi possível cadastrar.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (!open) return null;
 
   return createPortal(
