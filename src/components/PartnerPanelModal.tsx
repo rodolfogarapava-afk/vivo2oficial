@@ -127,6 +127,14 @@ export const PartnerPanelModal = ({
         </h2>
         <button
           type="button"
+          onClick={() => setShowForm((v) => !v)}
+          className="flex h-9 items-center gap-1 rounded-xl bg-green-600 px-3 text-[11px] font-extrabold uppercase tracking-wider text-white"
+        >
+          <Plus className="h-4 w-4" />
+          Novo
+        </button>
+        <button
+          type="button"
           onClick={() => void load()}
           className="flex h-9 items-center gap-1.5 rounded-xl border border-border bg-secondary px-3 text-[11px] font-extrabold uppercase tracking-wider text-foreground"
         >
