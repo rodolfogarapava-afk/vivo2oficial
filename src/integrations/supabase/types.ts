@@ -277,15 +277,29 @@ export type Database = {
       list_panel_clients: {
         Args: { p_panel_user: string }
         Returns: {
+          account: number | null
           blocked: boolean
+          bonus: boolean
+          company: string
+          created_at: string
           data_gb: number
           data_used_gb: number
-          due_day: number
+          due_day: number | null
           id: string
+          is_resale: boolean
           name: string
           phone: string
+          user_id: string | null
           value_paid: number
+          virtual_chip: boolean
+          whatsapp: string | null
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "clients"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
     }
     Enums: {

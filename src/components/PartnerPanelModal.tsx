@@ -1,23 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
-import { Loader2, RefreshCw, Signal } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
+import { Loader2, RefreshCw, Signal, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { formatClientName } from "@/lib/formatName";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-
-interface PartnerLine {
-  id: string;
-  name: string;
-  phone: string;
-  value_paid: number | null;
-  blocked: boolean;
-  data_gb: number | null;
-  data_used_gb: number | null;
-}
+import { ClientCard } from "@/components/ClientCard";
+import { isFreeLine } from "@/hooks/useFreeLineColor";
+import type { Client } from "@/hooks/useClients";
 
 interface PartnerPanelModalProps {
   open: boolean;
@@ -27,15 +14,8 @@ interface PartnerPanelModalProps {
   panelLabel?: string;
 }
 
-const formatPhone = (value: string) => {
-  const d = (value || "").replace(/\D/g, "");
-  if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
-  if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
-  return value;
-};
-
-const money = (value: number | null) =>
-  `R$ ${Number(value ?? 0).toFixed(2).replace(".", ",")}`;
+const money = (value: number) =>
+  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
 export const PartnerPanelModal = ({
   open,
@@ -44,7 +24,7 @@ export const PartnerPanelModal = ({
   panelLabel,
 }: PartnerPanelModalProps) => {
   const label = (panelLabel || "CHIP NET").toUpperCase();
-  const [lines, setLines] = useState<PartnerLine[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,12 +36,12 @@ export const PartnerPanelModal = ({
       const { data, error: rpcError } = await (supabase.rpc as unknown as (
         fn: string,
         args: Record<string, unknown>,
-      ) => Promise<{ data: PartnerLine[] | null; error: { message: string } | null }>)(
+      ) => Promise<{ data: Client[] | null; error: { message: string } | null }>)(
         "list_panel_clients",
         { p_panel_user: partnerUserId },
       );
       if (rpcError) throw new Error(rpcError.message);
-      setLines(data ?? []);
+      setClients(data ?? []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível carregar as linhas.");
     } finally {
@@ -73,81 +53,75 @@ export const PartnerPanelModal = ({
     if (open) void load();
   }, [open, load]);
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm w-[92vw] rounded-2xl bg-card border-border">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-foreground">
-            <Signal className="h-5 w-5 text-cyan-400" />
-            Painel {label}
-          </DialogTitle>
-        </DialogHeader>
+  const ordered = useMemo(
+    () => [...clients].sort((a, b) => Number(isFreeLine(b.name)) - Number(isFreeLine(a.name))),
+    [clients],
+  );
 
-        <div className="flex items-center justify-between">
-          <p className="text-xs font-semibold text-muted-foreground">
-            {loading ? "Carregando..." : `${lines.length} linha(s)`}
-          </p>
-          <button
-            type="button"
-            onClick={() => void load()}
-            className="flex h-9 items-center gap-1.5 rounded-xl border border-border bg-secondary px-3 text-[11px] font-extrabold uppercase tracking-wider text-foreground"
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Atualizar
-          </button>
+  const total = useMemo(
+    () => clients.reduce((sum, c) => sum + Number(c.value_paid ?? 0), 0),
+    [clients],
+  );
+
+  if (!open) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9998] flex flex-col bg-background">
+      <div className="flex items-center gap-2 border-b border-border px-3 py-3">
+        <Signal className="h-5 w-5 shrink-0 text-cyan-400" />
+        <h2 className="min-w-0 flex-1 truncate text-base font-extrabold uppercase tracking-wider text-foreground">
+          Painel {label}
+        </h2>
+        <button
+          type="button"
+          onClick={() => void load()}
+          className="flex h-9 items-center gap-1.5 rounded-xl border border-border bg-secondary px-3 text-[11px] font-extrabold uppercase tracking-wider text-foreground"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+        </button>
+        <button
+          type="button"
+          onClick={() => onOpenChange(false)}
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-secondary text-foreground"
+          aria-label="Fechar"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 px-3 py-3">
+        <div className="rounded-xl border border-purple-700/60 bg-purple-950/40 p-2 text-center">
+          <p className="text-[10px] font-extrabold uppercase tracking-wider text-purple-200">Total</p>
+          <p className="truncate text-sm font-extrabold text-foreground">{money(total)}</p>
         </div>
+        <div className="rounded-xl border border-cyan-700/60 bg-cyan-950/40 p-2 text-center">
+          <p className="text-[10px] font-extrabold uppercase tracking-wider text-cyan-200">Linhas</p>
+          <p className="text-sm font-extrabold text-foreground">{clients.length}</p>
+        </div>
+      </div>
 
-        {loading && lines.length === 0 ? (
-          <div className="flex justify-center py-6">
+      <div className="flex-1 space-y-3 overflow-y-auto px-3 pb-6">
+        {loading && clients.length === 0 ? (
+          <div className="flex justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-foreground/60" />
           </div>
         ) : error ? (
           <p className="text-xs font-semibold text-red-400">{error}</p>
-        ) : lines.length === 0 ? (
-          <p className="text-xs leading-snug text-muted-foreground">
-            Nenhuma linha nesse painel ainda.
-          </p>
+        ) : ordered.length === 0 ? (
+          <p className="text-xs leading-snug text-muted-foreground">Nenhuma linha nesse painel ainda.</p>
         ) : (
-          <div className="max-h-[60vh] space-y-2 overflow-y-auto pr-1">
-            {lines.map((line, index) => {
-              const isFree = !line.name?.trim() || line.name.trim().toUpperCase() === "LIVRE";
-              return (
-                <div
-                  key={line.id}
-                  className={`flex items-center gap-2 rounded-xl border p-2 ${
-                    isFree
-                      ? "border-green-500/60 bg-green-950/30"
-                      : line.blocked
-                        ? "border-red-500/50 bg-red-950/30"
-                        : "border-border bg-secondary/50"
-                  }`}
-                >
-                  <span className="w-6 shrink-0 text-center text-[11px] font-bold text-muted-foreground">
-                    {index + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-bold text-foreground">
-                      {isFree ? "Livre" : formatClientName(line.name)}
-                    </p>
-                    <p className="text-[11px] font-semibold text-green-400">{formatPhone(line.phone)}</p>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <p className="text-xs font-extrabold text-foreground">{money(line.value_paid)}</p>
-                    {Number(line.data_gb ?? 0) > 0 && (
-                      <p className="text-[10px] font-semibold text-cyan-400">
-                        {Number(line.data_used_gb ?? 0)}/{Number(line.data_gb)} GB
-                      </p>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          ordered.map((client, index) => (
+            <ClientCard
+              key={client.id}
+              client={client}
+              index={index}
+              onToggleVirtualChip={() => {}}
+              inPanel={null}
+            />
+          ))
         )}
-
-        <p className="text-[11px] leading-snug text-muted-foreground">
-          Estas são as linhas do painel {label}. Aqui é só para conferir — as alterações são feitas no painel dele.
-        </p>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>,
+    document.body,
   );
 };
