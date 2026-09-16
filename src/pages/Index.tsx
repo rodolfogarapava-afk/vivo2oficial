@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Loader2, LogOut, Search, X, Lock, Unlock, Ban, Save, Mail, UserPlus, Eye, EyeOff, Signal, RefreshCw, TrendingUp, CalendarClock } from "lucide-react";
+import { Settings, Loader2, LogOut, Search, X, Lock, Unlock, Ban, Save, Mail, UserPlus, Eye, EyeOff, Signal, RefreshCw, CalendarClock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ClientCard } from "@/components/ClientCard";
 import { NewClientForm } from "@/components/NewClientForm";
@@ -599,7 +599,7 @@ const Index = () => {
       </header>
 
       {/* Financial totals */}
-      <div className="mx-3 grid grid-cols-4 gap-2">
+      <div className="mx-3 grid grid-cols-3 gap-2">
         <div className="min-w-0 rounded-xl border border-purple-700/60 bg-purple-950/40 px-2 py-3 text-center">
           <p className="text-[9px] font-bold uppercase text-purple-300">Total</p>
           <p className="mt-1 truncate text-xs font-extrabold text-white" title={totalGross.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}>
@@ -618,18 +618,6 @@ const Index = () => {
             {totalProfit.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowReport(true)}
-          className="min-w-0 rounded-xl border border-purple-500/70 bg-purple-800 px-2 py-3 text-center transition-transform active:scale-95"
-          aria-label="Abrir relatório de ganhos"
-        >
-          <span className="flex items-center justify-center gap-1">
-            <TrendingUp className="h-3 w-3 text-purple-300" />
-            <span className="text-[9px] font-bold uppercase text-purple-300">Ganhos</span>
-          </span>
-          <span className="mt-1 block text-xs font-extrabold text-white">Ver mês</span>
-        </button>
       </div>
 
       {/* Cobrança de amanhã */}
@@ -785,6 +773,7 @@ const Index = () => {
         totalsByDay={totalsByDay}
         remainingByDay={remainingByDay}
         onResaleClick={() => setShowResaleModal(true)}
+        onReportClick={() => setShowReport(true)}
         showPaymentCards={showPaymentCards}
         onTogglePaymentCards={() => showPaymentCards ? setShowHideConfirm(true) : setShowShowConfirm(true)}
 
