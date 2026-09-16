@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const CACHE_KEY = "vivo-panel-phones";
@@ -23,32 +23,45 @@ const readCache = (): Set<string> | null => {
  */
 export const usePanelPhones = () => {
   const [panelPhones, setPanelPhones] = useState<Set<string> | null>(() => readCache());
+  const loadingRef = useRef(false);
+
+  const refreshPanel = useCallback(async () => {
+    if (!navigator.onLine || loadingRef.current) return false;
+    loadingRef.current = true;
+    try {
+      const { data, error } = await supabase.functions.invoke("vivo-gestao", {
+        body: { action: "sync" },
+      });
+      if (error || !data?.lines) return false;
+      const phones = (data.lines as { phone?: string }[])
+        .map((line) => digits(line.phone || ""))
+        .filter((phone) => phone.length >= 10);
+      if (phones.length === 0) return false;
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ phones, ts: Date.now() }));
+      setPanelPhones(new Set(phones));
+      return true;
+    } catch {
+      return false;
+    } finally {
+      loadingRef.current = false;
+    }
+  }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    void refreshPanel();
 
-    const load = async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke("vivo-gestao", {
-          body: { action: "sync" },
-        });
-        if (error || !data?.lines) return;
-        const phones = (data.lines as { phone?: string }[])
-          .map((l) => digits(l.phone || ""))
-          .filter((p) => p.length >= 10);
-        if (cancelled || phones.length === 0) return;
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ phones, ts: Date.now() }));
-        setPanelPhones(new Set(phones));
-      } catch {
-        // keep cached value
-      }
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") void refreshPanel();
     };
+    const refreshWhenOnline = () => void refreshPanel();
 
-    load();
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+    window.addEventListener("online", refreshWhenOnline);
     return () => {
-      cancelled = true;
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+      window.removeEventListener("online", refreshWhenOnline);
     };
-  }, []);
+  }, [refreshPanel]);
 
   const isInPanel = (phone: string): boolean | null => {
     if (!panelPhones) return null;
@@ -57,5 +70,5 @@ export const usePanelPhones = () => {
     return panelPhones.has(d);
   };
 
-  return { panelPhones, isInPanel };
+  return { panelPhones, isInPanel, refreshPanel };
 };
