@@ -92,6 +92,7 @@ const Index = () => {
     try { return localStorage.getItem("hide_paid_clients") === "true"; } catch { return false; }
   });
   const [showChipNet, setShowChipNet] = useState(false);
+  const [selectedPartnerId, setSelectedPartnerId] = useState<string>();
   const [crossPanelResults, setCrossPanelResults] = useState<
     { client_name: string; client_phone: string; panel: string }[]
   >([]);
@@ -120,7 +121,13 @@ const Index = () => {
 
   const { isAdmin, isBlocked, reload: reloadAccess } = useAccessControl(user?.id);
   const { otherPanelLabel, others: linkedPanels } = usePanelNames(user?.id);
-  const otherPanelUserId = linkedPanels[0]?.userId;
+  const selectedPartner = linkedPanels.find((panel) => panel.userId === selectedPartnerId) ?? linkedPanels[0];
+  const otherPanelUserId = selectedPartner?.userId;
+  const selectedPartnerLabel = selectedPartner?.label ?? otherPanelLabel;
+
+  useEffect(() => {
+    if (!selectedPartnerId && linkedPanels[0]?.userId) setSelectedPartnerId(linkedPanels[0].userId);
+  }, [linkedPanels, selectedPartnerId]);
 
 
   const refreshApp = useCallback(async () => {
@@ -472,7 +479,10 @@ const Index = () => {
             )}
             <button
               type="button"
-              onClick={() => setShowChipNet(true)}
+              onClick={() => {
+                if (linkedPanels[0]?.userId) setSelectedPartnerId(linkedPanels[0].userId);
+                setShowChipNet(true);
+              }}
               className="flex items-center justify-center gap-1.5 h-11 rounded-xl bg-gradient-to-b from-cyan-500 to-cyan-700 border border-cyan-300/50 shadow-[0_3px_0_0_#155e75] hover:translate-y-[1px] active:translate-y-[2px] transition-all"
               title={`Painel ${otherPanelLabel}`}
             >
@@ -706,7 +716,9 @@ const Index = () => {
         open={showChipNet}
         onOpenChange={setShowChipNet}
         partnerUserId={otherPanelUserId}
-        panelLabel={otherPanelLabel}
+        panelLabel={selectedPartnerLabel}
+        panels={linkedPanels}
+        onSelectPanel={setSelectedPartnerId}
       />
 
 
