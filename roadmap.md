@@ -40,6 +40,7 @@
 - [x] Mostrar ⚠️ no cartão dos clientes que estão no aplicativo, mas não no painel Vivo
 - [x] Organizar Token e Revenda em botões e permitir várias revendas ligadas por token
 - [x] Atualizar automaticamente a lista do painel Vivo ao abrir ou voltar ao aplicativo
+- [x] Adicionar engrenagem na revenda para editar e excluir associados
 
 ## Pendente
 - [ ] Envio automático de verdade (sem tocar): exige a API oficial do WhatsApp Business (cadastro + aprovação + custo por mensagem) - aguardando decisão

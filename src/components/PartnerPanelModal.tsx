@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { Loader2, Plus, RefreshCw, Signal, X } from "lucide-react";
+import { ArrowLeft, Loader2, Pencil, Plus, RefreshCw, Save, Settings, Signal, Trash2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ClientCard } from "@/components/ClientCard";
 import { NewClientForm } from "@/components/NewClientForm";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { isFreeLine } from "@/hooks/useFreeLineColor";
 import { useFixedExpense } from "@/hooks/useFixedExpense";
 import { useToast } from "@/hooks/use-toast";
 import type { Client } from "@/hooks/useClients";
+import { formatClientName } from "@/lib/formatName";
 
 interface PartnerPanelModalProps {
   open: boolean;
@@ -36,6 +39,15 @@ export const PartnerPanelModal = ({
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showAssociates, setShowAssociates] = useState(false);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editWhatsapp, setEditWhatsapp] = useState("");
+  const [editValue, setEditValue] = useState("");
+  const [editDataGb, setEditDataGb] = useState("0");
+  const [editDataUsedGb, setEditDataUsedGb] = useState("0");
   const { fixedExpense } = useFixedExpense();
   const { toast } = useToast();
 
@@ -120,6 +132,76 @@ export const PartnerPanelModal = ({
     }
   };
 
+  const startEdit = (client: Client) => {
+    setEditName(client.name);
+    setEditPhone(client.phone);
+    setEditWhatsapp(client.whatsapp ?? "");
+    setEditValue(String(client.value_paid ?? 0));
+    setEditDataGb(String(client.data_gb ?? 0));
+    setEditDataUsedGb(String(client.data_used_gb ?? 0));
+    setEditingClient(client);
+  };
+
+  const saveEdit = async () => {
+    if (!partnerUserId || !editingClient || !editName.trim() || !editPhone.trim() || editValue === "") return;
+    setSaving(true);
+    try {
+      const { error: rpcError } = await (supabase.rpc as unknown as (
+        fn: string,
+        args: Record<string, unknown>,
+      ) => Promise<{ error: { message: string } | null }>)('update_panel_client', {
+        p_panel_user: partnerUserId,
+        p_client_id: editingClient.id,
+        p_name: formatClientName(editName),
+        p_phone: editPhone.trim(),
+        p_value: Number(editValue.replace(',', '.')) || 0,
+        p_whatsapp: editWhatsapp.trim() || null,
+        p_data_gb: Number(editDataGb.replace(',', '.')) || 0,
+        p_data_used_gb: Number(editDataUsedGb.replace(',', '.')) || 0,
+      });
+      if (rpcError) throw new Error(rpcError.message);
+      setEditingClient(null);
+      await load();
+      toast({ title: "Associado atualizado!" });
+    } catch (err) {
+      toast({
+        title: "Erro",
+        description: err instanceof Error ? err.message : "Não foi possível salvar.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!partnerUserId || !clientToDelete) return;
+    setSaving(true);
+    try {
+      const { data, error: rpcError } = await (supabase.rpc as unknown as (
+        fn: string,
+        args: Record<string, unknown>,
+      ) => Promise<{ data: boolean | null; error: { message: string } | null }>)('delete_panel_client', {
+        p_panel_user: partnerUserId,
+        p_client_id: clientToDelete.id,
+      });
+      if (rpcError) throw new Error(rpcError.message);
+      if (!data) throw new Error("Associado não encontrado.");
+      setClientToDelete(null);
+      setEditingClient(null);
+      await load();
+      toast({ title: "Associado excluído" });
+    } catch (err) {
+      toast({
+        title: "Erro",
+        description: err instanceof Error ? err.message : "Não foi possível excluir.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (!open) return null;
 
   return createPortal(
@@ -129,6 +211,17 @@ export const PartnerPanelModal = ({
         <h2 className="min-w-0 flex-1 truncate text-base font-extrabold uppercase tracking-wider text-foreground">
           Painel {label}
         </h2>
+        <Button
+          type="button"
+          size="icon"
+          variant="secondary"
+          onClick={() => setShowAssociates(true)}
+          className="h-9 w-9 shrink-0 rounded-xl border border-border"
+          aria-label="Editar associados"
+          title="Editar associados"
+        >
+          <Settings className="h-4 w-4" />
+        </Button>
         <button
           type="button"
           onClick={() => setShowForm((v) => !v)}
@@ -214,6 +307,89 @@ export const PartnerPanelModal = ({
           ))
         )}
       </div>
+
+      {showAssociates && (
+        <div className="fixed inset-0 z-[9999] flex flex-col bg-background">
+          <div className="flex items-center gap-2 border-b border-border px-3 py-3">
+            <Button
+              type="button"
+              size="icon"
+              variant="secondary"
+              onClick={() => setShowAssociates(false)}
+              className="h-10 w-10 rounded-xl border border-border"
+              aria-label="Voltar ao painel"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h3 className="min-w-0 flex-1 truncate text-base font-extrabold uppercase text-foreground">
+              Associados — {label}
+            </h3>
+          </div>
+          <div className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain p-3 pb-6 touch-pan-y">
+            {ordered.map((client) => (
+              <Button
+                key={client.id}
+                type="button"
+                variant="secondary"
+                onClick={() => startEdit(client)}
+                className="h-auto min-h-14 w-full justify-start rounded-xl border border-border px-3 py-3 text-left"
+              >
+                <Pencil className="h-4 w-4 shrink-0" />
+                <span className="min-w-0 flex-1 whitespace-normal break-words font-bold">{formatClientName(client.name)}</span>
+                <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{client.phone}</span>
+              </Button>
+            ))}
+            {ordered.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Nenhum associado cadastrado.</p>}
+          </div>
+        </div>
+      )}
+
+      {editingClient && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-background/90 p-4">
+          <div className="max-h-[90dvh] w-full max-w-sm space-y-3 overflow-y-auto rounded-xl border border-border bg-card p-4 shadow-xl">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-lg font-bold text-foreground">Editar associado</h3>
+              <Button type="button" size="icon" variant="ghost" onClick={() => setEditingClient(null)} aria-label="Fechar edição">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <Input value={editName} onChange={(event) => setEditName(event.target.value)} placeholder="Nome" />
+            <Input value={editPhone} onChange={(event) => setEditPhone(event.target.value)} placeholder="Telefone" inputMode="tel" />
+            <Input value={editWhatsapp} onChange={(event) => setEditWhatsapp(event.target.value)} placeholder="WhatsApp (opcional)" inputMode="tel" />
+            <Input value={editValue} onChange={(event) => setEditValue(event.target.value)} placeholder="Valor" inputMode="decimal" />
+            <div className="grid grid-cols-2 gap-2">
+              <Input value={editDataGb} onChange={(event) => setEditDataGb(event.target.value)} placeholder="Giga total" inputMode="decimal" />
+              <Input value={editDataUsedGb} onChange={(event) => setEditDataUsedGb(event.target.value)} placeholder="Giga usado" inputMode="decimal" />
+            </div>
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <Button type="button" onClick={() => void saveEdit()} disabled={saving || !editName.trim() || !editPhone.trim()} className="h-11 rounded-xl">
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Salvar
+              </Button>
+              <Button type="button" variant="destructive" onClick={() => setClientToDelete(editingClient)} disabled={saving} className="h-11 rounded-xl">
+                <Trash2 className="h-4 w-4" />
+                Excluir
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {clientToDelete && (
+        <div className="fixed inset-0 z-[10001] flex items-center justify-center bg-background/90 p-4">
+          <div className="w-full max-w-sm rounded-xl border border-border bg-card p-5 shadow-xl">
+            <h3 className="text-lg font-bold text-foreground">Confirmar exclusão</h3>
+            <p className="mt-2 text-sm text-muted-foreground">Deseja excluir <strong className="text-foreground">{clientToDelete.name}</strong> desta revenda?</p>
+            <div className="mt-5 grid grid-cols-2 gap-2">
+              <Button type="button" variant="secondary" onClick={() => setClientToDelete(null)} disabled={saving}>Voltar</Button>
+              <Button type="button" variant="destructive" onClick={() => void confirmDelete()} disabled={saving}>
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                Excluir
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>,
     document.body,
   );
