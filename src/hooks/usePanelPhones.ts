@@ -30,7 +30,7 @@ export const usePanelPhones = () => {
     loadingRef.current = true;
     try {
       const { data, error } = await supabase.functions.invoke("vivo-gestao", {
-        body: { action: "sync" },
+        body: { action: "auto_sync" },
       });
       if (error || !data?.lines) return false;
       const phones = (data.lines as { phone?: string }[])
@@ -39,6 +39,7 @@ export const usePanelPhones = () => {
       if (phones.length === 0) return false;
       localStorage.setItem(CACHE_KEY, JSON.stringify({ phones, ts: Date.now() }));
       setPanelPhones(new Set(phones));
+      window.dispatchEvent(new CustomEvent("vivo-panel-synced", { detail: data.sync ?? null }));
       return true;
     } catch {
       return false;

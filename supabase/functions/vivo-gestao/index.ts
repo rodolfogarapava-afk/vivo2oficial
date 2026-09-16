@@ -1,3 +1,4 @@
+import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 
 const API = 'https://vivogestao.vivoempresas.com.br/Portal/api'
@@ -72,6 +73,35 @@ type PanelLine = {
   raw?: Record<string, unknown>
 }
 
+const digits = (value: unknown) => String(value ?? '').replace(/\D/g, '')
+
+const normalizeLabel = (value: unknown) => String(value ?? '')
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .toUpperCase()
+  .replace(/\b(PAINEL|TELECOM|REVENDA)\b/g, '')
+  .replace(/[^A-Z0-9]/g, '')
+
+const displayName = (value: unknown) => {
+  const clean = String(value ?? '').trim().replace(/\s+/g, ' ')
+  if (!clean) return 'LIVRE'
+  const lowerWords = new Set(['da', 'das', 'de', 'do', 'dos', 'e'])
+  return clean.toLocaleLowerCase('pt-BR').split(' ').map((word, index) => {
+    if (index > 0 && lowerWords.has(word)) return word
+    return word.charAt(0).toLocaleUpperCase('pt-BR') + word.slice(1)
+  }).join(' ')
+}
+
+const quotaFromRaw = (raw?: Record<string, unknown>) => {
+  if (!raw) return 0
+  const candidates = ['dataGb', 'dataGB', 'quotaGb', 'quotaGB', 'packageGb', 'packageSizeGb', 'franchiseGb']
+  for (const key of candidates) {
+    const value = Number(String(raw[key] ?? '').replace(',', '.'))
+    if (Number.isFinite(value) && value > 0) return value
+  }
+  return 0
+}
+
 async function fetchAllLines(jar: Record<string, string>, includeRaw = false) {
   const gv = await call('loadViewBlockVoice', { startRow: 1, fetchSize: 10 }, jar, ENDPOINTS.blockgroup)
   const groups = (gv.json as { groups?: Array<{ id: number; name: string; totalLines: number }> } | null)?.groups ?? []
@@ -128,6 +158,26 @@ Deno.serve(async (req) => {
       })
     }
 
+    const token = (req.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '')
+    const backend = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    )
+    const { data: authData } = token ? await backend.auth.getUser(token) : { data: { user: null } }
+    const appUser = authData.user
+    if (!appUser) {
+      return new Response(JSON.stringify({ error: 'NOT_AUTHENTICATED' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+    const { data: adminRole } = await backend.from('user_roles')
+      .select('id').eq('user_id', appUser.id).eq('role', 'admin').maybeSingle()
+    if (!adminRole) {
+      return new Response(JSON.stringify({ error: 'NOT_ALLOWED' }), {
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     const jar: Record<string, string> = {}
     const boot = await fetch('https://vivogestao.vivoempresas.com.br/Portal/data/login', {
       headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36' },
@@ -145,11 +195,95 @@ Deno.serve(async (req) => {
       result.cookies = Object.keys(jar)
     }
 
-    if (action === 'sync' || action === 'lines' || action === 'listLines') {
-      const { groups, lines } = await fetchAllLines(jar, Boolean(payload.verbose))
+    if (action === 'sync' || action === 'lines' || action === 'listLines' || action === 'auto_sync') {
+      const { groups, lines } = await fetchAllLines(jar, Boolean(payload.verbose) || action === 'auto_sync')
       result.groups = groups
-      result.lines = lines
+      result.lines = lines.map(({ raw: _raw, ...line }) => line)
       result.total = lines.length
+      if (action === 'auto_sync') {
+        const { data: links, error: linksError } = await backend.from('panel_links')
+          .select('owner_user_id, partner_user_id, partner_label')
+          .or(`owner_user_id.eq.${appUser.id},partner_user_id.eq.${appUser.id}`)
+        if (linksError) throw linksError
+
+        const targetIds = new Set<string>([appUser.id])
+        for (const link of links ?? []) {
+          targetIds.add(link.owner_user_id === appUser.id ? link.partner_user_id : link.owner_user_id)
+        }
+        const { data: names, error: namesError } = await backend.from('panel_names')
+          .select('user_id, label').in('user_id', [...targetIds])
+        if (namesError) throw namesError
+
+        const targets = [...targetIds].map((userId) => {
+          const saved = (names ?? []).find((item) => item.user_id === userId)?.label
+          const linked = (links ?? []).find((item) => item.partner_user_id === userId || item.owner_user_id === userId)
+          const fallback = userId === appUser.id ? 'RAIO' : linked?.partner_label ?? ''
+          return { userId, label: saved || fallback }
+        })
+        const targetForGroup = (group: string) => {
+          const normalizedGroup = normalizeLabel(group)
+          return targets.find((target) => {
+            const normalizedTarget = normalizeLabel(target.label)
+            return normalizedGroup && normalizedTarget && (
+              normalizedGroup === normalizedTarget ||
+              normalizedGroup.includes(normalizedTarget) ||
+              normalizedTarget.includes(normalizedGroup)
+            )
+          })
+        }
+
+        const { data: existing, error: clientsError } = await backend.from('clients')
+          .select('id, user_id, phone, name, blocked, data_gb').in('user_id', [...targetIds])
+        if (clientsError) throw clientsError
+        const byTargetPhone = new Map((existing ?? []).map((client) => [`${client.user_id}:${digits(client.phone)}`, client]))
+        const knownPhoneOwners = new Map((existing ?? []).map((client) => [digits(client.phone), client.user_id]))
+        let added = 0
+        let updated = 0
+        const unmatchedGroups = new Set<string>()
+
+        for (const line of lines) {
+          const phone = digits(line.phone)
+          const target = targetForGroup(line.group)
+          if (!target) {
+            if (line.group) unmatchedGroups.add(line.group)
+            continue
+          }
+          if (phone.length < 10) continue
+          const current = byTargetPhone.get(`${target.userId}:${phone}`)
+          const quota = quotaFromRaw(line.raw)
+          if (!current) {
+            if (knownPhoneOwners.has(phone)) continue
+            const { data: inserted, error: insertError } = await backend.from('clients').insert({
+              user_id: target.userId,
+              name: displayName(line.name),
+              phone,
+              value_paid: 0,
+              due_day: 10,
+              blocked: line.blocked,
+              data_gb: quota,
+              data_used_gb: 0,
+              company: 'omega',
+            }).select('id, user_id, phone, name, blocked, data_gb').single()
+            if (insertError) throw insertError
+            byTargetPhone.set(`${target.userId}:${phone}`, inserted)
+            knownPhoneOwners.set(phone, target.userId)
+            added += 1
+            continue
+          }
+
+          const nextName = displayName(line.name)
+          const changes: Record<string, unknown> = {}
+          if (current.name !== nextName) changes.name = nextName
+          if (Boolean(current.blocked) !== line.blocked) changes.blocked = line.blocked
+          if (quota > 0 && Number(current.data_gb ?? 0) !== quota) changes.data_gb = quota
+          if (Object.keys(changes).length > 0) {
+            const { error: updateError } = await backend.from('clients').update(changes).eq('id', current.id)
+            if (updateError) throw updateError
+            updated += 1
+          }
+        }
+        result.sync = { added, updated, unmatchedGroups: [...unmatchedGroups] }
+      }
     } else if (action === 'probe') {
       const base = ENDPOINTS[payload.endpoint ?? 'consumption'] ?? BASE
       const probeAction = String(payload.extra?.probeAction ?? 'loadView')
