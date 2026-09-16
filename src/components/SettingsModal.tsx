@@ -7,6 +7,7 @@ import { Download, FileText, Signal, Copy, Check, MessageCircle, Save, ArrowLeft
 import { supabase } from "@/integrations/supabase/client";
 import { useVivoPanel, type SyncPlan } from "@/hooks/useVivoPanel";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import { Client } from "@/hooks/useClients";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
@@ -168,7 +169,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
   const { toast } = useToast();
   const { settings: whatsAppSettings, saveSettings: saveWhatsAppSettings } = useWhatsAppSettings();
-  const { settings: themeSettings, saveSettings: saveThemeSettings, setMode: setThemeMode, setButtonColor, colors, buttonColors } = useThemeSettings();
+  const { settings: themeSettings, saveSettings: saveThemeSettings, setMode: setThemeMode, setButtonColor, setClientCardPurple, setClientCardText, colors, buttonColors } = useThemeSettings();
   const { accounts } = useAccounts();
 
   
@@ -1136,6 +1137,54 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                     {!color.hsl && <span className="text-[9px] font-bold text-white">Padrão</span>}
                   </button>
                 ))}
+              </div>
+
+              <div className="mt-4 rounded-xl border border-purple-700 bg-purple-950/40 p-3">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-bold text-white">Fundo do cartão</p>
+                    <p className="text-[10px] text-purple-200">Branco até roxo</p>
+                  </div>
+                  <span className="min-w-10 text-right text-xs font-extrabold text-white">
+                    {themeSettings.clientCardPurple ?? 0}%
+                  </span>
+                </div>
+                <Slider
+                  value={[themeSettings.clientCardPurple ?? 0]}
+                  min={0}
+                  max={100}
+                  step={1}
+                  onValueChange={(value) => setClientCardPurple(value[0] ?? 0)}
+                  aria-label="Quantidade de roxo no cartão"
+                />
+                <div className="mt-2 flex justify-between text-[10px] font-bold text-purple-200">
+                  <span>Branco</span>
+                  <span>Roxo</span>
+                </div>
+              </div>
+
+              <p className="mb-2 mt-4 text-xs text-white/70">Cor das letras e números</p>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setClientCardText("black")}
+                  className={`h-11 bg-white text-black hover:bg-white hover:text-black ${
+                    (themeSettings.clientCardText ?? "black") === "black" ? "border-2 border-green-500" : "border-purple-600"
+                  }`}
+                >
+                  Preto
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setClientCardText("white")}
+                  className={`h-11 bg-purple-950 text-white hover:bg-purple-950 hover:text-white ${
+                    themeSettings.clientCardText === "white" ? "border-2 border-green-500" : "border-purple-600"
+                  }`}
+                >
+                  Branco
+                </Button>
               </div>
             </div>
 

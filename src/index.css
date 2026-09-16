@@ -44,6 +44,10 @@
 
     --surface: 0 0% 98%;
     --surface-foreground: 220 20% 20%;
+
+    --client-card-bg: 0 0% 100%;
+    --client-card-foreground: 0 0% 4%;
+    --client-card-border: 270 75% 48%;
   }
 
 

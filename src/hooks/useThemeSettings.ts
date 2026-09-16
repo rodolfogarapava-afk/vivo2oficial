@@ -6,6 +6,8 @@ interface ThemeSettings {
   backgroundColor: string;
   mode: ThemeMode;
   buttonColor?: string;
+  clientCardPurple?: number;
+  clientCardText?: "black" | "white";
 }
 
 const STORAGE_KEY = "theme-settings";
@@ -80,9 +82,14 @@ const setVar = (name: string, value: string) => {
   document.documentElement.style.setProperty(name, value);
 };
 
-const applyTheme = ({ backgroundColor, mode, buttonColor }: ThemeSettings) => {
+const applyTheme = ({ backgroundColor, mode, buttonColor, clientCardPurple = 0, clientCardText = "black" }: ThemeSettings) => {
   const { h, s, l } = parseHsl(backgroundColor);
   const root = document.documentElement;
+  const cardPurple = Math.min(100, Math.max(0, clientCardPurple));
+  const mix = cardPurple / 100;
+
+  setVar("--client-card-bg", `270 ${Math.round(65 * mix)}% ${Math.round(100 - 82 * mix)}%`);
+  setVar("--client-card-foreground", clientCardText === "white" ? "0 0% 100%" : "0 0% 4%");
 
   if (buttonColor) {
     root.classList.add("custom-buttons");
@@ -142,12 +149,24 @@ const readSettings = (): ThemeSettings => {
       if (mode === "dark" && LEGACY_DEFAULTS.includes(backgroundColor)) {
         backgroundColor = DEFAULT_BG;
       }
-      return { backgroundColor, mode, buttonColor: parsed.buttonColor || "" };
+      return {
+        backgroundColor,
+        mode,
+        buttonColor: parsed.buttonColor || "",
+        clientCardPurple: Math.min(100, Math.max(0, Number(parsed.clientCardPurple) || 0)),
+        clientCardText: parsed.clientCardText === "white" ? "white" : "black",
+      };
     } catch (e) {
       console.error("Error loading theme settings:", e);
     }
   }
-  return { backgroundColor: DEFAULT_BG, mode: "dark", buttonColor: "" };
+  return {
+    backgroundColor: DEFAULT_BG,
+    mode: "dark",
+    buttonColor: "",
+    clientCardPurple: 0,
+    clientCardText: "black",
+  };
 
 };
 
@@ -186,6 +205,22 @@ export const useThemeSettings = () => {
     window.dispatchEvent(new Event(THEME_UPDATED_EVENT));
   }, []);
 
+  const setClientCardPurple = useCallback((clientCardPurple: number) => {
+    const current = readSettings();
+    const next = { ...current, clientCardPurple: Math.min(100, Math.max(0, clientCardPurple)) };
+    setSettings(next);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    window.dispatchEvent(new Event(THEME_UPDATED_EVENT));
+  }, []);
+
+  const setClientCardText = useCallback((clientCardText: "black" | "white") => {
+    const current = readSettings();
+    const next = { ...current, clientCardText };
+    setSettings(next);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    window.dispatchEvent(new Event(THEME_UPDATED_EVENT));
+  }, []);
+
   const setMode = useCallback(
     (mode: ThemeMode) => {
       const current = readSettings();
@@ -204,6 +239,8 @@ export const useThemeSettings = () => {
     saveSettings,
     setMode,
     setButtonColor,
+    setClientCardPurple,
+    setClientCardText,
     colors: settings.mode === "light" ? LIGHT_COLORS : DARK_COLORS,
     darkColors: DARK_COLORS,
     lightColors: LIGHT_COLORS,
