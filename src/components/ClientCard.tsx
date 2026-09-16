@@ -224,17 +224,9 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
         className={`relative overflow-hidden bg-gradient-to-b rounded-xl ${compactMode ? 'p-2' : 'p-3'} animate-slide-up hover:translate-y-[2px] transition-all ${
           client.blocked 
             ? 'border-2 from-red-900/80 to-red-950/90 border-red-700 shadow-[0_6px_0_0_#7f1d1d] hover:shadow-[0_4px_0_0_#7f1d1d]' 
-            : isResale
-              ? 'border-2 from-orange-500 to-orange-700 border-orange-400 shadow-[0_6px_0_0_#9a3412] hover:shadow-[0_4px_0_0_#9a3412]'
-            : client.bonus
-              ? 'border-2 from-white to-white border-yellow-400 shadow-[0_6px_0_0_#a16207] hover:shadow-[0_4px_0_0_#a16207]'
-              : isFree
-                ? 'border-[5px] from-white to-white border-green-500 shadow-[0_6px_0_0_#15803d] hover:shadow-[0_4px_0_0_#15803d]'
-              : isNexus
-                ? 'border-2 from-white to-white border-gray-300 shadow-[0_6px_0_0_#9ca3af] hover:shadow-[0_4px_0_0_#9ca3af]'
-                : isPaid
-                  ? 'border-2 from-green-600/90 to-green-800/80 border-green-500/60 shadow-[0_6px_0_0_#166534] hover:shadow-[0_4px_0_0_#166534]'
-                  : 'border-2 from-card to-card/90 border-purple-900 shadow-[0_6px_0_0_#581c87] hover:shadow-[0_4px_0_0_#581c87]'
+            : isFree
+              ? 'border-[5px] from-white to-white border-green-500 shadow-[0_6px_0_0_#15803d] hover:shadow-[0_4px_0_0_#15803d]'
+              : 'border-[5px] from-client-card to-client-card border-client-card-border shadow-[0_6px_0_0_hsl(var(--client-card-border))] hover:shadow-[0_4px_0_0_hsl(var(--client-card-border))]'
         }`}
         style={{ animationDelay: `${index * 50}ms` }}
       >
@@ -247,7 +239,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             >
               <Check className="h-4 w-4 text-white" />
             </button>
-            <h3 className={`flex-1 font-semibold text-sm whitespace-nowrap overflow-x-auto ${isResale ? 'text-white' : isNexus ? 'text-black' : 'text-white'}`}>
+            <h3 className={`flex-1 font-semibold text-sm whitespace-nowrap overflow-x-auto ${isFree ? 'text-black' : 'text-client-card-foreground'}`}>
               {isFree && <span className="mr-1">✅</span>}
               {showGlobe && <span className="mr-1">🌐</span>}
               {formatClientName(client.name)}
@@ -270,11 +262,9 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                 ? 'bg-red-800 cursor-not-allowed'
                 : isPaid 
                   ? 'bg-gradient-to-b from-green-400 to-green-600 shadow-[0_4px_0_0_#166534] hover:shadow-[0_2px_0_0_#166534]'
-                  : client.bonus
-                    ? 'bg-gradient-to-b from-yellow-300 to-yellow-500 shadow-[0_4px_0_0_#a16207] hover:shadow-[0_2px_0_0_#a16207]'
-                    : isNexus
-                        ? 'bg-gray-200 shadow-[0_4px_0_0_#9ca3af] hover:shadow-[0_2px_0_0_#9ca3af]'
-                        : 'bg-purple-900'
+                    : isFree
+                      ? 'bg-gray-200 shadow-[0_4px_0_0_#9ca3af] hover:shadow-[0_2px_0_0_#9ca3af]'
+                      : 'bg-client-card/70 shadow-[0_4px_0_0_hsl(var(--client-card-border))] hover:shadow-[0_2px_0_0_hsl(var(--client-card-border))]'
             } hover:translate-y-[1px] active:translate-y-[2px]`}
           >
             {isPaid && !client.blocked ? (
@@ -283,13 +273,9 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
               <span className={`text-base font-bold ${
                 client.blocked
                   ? 'text-red-300'
-                  : client.bonus
-                    ? 'text-black'
-                    : isNexus
-                      ? 'text-black'
-                      : client.virtual_chip
-                        ? 'text-yellow-400'
-                        : 'text-white'
+                   : isFree
+                     ? 'text-black'
+                     : 'text-client-card-foreground'
               }`}>
                 {index + 1}
               </span>
@@ -300,17 +286,9 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             <h3 className={`font-semibold text-sm sm:text-base whitespace-nowrap overflow-x-auto ${
               client.blocked 
                 ? 'text-red-300 line-through' 
-                : client.bonus
+                : isFree
                   ? 'text-black'
-                  : isResale
-                    ? 'text-white'
-                  : isNexus
-                    ? 'text-black'
-                    : isPaid
-                      ? 'text-white'
-                      : client.virtual_chip 
-                        ? 'text-yellow-400' 
-                        : 'text-foreground'
+                  : 'text-client-card-foreground'
             }`}>
               {client.phone.replace(/\D/g, "").length === 0 && <span className="mr-1">⚠️</span>}
               {isFree && <span className="mr-1">✅</span>}
@@ -319,24 +297,20 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
               {client.blocked && <span className="ml-2 text-[10px] font-bold text-red-400 no-underline">(BLOQUEADO)</span>}
               {client.bonus && !client.blocked && <span className="ml-2 text-[10px] font-bold text-yellow-600">★ BÔNUS</span>}
             </h3>
-            <div className={`flex items-center gap-1 ${isResale && !client.blocked ? 'text-white/80' : client.bonus && !client.blocked ? 'text-black/70' : isNexus && !client.blocked ? 'text-black/70' : 'text-muted-foreground'}`}>
+            <div className={`flex items-center gap-1 ${client.blocked ? 'text-muted-foreground' : isFree ? 'text-black/70' : 'text-client-card-foreground/75'}`}>
               <Phone className={`h-3 w-3 flex-shrink-0`} />
               <span className={`text-xs whitespace-nowrap ${client.blocked ? 'line-through text-red-400/60' : ''}`}>{formatPhoneDisplay(client.phone)}</span>
             </div>
             <p className={`font-semibold text-xs mt-0.5 ${
               client.blocked
                 ? 'text-red-400 line-through'
-                : client.bonus
-                  ? 'text-black'
-                  : isResale
-                    ? 'text-white'
-                  : isNexus
-                    ? 'text-green-700'
-                    : 'text-green-500'
+                : isFree
+                  ? 'text-green-700'
+                  : 'text-client-card-foreground'
             }`}>
               {formatCurrency(client.bonus ? 0 : Number(client.value_paid))}
               {Number(client.data_gb ?? 0) > 0 && (
-                <span className={`ml-2 text-[10px] font-bold ${isNexus && !client.blocked ? 'text-black/70' : isResale && !client.blocked ? 'text-white/90' : client.bonus && !client.blocked ? 'text-black/70' : 'text-blue-400'}`}>
+                <span className={`ml-2 text-[10px] font-bold ${client.blocked ? 'text-blue-400' : isFree ? 'text-black/70' : 'text-client-card-foreground/75'}`}>
                   {Number(client.data_gb)} GB
                 </span>
               )}
@@ -344,7 +318,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
 
             {totalGb > 0 && (
               <div className="mt-1">
-                <div className={`h-2 w-full rounded-full overflow-hidden ${isNexus || client.bonus ? 'bg-black/10' : 'bg-white/15'}`}>
+                <div className={`h-2 w-full rounded-full overflow-hidden ${isFree ? 'bg-black/10' : 'bg-client-card-foreground/15'}`}>
                   <div
                     className={`h-full rounded-full transition-all ${
                       usedPercent >= 100 ? 'bg-red-500' : usedPercent >= 80 ? 'bg-yellow-400' : 'bg-blue-500'
@@ -355,13 +329,11 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                 <p className={`mt-0.5 text-[10px] font-semibold ${
                   usedPercent >= 100
                     ? 'text-red-500'
-                    : isNexus && !client.blocked
-                      ? 'text-black/70'
-                      : client.bonus && !client.blocked
+                    : client.blocked
+                      ? 'text-muted-foreground'
+                      : isFree
                         ? 'text-black/70'
-                        : isResale && !client.blocked
-                          ? 'text-white/90'
-                          : 'text-muted-foreground'
+                        : 'text-client-card-foreground/75'
                 }`}>
                   {usedGb} de {totalGb} GB usados ({usedPercent}%)
                   {usedPercent >= 100 && " • franquia esgotada"}
