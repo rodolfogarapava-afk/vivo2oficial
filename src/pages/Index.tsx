@@ -784,7 +784,6 @@ const Index = () => {
         onRefresh={refetch}
         totalsByDay={totalsByDay}
         remainingByDay={remainingByDay}
-        onResaleClick={() => setShowResaleModal(true)}
         onReportClick={() => setShowReport(true)}
         showPaymentCards={showPaymentCards}
         onTogglePaymentCards={() => showPaymentCards ? setShowHideConfirm(true) : setShowShowConfirm(true)}

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Download, FileText, Signal, Copy, Check, MessageCircle, Save, ArrowLeft, Palette, Pencil, Trash2, X, Users, Lock, LockOpen, Unlock, Building2, RefreshCw, CloudDownload, CreditCard, Send, Ban, Search, Star, Store, ShoppingCart, Eye, EyeOff, Calendar, Upload, Loader2, TrendingUp, KeyRound } from "lucide-react";
+import { Download, FileText, Signal, Copy, Check, MessageCircle, Save, ArrowLeft, Palette, Pencil, Trash2, X, Users, Lock, LockOpen, Unlock, Building2, RefreshCw, CloudDownload, CreditCard, Send, Ban, Search, Star, Store, Eye, EyeOff, Calendar, Upload, Loader2, TrendingUp, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useVivoPanel, type SyncPlan } from "@/hooks/useVivoPanel";
 import { Switch } from "@/components/ui/switch";
@@ -33,7 +33,6 @@ interface SettingsModalProps {
   onRefresh?: () => void;
   totalsByDay: Record<number, number>;
   remainingByDay: Record<number, number>;
-  onResaleClick?: () => void;
   onReportClick?: () => void;
   showPaymentCards?: boolean;
   onTogglePaymentCards?: () => void;
@@ -161,7 +160,7 @@ const saveBlockSettings = (settings: BlockSettings) => {
   localStorage.setItem(BLOCK_STORAGE_KEY, JSON.stringify(settings));
 };
 
-export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDeleteClient, onEditClient, onBlockClient, onRefresh, totalsByDay, remainingByDay, onResaleClick, onReportClick, showPaymentCards, onTogglePaymentCards, onPaymentSent, onCancelClick, onBlockClick, onUnblockClick, hasBlockedClients, isAdmin, userId }: SettingsModalProps) => {
+export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDeleteClient, onEditClient, onBlockClient, onRefresh, totalsByDay, remainingByDay, onReportClick, showPaymentCards, onTogglePaymentCards, onPaymentSent, onCancelClick, onBlockClick, onUnblockClick, hasBlockedClients, isAdmin, userId }: SettingsModalProps) => {
   const { visibleDays, toggleDay } = useVisibleDueDays();
   const [copied, setCopied] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -1033,14 +1032,6 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 >
                   <TrendingUp className="h-4 w-4 text-white" />
                   <span className="text-xs font-bold text-white uppercase tracking-wider">Ganhos</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { onOpenChange(false); onResaleClick?.(); }}
-                  className="flex items-center justify-center gap-2 h-11 rounded-xl bg-purple-900/70 hover:bg-purple-700/70 border border-purple-600 transition-colors"
-                >
-                  <ShoppingCart className="h-4 w-4 text-white" />
-                  <span className="text-xs font-bold text-white uppercase tracking-wider">Revenda</span>
                 </button>
                 <button
                   type="button"
