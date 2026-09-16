@@ -129,6 +129,12 @@ const Index = () => {
     if (!selectedPartnerId && linkedPanels[0]?.userId) setSelectedPartnerId(linkedPanels[0].userId);
   }, [linkedPanels, selectedPartnerId]);
 
+  useEffect(() => {
+    const reloadSyncedClients = () => void refetch();
+    window.addEventListener("vivo-panel-synced", reloadSyncedClients);
+    return () => window.removeEventListener("vivo-panel-synced", reloadSyncedClients);
+  }, [refetch]);
+
 
   const refreshApp = useCallback(async () => {
     if (!navigator.onLine) {
@@ -140,7 +146,8 @@ const Index = () => {
       return;
     }
 
-    await Promise.allSettled([refetch(), refreshPanel(), checkForPWAUpdate()]);
+    await refreshPanel();
+    await Promise.allSettled([refetch(), checkForPWAUpdate()]);
     toast({
       title: "Atualizado!",
       description: "Clientes, painel Vivo e aplicativo estão atualizados.",
