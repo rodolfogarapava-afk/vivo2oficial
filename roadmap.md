@@ -44,3 +44,4 @@
 
 ## Pendente
 - [ ] Envio automático de verdade (sem tocar): exige a API oficial do WhatsApp Business (cadastro + aprovação + custo por mensagem) - aguardando decisão
+- [ ] Sincronizar automaticamente novas linhas do Vivo Gestor com Raio e revendas pelo nome do grupo
