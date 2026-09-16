@@ -14,7 +14,6 @@ import { createPortal } from "react-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useWhatsAppSettings } from "@/hooks/useWhatsAppSettings";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
-import { useAccounts } from "@/hooks/useAccounts";
 
 import whatsappIcon from "@/assets/whatsapp-icon.png";
 import { useFixedExpense } from "@/hooks/useFixedExpense";
@@ -170,7 +169,6 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const { toast } = useToast();
   const { settings: whatsAppSettings, saveSettings: saveWhatsAppSettings } = useWhatsAppSettings();
   const { settings: themeSettings, saveSettings: saveThemeSettings, setMode: setThemeMode, setButtonColor, setClientCardPurple, setClientCardText, colors, buttonColors } = useThemeSettings();
-  const { accounts } = useAccounts();
 
   
   const [destinationPhone, setDestinationPhone] = useState("");
@@ -215,10 +213,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [editWhatsapp, setEditWhatsapp] = useState("");
   const [editValue, setEditValue] = useState("");
   const [editDueDay, setEditDueDay] = useState<number>(10);
-  const [editBonus, setEditBonus] = useState<boolean>(false);
   const [editIsResale, setEditIsResale] = useState<boolean>(false);
-  const [editCompany, setEditCompany] = useState<string>("omega");
-  const [editAccount, setEditAccount] = useState<number | null>(null);
   const [editDataGb, setEditDataGb] = useState<string>("0");
   const [editDataUsedGb, setEditDataUsedGb] = useState<string>("0");
   const [syncPlan, setSyncPlan] = useState<SyncPlan | null>(null);
@@ -558,10 +553,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       setEditWhatsapp(client.whatsapp ?? "");
       setEditValue(String(client.value_paid));
       setEditDueDay(client.due_day || 10);
-      setEditBonus(Boolean(client.bonus));
       setEditIsResale(Boolean(client.is_resale));
-      setEditCompany("omega");
-      setEditAccount(client.account ?? null);
       setEditDataGb(String(client.data_gb ?? 0));
       setEditDataUsedGb(String(client.data_used_gb ?? 0));
     }, 100);
@@ -576,10 +568,10 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       whatsapp: editWhatsapp.trim() || null,
       value_paid: parseFloat(editValue),
       due_day: editDueDay,
-      bonus: editBonus,
+      bonus: Boolean(editingClient.bonus),
       is_resale: editIsResale,
-      company: editCompany,
-      account: editAccount,
+      company: editingClient.company ?? "omega",
+      account: editingClient.account ?? null,
       data_gb: Number(editDataGb.replace(",", ".")) || 0,
       data_used_gb: Number(editDataUsedGb.replace(",", ".")) || 0,
     });
@@ -1559,58 +1551,6 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
             >
               <Store className={`h-4 w-4 ${editIsResale ? 'text-blue-400' : ''}`} />
               {editIsResale ? 'Revenda' : 'Cliente Final'}
-            </button>
-            <div className="grid grid-cols-1 gap-2">
-              <button
-                type="button"
-                onClick={() => setEditCompany("omega")}
-                className="h-10 sm:h-12 rounded-xl font-bold text-xs transition-all bg-primary text-white border-2 border-primary"
-              >
-                Raio Telecom
-              </button>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-white/70 mb-1">Conta</p>
-              <div className="grid grid-cols-4 gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setEditAccount(null)}
-                  className={`h-10 rounded-xl text-xs font-bold transition-all ${
-                    editAccount === null
-                      ? 'bg-primary text-white border-2 border-primary'
-                      : 'bg-purple-900/50 border border-purple-600 text-white/80'
-                  }`}
-                >
-                  —
-                </button>
-                {accounts.map((n) => (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => setEditAccount(n)}
-                    className={`h-10 rounded-xl text-sm font-bold transition-all ${
-                      editAccount === n
-                        ? 'bg-primary text-white border-2 border-primary'
-                        : 'bg-purple-900/50 border border-purple-600 text-white/80'
-                    }`}
-                  >
-                    {n}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setEditBonus((v) => !v)}
-              className={`w-full h-10 sm:h-12 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
-                editBonus
-                  ? 'bg-white border-2 border-yellow-400 text-black'
-                  : 'bg-purple-900/50 border border-purple-600 text-white/80 hover:bg-purple-900/70'
-              }`}
-            >
-              <Star className={`h-4 w-4 ${editBonus ? 'fill-yellow-400 text-yellow-500' : ''}`} />
-              {editBonus ? 'Bônus ativado' : 'Marcar como Bônus'}
             </button>
             <div className="grid grid-cols-2 gap-2 pt-1">
               <Button

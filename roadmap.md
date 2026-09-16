@@ -35,6 +35,7 @@
 
 - [x] Minha conta como ADM: tokens de acesso (30 dias/vitalício), nome dos painéis e botão Gestor só no meu app
 - [x] Cartões ativos com borda roxa e ajuste de fundo branco/roxo e texto preto/branco
+- [x] Remover Empresa, Conta, Bônus e Pagamento deste mês do cadastro e da edição
 
 ## Pendente
 - [ ] Envio automático de verdade (sem tocar): exige a API oficial do WhatsApp Business (cadastro + aprovação + custo por mensagem) - aguardando decisão
