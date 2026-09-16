@@ -37,6 +37,7 @@
 - [x] Cartões ativos com borda roxa e ajuste de fundo branco/roxo e texto preto/branco
 - [x] Remover Empresa, Conta, Bônus e Pagamento deste mês do cadastro e da edição
 - [x] Mover o relatório Ganhos da tela principal para dentro da engrenagem
+- [x] Mostrar ⚠️ no cartão dos clientes que estão no aplicativo, mas não no painel Vivo
 
 ## Pendente
 - [ ] Envio automático de verdade (sem tocar): exige a API oficial do WhatsApp Business (cadastro + aprovação + custo por mensagem) - aguardando decisão
