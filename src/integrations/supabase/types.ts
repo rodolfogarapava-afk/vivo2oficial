@@ -22,7 +22,9 @@ export type Database = {
           expires_at: string | null
           id: string
           note: string | null
+          panel_label: string | null
           plan: string
+          purpose: string
           revoked: boolean
           updated_at: string
           used_at: string | null
@@ -35,7 +37,9 @@ export type Database = {
           expires_at?: string | null
           id?: string
           note?: string | null
+          panel_label?: string | null
           plan?: string
+          purpose?: string
           revoked?: boolean
           updated_at?: string
           used_at?: string | null
@@ -48,7 +52,9 @@ export type Database = {
           expires_at?: string | null
           id?: string
           note?: string | null
+          panel_label?: string | null
           plan?: string
+          purpose?: string
           revoked?: boolean
           updated_at?: string
           used_at?: string | null

@@ -15,6 +15,8 @@ interface PartnerPanelModalProps {
   /** User id of the linked panel (resale). */
   partnerUserId?: string;
   panelLabel?: string;
+  panels?: { userId: string; label: string }[];
+  onSelectPanel?: (userId: string) => void;
 }
 
 const money = (value: number) =>
@@ -25,6 +27,8 @@ export const PartnerPanelModal = ({
   onOpenChange,
   partnerUserId,
   panelLabel,
+  panels = [],
+  onSelectPanel,
 }: PartnerPanelModalProps) => {
   const label = (panelLabel || "CHIP NET").toUpperCase();
   const [clients, setClients] = useState<Client[]>([]);
@@ -160,6 +164,25 @@ export const PartnerPanelModal = ({
           <p className="text-sm font-extrabold text-foreground">{clients.length}</p>
         </div>
       </div>
+
+      {panels.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto px-3 pb-3">
+          {panels.map((panel) => (
+            <button
+              key={panel.userId}
+              type="button"
+              onClick={() => onSelectPanel?.(panel.userId)}
+              className={`h-10 shrink-0 rounded-lg border px-4 text-xs font-extrabold uppercase ${
+                panel.userId === partnerUserId
+                  ? "border-cyan-300 bg-cyan-600 text-white"
+                  : "border-border bg-secondary text-foreground"
+              }`}
+            >
+              {panel.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="flex-1 space-y-3 overflow-y-auto px-3 pb-6">
         {showForm && (

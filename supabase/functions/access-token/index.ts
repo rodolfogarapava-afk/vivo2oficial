@@ -84,7 +84,26 @@ Deno.serve(async (req) => {
         );
       if (profileError) throw profileError;
 
-      return json({ ok: true, plan: match.plan, expires_at: expiresAt });
+      if (match.purpose === "reseller" && match.created_by && match.created_by !== user.id) {
+        const panelLabel = String(match.panel_label || match.note || "NOVA REVENDA").trim().slice(0, 40);
+        const { error: linkError } = await supabase.from("panel_links").upsert(
+          {
+            owner_user_id: match.created_by,
+            partner_user_id: user.id,
+            partner_label: panelLabel,
+          },
+          { onConflict: "owner_user_id,partner_user_id" },
+        );
+        if (linkError) throw linkError;
+
+        const { error: nameError } = await supabase.from("panel_names").upsert(
+          { user_id: user.id, label: panelLabel },
+          { onConflict: "user_id" },
+        );
+        if (nameError) throw nameError;
+      }
+
+      return json({ ok: true, plan: match.plan, expires_at: expiresAt, purpose: match.purpose });
     }
 
     if (!isAdmin) return json({ error: "NOT_ALLOWED" }, 403);
@@ -105,6 +124,25 @@ Deno.serve(async (req) => {
       const { data, error } = await supabase
         .from("access_tokens")
         .insert({ code: makeCode(), plan, note, created_by: user.id })
+        .select()
+        .single();
+      if (error) throw error;
+      return json({ token: data });
+    }
+
+    if (action === "create_reseller") {
+      const panelLabel = String(body?.panelLabel ?? "").trim().slice(0, 40);
+      if (!panelLabel) return json({ error: "INVALID_PANEL_LABEL" }, 400);
+      const { data, error } = await supabase
+        .from("access_tokens")
+        .insert({
+          code: makeCode(),
+          plan: "lifetime",
+          note: `Revenda: ${panelLabel}`,
+          purpose: "reseller",
+          panel_label: panelLabel,
+          created_by: user.id,
+        })
         .select()
         .single();
       if (error) throw error;

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Loader2, Save, Store } from "lucide-react";
+import { Copy, Loader2, Plus, Save, Store } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { usePanelNames } from "@/hooks/usePanelNames";
 import { useToast } from "@/hooks/use-toast";
 
@@ -13,6 +14,9 @@ export const PanelNamesSection = ({ userId }: PanelNamesSectionProps) => {
   const [mine, setMine] = useState("");
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState<string | null>(null);
+  const [newReseller, setNewReseller] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [resellerToken, setResellerToken] = useState("");
 
   useEffect(() => {
     setMine(myLabel ?? "RAIO TELECOM");
@@ -38,11 +42,73 @@ export const PanelNamesSection = ({ userId }: PanelNamesSectionProps) => {
     }
   };
 
+  const createReseller = async () => {
+    const label = newReseller.trim().slice(0, 40);
+    if (!label) {
+      toast({ title: "Digite o nome da revenda", variant: "destructive" });
+      return;
+    }
+    setCreating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("access-token", {
+        body: { action: "create_reseller", panelLabel: label },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setResellerToken(String(data?.token?.code ?? ""));
+      setNewReseller("");
+      toast({ title: "Token da revenda criado!", description: String(data?.token?.code ?? "") });
+    } catch {
+      toast({ title: "Erro", description: "Não foi possível criar a revenda.", variant: "destructive" });
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const copyToken = async () => {
+    if (!resellerToken) return;
+    await navigator.clipboard.writeText(resellerToken);
+    toast({ title: "Token copiado!" });
+  };
+
   return (
     <div className="space-y-3 rounded-xl border border-border bg-secondary/40 p-3">
       <div className="flex items-center gap-2">
         <Store className="h-4 w-4 text-cyan-400" />
         <h3 className="text-sm font-extrabold uppercase tracking-wider text-foreground">Painéis / Revenda</h3>
+      </div>
+
+      <div className="space-y-2 rounded-lg border border-cyan-500/40 bg-card p-2">
+        <p className="text-[11px] font-bold uppercase text-muted-foreground">Nova revenda</p>
+        <div className="flex gap-2">
+          <input
+            value={newReseller}
+            onChange={(event) => setNewReseller(event.target.value)}
+            placeholder="Nome da revenda"
+            maxLength={40}
+            className="h-11 min-w-0 flex-1 rounded-lg border border-border bg-background px-3 text-sm text-foreground"
+          />
+          <button
+            type="button"
+            onClick={() => void createReseller()}
+            disabled={creating}
+            className="flex h-11 w-11 items-center justify-center rounded-lg bg-cyan-600 text-white disabled:opacity-60"
+            aria-label="Adicionar revenda"
+          >
+            {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-5 w-5" />}
+          </button>
+        </div>
+        {resellerToken && (
+          <button
+            type="button"
+            onClick={() => void copyToken()}
+            className="flex w-full items-center justify-between rounded-lg bg-secondary p-3 text-foreground"
+          >
+            <span className="font-bold tracking-wider">{resellerToken}</span>
+            <Copy className="h-4 w-4" />
+          </button>
+        )}
+        <p className="text-[11px] text-muted-foreground">Envie este token para a revenda criar a conta e aparecer aqui automaticamente.</p>
       </div>
 
       <div className="space-y-1">
@@ -98,8 +164,7 @@ export const PanelNamesSection = ({ userId }: PanelNamesSectionProps) => {
       )}
 
       <p className="text-[11px] leading-snug text-muted-foreground">
-        O botão azul do topo mostra o nome do outro painel: no seu painel aparece o nome da revenda, e na revenda
-        aparece o nome do seu painel.
+        O botão azul do topo abre suas revendas. Dentro de cada painel, use os botões superiores para trocar de revenda.
       </p>
     </div>
   );

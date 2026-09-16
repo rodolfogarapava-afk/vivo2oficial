@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Download, FileText, Signal, Copy, Check, MessageCircle, Save, ArrowLeft, Palette, Pencil, Trash2, X, Users, Lock, LockOpen, Unlock, Building2, RefreshCw, CloudDownload, CreditCard, Send, Ban, Search, Star, Store, ShoppingCart, Eye, EyeOff, Calendar, Upload, Loader2, TrendingUp } from "lucide-react";
+import { Download, FileText, Signal, Copy, Check, MessageCircle, Save, ArrowLeft, Palette, Pencil, Trash2, X, Users, Lock, LockOpen, Unlock, Building2, RefreshCw, CloudDownload, CreditCard, Send, Ban, Search, Star, Store, ShoppingCart, Eye, EyeOff, Calendar, Upload, Loader2, TrendingUp, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useVivoPanel, type SyncPlan } from "@/hooks/useVivoPanel";
 import { Switch } from "@/components/ui/switch";
@@ -218,6 +218,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [editDataGb, setEditDataGb] = useState<string>("0");
   const [editDataUsedGb, setEditDataUsedGb] = useState<string>("0");
   const [syncPlan, setSyncPlan] = useState<SyncPlan | null>(null);
+  const [adminSection, setAdminSection] = useState<"tokens" | "resellers" | null>(null);
 
 
   // Fixed expense settings
@@ -894,10 +895,26 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
 
             {/* ===== ADM: tokens e nomes dos painéis ===== */}
             {isAdmin && (
-              <>
-                <AccessTokensSection />
-                <PanelNamesSection userId={userId} />
-              </>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    type="button"
+                    onClick={() => setAdminSection((current) => current === "tokens" ? null : "tokens")}
+                    className="h-12 bg-purple-700 text-white hover:bg-purple-600"
+                  >
+                    <KeyRound className="mr-2 h-4 w-4" /> Token
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => setAdminSection((current) => current === "resellers" ? null : "resellers")}
+                    className="h-12 bg-cyan-600 text-white hover:bg-cyan-500"
+                  >
+                    <Store className="mr-2 h-4 w-4" /> Revenda
+                  </Button>
+                </div>
+                {adminSection === "tokens" && <AccessTokensSection />}
+                {adminSection === "resellers" && <PanelNamesSection userId={userId} />}
+              </div>
             )}
 
 

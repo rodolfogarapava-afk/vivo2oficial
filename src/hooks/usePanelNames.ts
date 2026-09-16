@@ -92,7 +92,7 @@ export const usePanelNames = (userId?: string) => {
   );
 
   // Label shown on the panel button: the other panel's name
-  const otherPanelLabel = others[0]?.label ?? DEFAULT_PARTNER_LABEL;
+  const otherPanelLabel = others.length > 1 ? "REVENDAS" : (others[0]?.label ?? DEFAULT_PARTNER_LABEL);
 
   return { myLabel, others, allNames, otherPanelLabel, loading, reload: load, saveLabel };
 };
