@@ -102,7 +102,7 @@ const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const { hasBlockPhone, sendBlockMessage, sendCancelMessage, settings: blockSettings } = useBlockWhatsApp();
   const { settings: whatsappSettings } = useWhatsAppSettings();
-  const { isInPanel } = usePanelPhones();
+  const { isInPanel, refreshPanel } = usePanelPhones();
   
   const { 
     clients, 
@@ -140,12 +140,12 @@ const Index = () => {
       return;
     }
 
-    await Promise.allSettled([refetch(), checkForPWAUpdate()]);
+    await Promise.allSettled([refetch(), refreshPanel(), checkForPWAUpdate()]);
     toast({
       title: "Atualizado!",
-      description: "Clientes e aplicativo estão na versão mais recente.",
+      description: "Clientes, painel Vivo e aplicativo estão atualizados.",
     });
-  }, [refetch, toast]);
+  }, [refetch, refreshPanel, toast]);
 
   const { pullDistance, isRefreshing, pullHandlers } = usePullToRefresh(refreshApp);
 
