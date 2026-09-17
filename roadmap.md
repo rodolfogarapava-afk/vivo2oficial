@@ -43,6 +43,7 @@
 - [x] Adicionar engrenagem na revenda para editar e excluir associados
 - [x] Corrigir o salvamento das informações dos associados da revenda
 - [x] Sincronizar automaticamente novas linhas do Vivo Gestor com Raio e revendas pelo nome do grupo
+- [x] Transferir automaticamente um número entre Raio e revenda sem duplicar o cliente
 
 ## Pendente
 - [ ] Envio automático de verdade (sem tocar): exige a API oficial do WhatsApp Business (cadastro + aprovação + custo por mensagem) - aguardando decisão

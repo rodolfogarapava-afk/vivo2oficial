@@ -236,9 +236,10 @@ Deno.serve(async (req) => {
           .select('id, user_id, phone, name, blocked, data_gb').in('user_id', [...targetIds])
         if (clientsError) throw clientsError
         const byTargetPhone = new Map((existing ?? []).map((client) => [`${client.user_id}:${digits(client.phone)}`, client]))
-        const knownPhoneOwners = new Map((existing ?? []).map((client) => [digits(client.phone), client.user_id]))
+        const knownPhoneOwners = new Map((existing ?? []).map((client) => [digits(client.phone), client]))
         let added = 0
         let updated = 0
+        let transferred = 0
         const unmatchedGroups = new Set<string>()
 
         for (const line of lines) {
@@ -252,7 +253,30 @@ Deno.serve(async (req) => {
           const current = byTargetPhone.get(`${target.userId}:${phone}`)
           const quota = quotaFromRaw(line.raw)
           if (!current) {
-            if (knownPhoneOwners.has(phone)) continue
+            const previousOwner = knownPhoneOwners.get(phone)
+            if (previousOwner) {
+              const nextName = displayName(line.name)
+              const changes: Record<string, unknown> = {
+                user_id: target.userId,
+                name: nextName,
+                blocked: line.blocked,
+              }
+              if (quota > 0) changes.data_gb = quota
+
+              const { data: moved, error: moveError } = await backend.from('clients')
+                .update(changes)
+                .eq('id', previousOwner.id)
+                .in('user_id', [...targetIds])
+                .select('id, user_id, phone, name, blocked, data_gb')
+                .single()
+              if (moveError) throw moveError
+
+              byTargetPhone.delete(`${previousOwner.user_id}:${phone}`)
+              byTargetPhone.set(`${target.userId}:${phone}`, moved)
+              knownPhoneOwners.set(phone, moved)
+              transferred += 1
+              continue
+            }
             const { data: inserted, error: insertError } = await backend.from('clients').insert({
               user_id: target.userId,
               name: displayName(line.name),
@@ -266,7 +290,7 @@ Deno.serve(async (req) => {
             }).select('id, user_id, phone, name, blocked, data_gb').single()
             if (insertError) throw insertError
             byTargetPhone.set(`${target.userId}:${phone}`, inserted)
-            knownPhoneOwners.set(phone, target.userId)
+            knownPhoneOwners.set(phone, inserted)
             added += 1
             continue
           }
@@ -282,7 +306,7 @@ Deno.serve(async (req) => {
             updated += 1
           }
         }
-        result.sync = { added, updated, unmatchedGroups: [...unmatchedGroups] }
+        result.sync = { added, updated, transferred, unmatchedGroups: [...unmatchedGroups] }
       }
     } else if (action === 'probe') {
       const base = ENDPOINTS[payload.endpoint ?? 'consumption'] ?? BASE
