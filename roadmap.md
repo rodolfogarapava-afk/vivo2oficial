@@ -41,6 +41,7 @@
 - [x] Organizar Token e Revenda em botões e permitir várias revendas ligadas por token
 - [x] Atualizar automaticamente a lista do painel Vivo ao abrir ou voltar ao aplicativo
 - [x] Adicionar engrenagem na revenda para editar e excluir associados
+- [x] Corrigir o salvamento das informações dos associados da revenda
 - [x] Sincronizar automaticamente novas linhas do Vivo Gestor com Raio e revendas pelo nome do grupo
 
 ## Pendente
