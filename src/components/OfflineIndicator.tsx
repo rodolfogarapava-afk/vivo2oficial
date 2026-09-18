@@ -1,8 +1,11 @@
-import { WifiOff, ExternalLink } from "lucide-react";
+import { WifiOff, Users } from "lucide-react";
 import { useState, useEffect } from "react";
-import { VIVO_PANEL_URL } from "@/hooks/useVivoPanel";
 
-export const OfflineIndicator = () => {
+interface OfflineIndicatorProps {
+  onClick: () => void;
+}
+
+export const OfflineIndicator = ({ onClick }: OfflineIndicatorProps) => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   useEffect(() => {
@@ -29,11 +32,12 @@ export const OfflineIndicator = () => {
 
   return (
     <button
-      onClick={() => window.open(VIVO_PANEL_URL, "_blank", "noopener,noreferrer")}
+      type="button"
+      onClick={onClick}
       className="flex items-center gap-1.5 rounded-full bg-green-500/20 px-2 py-1 text-xs font-medium text-green-400 transition-colors hover:bg-green-500/30"
-      title="Abrir o painel Vivo Gestão"
+      title="Abrir lista completa do Gestor"
     >
-      <ExternalLink className="h-3 w-3" />
+      <Users className="h-3 w-3" />
       <span>Gestor</span>
     </button>
   );
