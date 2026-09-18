@@ -88,7 +88,7 @@ const applyTheme = ({ backgroundColor, mode, buttonColor, clientCardPurple = 0, 
   const cardPurple = Math.min(100, Math.max(0, clientCardPurple));
   const mix = cardPurple / 100;
 
-  setVar("--client-card-bg", `270 ${Math.round(65 * mix)}% ${Math.round(100 - 82 * mix)}%`);
+  setVar("--client-card-bg", `270 ${Math.round(78 * mix)}% ${Math.round(100 - 62 * mix)}%`);
   setVar("--client-card-foreground", clientCardText === "white" ? "0 0% 100%" : "0 0% 4%");
 
   if (buttonColor) {
