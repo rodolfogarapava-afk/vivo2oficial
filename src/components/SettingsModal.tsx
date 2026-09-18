@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Download, FileText, Signal, Copy, Check, MessageCircle, Save, ArrowLeft, Palette, Pencil, Trash2, X, Users, Lock, LockOpen, Unlock, Building2, RefreshCw, CloudDownload, CreditCard, Send, Ban, Search, Star, Store, Eye, EyeOff, Calendar, Upload, Loader2, TrendingUp, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useVivoPanel, type SyncPlan } from "@/hooks/useVivoPanel";
+import { VIVO_PANEL_URL, useVivoPanel, type SyncPlan } from "@/hooks/useVivoPanel";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Client } from "@/hooks/useClients";
@@ -43,6 +43,8 @@ interface SettingsModalProps {
   hasBlockedClients?: boolean;
   isAdmin?: boolean;
   userId?: string;
+  openPanelListOnOpen?: boolean;
+  onPanelListOpened?: () => void;
 }
 
 const formatCurrency = (value: number) => {
@@ -160,7 +162,7 @@ const saveBlockSettings = (settings: BlockSettings) => {
   localStorage.setItem(BLOCK_STORAGE_KEY, JSON.stringify(settings));
 };
 
-export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDeleteClient, onEditClient, onBlockClient, onRefresh, totalsByDay, remainingByDay, onReportClick, showPaymentCards, onTogglePaymentCards, onPaymentSent, onCancelClick, onBlockClick, onUnblockClick, hasBlockedClients, isAdmin, userId }: SettingsModalProps) => {
+export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDeleteClient, onEditClient, onBlockClient, onRefresh, totalsByDay, remainingByDay, onReportClick, showPaymentCards, onTogglePaymentCards, onPaymentSent, onCancelClick, onBlockClick, onUnblockClick, hasBlockedClients, isAdmin, userId, openPanelListOnOpen, onPanelListOpened }: SettingsModalProps) => {
   const { visibleDays, toggleDay } = useVisibleDueDays();
   const [copied, setCopied] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -524,6 +526,12 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
     onOpenChange(false);
     setTimeout(() => setShowPanelList(true), 150);
   };
+
+  useEffect(() => {
+    if (!open || !openPanelListOnOpen || !isAdmin) return;
+    onPanelListOpened?.();
+    void handleOpenPanelList();
+  }, [open, openPanelListOnOpen, isAdmin]);
 
   const gigaForPhone = (phone: string) => {
     const key = (phone ?? "").replace(/\D/g, "");
@@ -974,12 +982,11 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
               </Button>
               <Button
                 type="button"
-                disabled={vivo.isLoading}
-                onClick={handleOpenPanelList}
+                onClick={() => window.open(VIVO_PANEL_URL, "_blank", "noopener,noreferrer")}
                 className="w-full h-12 mt-2 bg-purple-700 hover:bg-purple-600 text-white rounded-xl font-bold"
               >
-                {vivo.isLoading ? <Loader2 className="h-5 w-5 mr-2 animate-spin" /> : <Users className="h-5 w-5 mr-2" />}
-                Lista de nomes do gestor
+                <Signal className="h-5 w-5 mr-2" />
+                Abrir Gestor Vivo
               </Button>
               {syncPlan && (
                 <div className="mt-3 space-y-2 text-xs text-white/80">

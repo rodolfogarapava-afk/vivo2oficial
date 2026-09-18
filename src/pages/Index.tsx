@@ -92,6 +92,7 @@ const Index = () => {
     try { return localStorage.getItem("hide_paid_clients") === "true"; } catch { return false; }
   });
   const [showChipNet, setShowChipNet] = useState(false);
+  const [openGestorList, setOpenGestorList] = useState(false);
   const [selectedPartnerId, setSelectedPartnerId] = useState<string>();
   const [crossPanelResults, setCrossPanelResults] = useState<
     { client_name: string; client_phone: string; panel: string }[]
@@ -481,7 +482,10 @@ const Index = () => {
           <div className={`grid gap-2 ${isAdmin ? "grid-cols-3" : "grid-cols-2"}`}>
             {isAdmin && (
               <div className="[&>button]:w-full [&>button]:h-11 [&>button]:rounded-xl [&>button]:border-2 [&>button]:border-green-500/70 [&>button]:bg-transparent [&>button]:text-green-400 [&>button]:justify-center [&>button]:text-xs [&>button]:font-bold">
-                <OfflineIndicator />
+                <OfflineIndicator onClick={() => {
+                  setOpenGestorList(true);
+                  setShowSettings(true);
+                }} />
               </div>
             )}
             <button
@@ -802,6 +806,8 @@ const Index = () => {
         hasBlockedClients={hasBlockedClients}
         isAdmin={isAdmin}
         userId={user?.id}
+        openPanelListOnOpen={openGestorList}
+        onPanelListOpened={() => setOpenGestorList(false)}
       />
 
       {/* Monthly report */}
