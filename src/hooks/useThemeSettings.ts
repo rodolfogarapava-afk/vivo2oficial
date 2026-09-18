@@ -8,10 +8,12 @@ interface ThemeSettings {
   buttonColor?: string;
   clientCardPurple?: number;
   clientCardText?: "black" | "white";
+  clientCardStyleVersion?: number;
 }
 
 const STORAGE_KEY = "theme-settings";
 const THEME_UPDATED_EVENT = "theme-settings-updated";
+const CLIENT_CARD_STYLE_VERSION = 2;
 
 const BUTTON_COLORS = [
   { name: "Padrão", hsl: "" },
@@ -149,13 +151,21 @@ const readSettings = (): ThemeSettings => {
       if (mode === "dark" && LEGACY_DEFAULTS.includes(backgroundColor)) {
         backgroundColor = DEFAULT_BG;
       }
-      return {
+      const needsActivatedCardUpdate = parsed.clientCardStyleVersion !== CLIENT_CARD_STYLE_VERSION;
+      const settings: ThemeSettings = {
         backgroundColor,
         mode,
         buttonColor: parsed.buttonColor || "",
-        clientCardPurple: Math.min(100, Math.max(0, Number(parsed.clientCardPurple) || 0)),
-        clientCardText: parsed.clientCardText === "white" ? "white" : "black",
+        clientCardPurple: needsActivatedCardUpdate
+          ? 75
+          : Math.min(100, Math.max(0, Number(parsed.clientCardPurple) || 0)),
+        clientCardText: needsActivatedCardUpdate || parsed.clientCardText === "white" ? "white" : "black",
+        clientCardStyleVersion: CLIENT_CARD_STYLE_VERSION,
       };
+      if (needsActivatedCardUpdate) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+      }
+      return settings;
     } catch (e) {
       console.error("Error loading theme settings:", e);
     }
@@ -164,8 +174,9 @@ const readSettings = (): ThemeSettings => {
     backgroundColor: DEFAULT_BG,
     mode: "dark",
     buttonColor: "",
-    clientCardPurple: 0,
-    clientCardText: "black",
+    clientCardPurple: 75,
+    clientCardText: "white",
+    clientCardStyleVersion: CLIENT_CARD_STYLE_VERSION,
   };
 
 };
