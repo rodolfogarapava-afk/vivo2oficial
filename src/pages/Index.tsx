@@ -92,6 +92,7 @@ const Index = () => {
     try { return localStorage.getItem("hide_paid_clients") === "true"; } catch { return false; }
   });
   const [showChipNet, setShowChipNet] = useState(false);
+  const [showResellerPicker, setShowResellerPicker] = useState(false);
   const [openGestorList, setOpenGestorList] = useState(false);
   const [selectedPartnerId, setSelectedPartnerId] = useState<string>();
   const [crossPanelResults, setCrossPanelResults] = useState<
@@ -490,15 +491,12 @@ const Index = () => {
             )}
             <button
               type="button"
-              onClick={() => {
-                if (linkedPanels[0]?.userId) setSelectedPartnerId(linkedPanels[0].userId);
-                setShowChipNet(true);
-              }}
+              onClick={() => setShowResellerPicker(true)}
               className="flex items-center justify-center gap-1.5 h-11 rounded-xl bg-gradient-to-b from-cyan-500 to-cyan-700 border border-cyan-300/50 shadow-[0_3px_0_0_#155e75] hover:translate-y-[1px] active:translate-y-[2px] transition-all"
-              title={`Painel ${otherPanelLabel}`}
+              title="Escolher revenda"
             >
               <Signal className="h-4 w-4 text-white" strokeWidth={2.5} />
-              <span className="truncate text-xs font-extrabold text-white uppercase tracking-wider">{otherPanelLabel}</span>
+              <span className="truncate text-xs font-extrabold text-white uppercase tracking-wider">Revenda</span>
             </button>
             <button
               type="button"
@@ -731,6 +729,34 @@ const Index = () => {
         panels={linkedPanels}
         onSelectPanel={setSelectedPartnerId}
       />
+
+      <Dialog open={showResellerPicker} onOpenChange={setShowResellerPicker}>
+        <DialogContent className="w-[92vw] max-w-sm rounded-xl border-border bg-card p-4">
+          <DialogHeader>
+            <DialogTitle className="text-foreground">Escolher revenda</DialogTitle>
+          </DialogHeader>
+          <div className="max-h-[60dvh] space-y-2 overflow-y-auto overscroll-contain pt-1">
+            {linkedPanels.map((panel) => (
+              <button
+                key={panel.userId}
+                type="button"
+                onClick={() => {
+                  setSelectedPartnerId(panel.userId);
+                  setShowResellerPicker(false);
+                  setShowChipNet(true);
+                }}
+                className="flex h-14 w-full items-center gap-3 rounded-lg border border-border bg-secondary px-4 text-left text-secondary-foreground transition-colors hover:bg-secondary/80"
+              >
+                <Signal className="h-5 w-5 shrink-0 text-cyan-400" />
+                <span className="min-w-0 flex-1 truncate text-sm font-extrabold uppercase">{panel.label}</span>
+              </button>
+            ))}
+            {linkedPanels.length === 0 && (
+              <p className="py-6 text-center text-sm text-muted-foreground">Nenhuma revenda cadastrada.</p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
 
       {/* New Client Form */}
