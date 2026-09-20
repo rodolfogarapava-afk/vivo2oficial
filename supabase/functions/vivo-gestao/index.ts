@@ -232,12 +232,14 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'sync' || action === 'lines' || action === 'listLines' || action === 'auto_sync') {
+      // The Vivo portal keeps the active screen in the session. Consumption must be
+      // loaded before visiting the voice/block screen used to enumerate every line.
+      const consumptionLines = action === 'auto_sync' ? await fetchConsumptionLines(jar) : []
       const { groups, lines } = await fetchAllLines(jar, Boolean(payload.verbose) || action === 'auto_sync')
       result.groups = groups
       result.lines = lines.map(({ raw: _raw, ...line }) => line)
       result.total = lines.length
       if (action === 'auto_sync') {
-        const consumptionLines = await fetchConsumptionLines(jar)
         const consumptionByPhone = new Map(consumptionLines.map((line) => [line.phone, line]))
         result.consumption = consumptionLines
         const { data: links, error: linksError } = await backend.from('panel_links')
