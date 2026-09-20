@@ -46,6 +46,7 @@
 - [x] Transferir automaticamente um número entre Raio e revenda sem duplicar o cliente
 - [x] Botão Gestor abre a lista completa; acesso ao site do Gestor fica nas configurações
 - [x] Botão Revenda abre a lista de todas as revendas cadastradas para escolher o painel
+- [x] Atualizar automaticamente o consumo real de giga dos cartões pelo Vivo Gestor
 
 ## Pendente
 - [ ] Envio automático de verdade (sem tocar): exige a API oficial do WhatsApp Business (cadastro + aprovação + custo por mensagem) - aguardando decisão

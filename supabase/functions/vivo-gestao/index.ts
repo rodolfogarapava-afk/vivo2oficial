@@ -102,6 +102,43 @@ const quotaFromRaw = (raw?: Record<string, unknown>) => {
   return 0
 }
 
+const dataValue = (value: unknown) => {
+  if (!value || typeof value !== 'object') return 0
+  const raw = (value as Record<string, unknown>).value
+  const parsed = Number(String(raw ?? '').replace(',', '.'))
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0
+}
+
+type ConsumptionLine = {
+  phone: string
+  usedGb: number
+  quotaGb: number
+  percentage: number
+}
+
+async function fetchConsumptionLines(jar: Record<string, string>) {
+  const response = await call('loadView', { startRow: 1, fetchSize: 1000 }, jar, ENDPOINTS.consumption)
+  const body = response.json as { groupList?: Array<Record<string, unknown>> } | null
+  const groups = Array.isArray(body?.groupList) ? body.groupList : []
+  const lines: ConsumptionLine[] = []
+
+  for (const group of groups) {
+    const rows = Array.isArray(group.lines) ? group.lines as Array<Record<string, unknown>> : []
+    const groupQuota = dataValue(group.quota)
+    for (const row of rows) {
+      const phone = digits(row.lineNumber)
+      if (phone.length < 10) continue
+      const usedGb = dataValue(row.quotaConsumption)
+      const individualQuota = dataValue(row.quota) || dataValue(row.limitIndividual) || dataValue(row.limit)
+      const percentageText = String(row.percentageConsumedQuotaIndividual ?? row.percentageConsumedQuota ?? '0')
+      const percentage = Math.min(100, Math.max(0, Number(percentageText.replace('%', '').replace(',', '.')) || 0))
+      lines.push({ phone, usedGb, quotaGb: individualQuota || groupQuota, percentage })
+    }
+  }
+
+  return lines
+}
+
 async function fetchAllLines(jar: Record<string, string>, includeRaw = false) {
   const gv = await call('loadViewBlockVoice', { startRow: 1, fetchSize: 10 }, jar, ENDPOINTS.blockgroup)
   const groups = (gv.json as { groups?: Array<{ id: number; name: string; totalLines: number }> } | null)?.groups ?? []
@@ -201,6 +238,9 @@ Deno.serve(async (req) => {
       result.lines = lines.map(({ raw: _raw, ...line }) => line)
       result.total = lines.length
       if (action === 'auto_sync') {
+        const consumptionLines = await fetchConsumptionLines(jar)
+        const consumptionByPhone = new Map(consumptionLines.map((line) => [line.phone, line]))
+        result.consumption = consumptionLines
         const { data: links, error: linksError } = await backend.from('panel_links')
           .select('owner_user_id, partner_user_id, partner_label')
           .or(`owner_user_id.eq.${appUser.id},partner_user_id.eq.${appUser.id}`)
@@ -233,7 +273,7 @@ Deno.serve(async (req) => {
         }
 
         const { data: existing, error: clientsError } = await backend.from('clients')
-          .select('id, user_id, phone, name, blocked, data_gb').in('user_id', [...targetIds])
+          .select('id, user_id, phone, name, blocked, data_gb, data_used_gb').in('user_id', [...targetIds])
         if (clientsError) throw clientsError
         const byTargetPhone = new Map((existing ?? []).map((client) => [`${client.user_id}:${digits(client.phone)}`, client]))
         const knownPhoneOwners = new Map((existing ?? []).map((client) => [digits(client.phone), client]))
@@ -251,7 +291,8 @@ Deno.serve(async (req) => {
           }
           if (phone.length < 10) continue
           const current = byTargetPhone.get(`${target.userId}:${phone}`)
-          const quota = quotaFromRaw(line.raw)
+          const usage = consumptionByPhone.get(phone)
+          const quota = usage?.quotaGb || quotaFromRaw(line.raw)
           if (!current) {
             const previousOwner = knownPhoneOwners.get(phone)
             if (previousOwner) {
@@ -260,6 +301,7 @@ Deno.serve(async (req) => {
                 user_id: target.userId,
                 name: nextName,
                 blocked: line.blocked,
+                data_used_gb: usage?.usedGb ?? 0,
               }
               if (quota > 0) changes.data_gb = quota
 
@@ -267,7 +309,7 @@ Deno.serve(async (req) => {
                 .update(changes)
                 .eq('id', previousOwner.id)
                 .in('user_id', [...targetIds])
-                .select('id, user_id, phone, name, blocked, data_gb')
+                .select('id, user_id, phone, name, blocked, data_gb, data_used_gb')
                 .single()
               if (moveError) throw moveError
 
@@ -285,9 +327,9 @@ Deno.serve(async (req) => {
               due_day: 10,
               blocked: line.blocked,
               data_gb: quota,
-              data_used_gb: 0,
+              data_used_gb: usage?.usedGb ?? 0,
               company: 'omega',
-            }).select('id, user_id, phone, name, blocked, data_gb').single()
+            }).select('id, user_id, phone, name, blocked, data_gb, data_used_gb').single()
             if (insertError) throw insertError
             byTargetPhone.set(`${target.userId}:${phone}`, inserted)
             knownPhoneOwners.set(phone, inserted)
@@ -300,6 +342,7 @@ Deno.serve(async (req) => {
           if (current.name !== nextName) changes.name = nextName
           if (Boolean(current.blocked) !== line.blocked) changes.blocked = line.blocked
           if (quota > 0 && Number(current.data_gb ?? 0) !== quota) changes.data_gb = quota
+          if (usage && Number((current as Record<string, unknown>).data_used_gb ?? 0) !== usage.usedGb) changes.data_used_gb = usage.usedGb
           if (Object.keys(changes).length > 0) {
             const { error: updateError } = await backend.from('clients').update(changes).eq('id', current.id)
             if (updateError) throw updateError
