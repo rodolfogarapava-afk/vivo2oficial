@@ -131,7 +131,10 @@ async function fetchConsumptionLines(jar: Record<string, string>) {
       const individualQuota = dataValue(row.quota) || dataValue(row.limitIndividual) || dataValue(row.limit)
       const percentageText = String(row.percentageConsumedQuotaIndividual ?? row.percentageConsumedQuota ?? '0')
       const percentage = Math.min(100, Math.max(0, Number(percentageText.replace('%', '').replace(',', '.')) || 0))
-      lines.push({ phone, usedGb, quotaGb: individualQuota, percentage })
+      const calculatedQuota = usedGb > 0 && percentage > 0
+        ? Math.round((usedGb * 100 / percentage) * 100) / 100
+        : 0
+      lines.push({ phone, usedGb, quotaGb: individualQuota || calculatedQuota, percentage })
     }
   }
 
