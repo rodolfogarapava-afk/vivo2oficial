@@ -124,7 +124,6 @@ async function fetchConsumptionLines(jar: Record<string, string>) {
 
   for (const group of groups) {
     const rows = Array.isArray(group.lines) ? group.lines as Array<Record<string, unknown>> : []
-    const groupQuota = dataValue(group.quota)
     for (const row of rows) {
       const phone = digits(row.lineNumber)
       if (phone.length < 10) continue
@@ -132,7 +131,7 @@ async function fetchConsumptionLines(jar: Record<string, string>) {
       const individualQuota = dataValue(row.quota) || dataValue(row.limitIndividual) || dataValue(row.limit)
       const percentageText = String(row.percentageConsumedQuotaIndividual ?? row.percentageConsumedQuota ?? '0')
       const percentage = Math.min(100, Math.max(0, Number(percentageText.replace('%', '').replace(',', '.')) || 0))
-      lines.push({ phone, usedGb, quotaGb: individualQuota || groupQuota, percentage })
+      lines.push({ phone, usedGb, quotaGb: individualQuota, percentage })
     }
   }
 
@@ -301,9 +300,9 @@ Deno.serve(async (req) => {
                 user_id: target.userId,
                 name: nextName,
                 blocked: line.blocked,
-                data_used_gb: usage?.usedGb ?? 0,
               }
               if (quota > 0) changes.data_gb = quota
+              if (usage) changes.data_used_gb = usage.usedGb
 
               const { data: moved, error: moveError } = await backend.from('clients')
                 .update(changes)
