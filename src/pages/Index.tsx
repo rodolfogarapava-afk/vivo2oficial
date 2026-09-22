@@ -462,7 +462,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-background overflow-visible touch-pan-y" {...pullHandlers}>
+    <div className="neu-shell min-h-[100dvh] overflow-visible touch-pan-y pb-6" {...pullHandlers}>
       <div
         aria-live="polite"
         className={`fixed left-1/2 top-3 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold text-foreground shadow-lg transition-all duration-200 ${
@@ -477,12 +477,21 @@ const Index = () => {
             : "Puxe para atualizar"}
       </div>
       {/* Header card */}
-      <header className="pt-4 pb-3 px-3">
-        <div className="rounded-2xl border border-purple-900/50 bg-card/40 p-3 backdrop-blur-sm">
+      <header className="px-4 pb-3 pt-5">
+        <div className="mb-5 flex items-center justify-between px-1">
+          <div>
+            <h1 className="text-xl font-black text-foreground">RA<span className="text-warning">⚡</span>O <span className="text-ring">NET</span></h1>
+            <p className="mt-0.5 text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Gestão de clientes</p>
+          </div>
+          <button type="button" onClick={() => setShowSettings(true)} className="neu-action flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground" title="Configurações">
+            <Settings className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="space-y-4">
           {/* Top row: Gestor (ADM) / Painel parceiro / Novo */}
-          <div className={`grid gap-2 ${isAdmin ? "grid-cols-3" : "grid-cols-2"}`}>
+          <div className={`grid gap-3 ${isAdmin ? "grid-cols-3" : "grid-cols-2"}`}>
             {isAdmin && (
-              <div className="[&>button]:w-full [&>button]:h-11 [&>button]:rounded-xl [&>button]:border-2 [&>button]:border-green-500/70 [&>button]:bg-transparent [&>button]:text-green-400 [&>button]:justify-center [&>button]:text-xs [&>button]:font-bold">
+              <div className="[&>button]:neu-action [&>button]:h-16 [&>button]:w-full [&>button]:justify-center [&>button]:rounded-2xl [&>button]:text-xs [&>button]:font-bold [&>button]:text-success">
                 <OfflineIndicator onClick={() => {
                   setOpenGestorList(true);
                   setShowSettings(true);
@@ -492,29 +501,29 @@ const Index = () => {
             <button
               type="button"
               onClick={() => setShowResellerPicker(true)}
-              className="flex items-center justify-center gap-1.5 h-11 rounded-xl bg-gradient-to-b from-cyan-500 to-cyan-700 border border-cyan-300/50 shadow-[0_3px_0_0_#155e75] hover:translate-y-[1px] active:translate-y-[2px] transition-all"
+              className="neu-action flex h-16 flex-col items-center justify-center gap-1 rounded-2xl text-ring"
               title="Escolher revenda"
             >
-              <Signal className="h-4 w-4 text-white" strokeWidth={2.5} />
-              <span className="truncate text-xs font-extrabold text-white uppercase tracking-wider">Revenda</span>
+               <Signal className="h-5 w-5" strokeWidth={2.5} />
+               <span className="truncate text-[10px] font-extrabold uppercase">Revenda</span>
             </button>
             <button
               type="button"
               onClick={() => setShowForm(true)}
-              className="flex items-center justify-center gap-1.5 h-11 rounded-xl bg-gradient-to-b from-purple-600 to-purple-800 border border-purple-400/50 shadow-[0_3px_0_0_#581c87] hover:translate-y-[1px] active:translate-y-[2px] transition-all"
+              className="neu-action flex h-16 flex-col items-center justify-center gap-1 rounded-2xl text-ring"
               title="Novo Cliente"
             >
-              <UserPlus className="h-4 w-4 text-white" strokeWidth={2.5} />
-              <span className="text-xs font-extrabold text-white uppercase tracking-wider">Novo</span>
+               <UserPlus className="h-5 w-5" strokeWidth={2.5} />
+               <span className="text-[10px] font-extrabold uppercase">Novo</span>
             </button>
           </div>
 
 
           {/* Bottom row: Buscar / Visualizar / Configurações / Sair (tiles) */}
-          <div className="mt-2 grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-4 gap-2">
             <button
               onClick={() => setShowSearch(!showSearch)}
-              className="flex flex-col items-center justify-center gap-1 h-16 rounded-xl border border-purple-700/60 bg-purple-950/40 text-purple-100 hover:bg-purple-900/40 transition-colors"
+              className="neu-action flex h-16 flex-col items-center justify-center gap-1 rounded-xl text-muted-foreground"
               title="Buscar"
             >
               <Search className="h-5 w-5" />
@@ -528,8 +537,8 @@ const Index = () => {
               }}
               className={`flex flex-col items-center justify-center gap-1 h-16 rounded-xl border transition-colors ${
                 hidePaidClients
-                  ? "border-green-500/60 bg-green-900/30 text-green-300"
-                  : "border-purple-700/60 bg-purple-950/40 text-purple-100 hover:bg-purple-900/40"
+                  ? "neu-inset text-success"
+                  : "neu-action text-muted-foreground"
               }`}
               title={hidePaidClients ? "Mostrar pagos" : "Ocultar pagos"}
             >
@@ -538,7 +547,7 @@ const Index = () => {
             </button>
             <button
               onClick={() => setShowSettings(true)}
-              className="flex flex-col items-center justify-center gap-1 h-16 rounded-xl border border-purple-700/60 bg-purple-950/40 text-purple-100 hover:bg-purple-900/40 transition-colors"
+              className="neu-action flex h-16 flex-col items-center justify-center gap-1 rounded-xl text-muted-foreground"
               title="Configurações"
             >
               <Settings className="h-5 w-5" />
@@ -548,7 +557,7 @@ const Index = () => {
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <button
-                    className="flex flex-col items-center justify-center gap-1 h-16 rounded-xl border border-purple-700/60 bg-purple-950/40 text-purple-100 hover:bg-purple-900/40 transition-colors"
+                    className="neu-action flex h-16 flex-col items-center justify-center gap-1 rounded-xl text-muted-foreground"
                     title="Sair"
                   >
                     <LogOut className="h-5 w-5" />
@@ -583,24 +592,23 @@ const Index = () => {
           {/* Email row */}
           {user && (
             <>
-              <div className="mt-3 h-px bg-purple-800/50" />
-              <div className="mt-2 flex items-center justify-center gap-2">
-                <Mail className="h-4 w-4 text-purple-400" />
-                <p className="text-purple-200 text-xs font-medium truncate">{user.email}</p>
+              <div className="neu-inset flex items-center justify-center gap-2 rounded-xl px-3 py-2">
+                <Mail className="h-4 w-4 text-ring" />
+                <p className="truncate text-xs font-medium text-muted-foreground">{user.email}</p>
               </div>
             </>
           )}
 
           {/* Search Input */}
           {showSearch && (
-            <div className="mt-3 flex gap-2">
+            <div className="flex gap-2">
               <div className="relative flex-1">
                 <Input
                   type="text"
                   placeholder="Buscar por nome ou telefone..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pr-10 bg-purple-950/50 border-purple-700/60 text-foreground placeholder:text-foreground/50"
+                  className="neu-inset h-12 border-0 pr-10 text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                   autoFocus
                 />
                 {searchQuery && (
@@ -618,40 +626,40 @@ const Index = () => {
       </header>
 
       {/* Financial totals */}
-      <div className="mx-3 grid grid-cols-3 gap-2">
-        <div className="min-w-0 rounded-xl border border-purple-700/60 bg-purple-950/40 px-2 py-3 text-center">
-          <p className="text-[9px] font-bold uppercase text-purple-300">Total</p>
-          <p className="mt-1 truncate text-xs font-extrabold text-white" title={totalGross.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}>
+      <div className="neu-inset mx-4 grid grid-cols-3 gap-1 rounded-2xl p-2">
+        <div className="min-w-0 px-1 py-3 text-center">
+          <p className="text-[9px] font-bold uppercase text-muted-foreground">Total</p>
+          <p className="mt-1 truncate text-xs font-extrabold text-foreground" title={totalGross.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}>
             {totalGross.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           </p>
         </div>
-        <div className="min-w-0 rounded-xl border border-red-700/60 bg-red-950/30 px-2 py-3 text-center">
-          <p className="text-[9px] font-bold uppercase text-red-300">Gastos</p>
-          <p className="mt-1 truncate text-xs font-extrabold text-red-400" title={totalExpenses.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}>
+        <div className="min-w-0 border-x border-border px-1 py-3 text-center">
+          <p className="text-[9px] font-bold uppercase text-muted-foreground">Gastos</p>
+          <p className="mt-1 truncate text-xs font-extrabold text-destructive" title={totalExpenses.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}>
             {totalExpenses.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           </p>
         </div>
-        <div className="min-w-0 rounded-xl border border-green-700/60 bg-green-950/30 px-2 py-3 text-center">
-          <p className="text-[9px] font-bold uppercase text-green-300">Lucro</p>
-          <p className="mt-1 truncate text-xs font-extrabold text-green-400" title={totalProfit.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}>
+        <div className="min-w-0 px-1 py-3 text-center">
+          <p className="text-[9px] font-bold uppercase text-muted-foreground">Lucro</p>
+          <p className="mt-1 truncate text-xs font-extrabold text-success" title={totalProfit.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}>
             {totalProfit.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           </p>
         </div>
       </div>
 
       {/* Cobrança de amanhã */}
-      <div className="mx-3 mt-2">
+      <div className="mx-4 mt-4">
         <button
           type="button"
           onClick={() => setShowDueTomorrow(true)}
-          className="flex w-full items-center justify-between rounded-xl border border-purple-700/60 bg-purple-950/40 px-3 py-2 active:scale-[0.99]"
+          className="neu-action flex w-full items-center justify-between rounded-2xl px-4 py-3"
           aria-label="Abrir lista de quem vence amanhã"
         >
           <span className="flex items-center gap-2">
-            <CalendarClock className="h-4 w-4 text-white" />
-            <span className="text-xs font-extrabold uppercase text-white">Vence amanhã</span>
+             <CalendarClock className="h-4 w-4 text-ring" />
+             <span className="text-xs font-extrabold uppercase text-foreground">Vence amanhã</span>
           </span>
-          <span className="rounded-full bg-green-600 px-2 py-0.5 text-[11px] font-extrabold text-white tabular-nums">
+           <span className="neu-inset rounded-full px-3 py-1 text-[11px] font-extrabold text-success tabular-nums">
             {dueTomorrowClients.length}
           </span>
         </button>
@@ -777,7 +785,7 @@ const Index = () => {
 
 
       {/* Client List */}
-      <div className="mt-6 px-4 pb-24 space-y-3">
+      <div className="mt-6 space-y-5 px-4 pb-24">
         {clients.length === 0 && !showForm ? (
           <div className="text-center py-12">
             <p className="text-foreground/70 text-lg">Nenhum cliente cadastrado</p>

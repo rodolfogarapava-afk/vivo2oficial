@@ -222,12 +222,12 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
   return (
     <>
       <div 
-        className={`relative overflow-hidden bg-gradient-to-b rounded-xl ${compactMode ? 'p-2' : 'p-3'} animate-slide-up hover:translate-y-[2px] transition-all ${
+        className={`relative overflow-hidden rounded-2xl ${compactMode ? 'p-2' : 'p-3'} animate-slide-up transition-all ${
           client.blocked 
-            ? 'border-2 from-red-900/80 to-red-950/90 border-red-700 shadow-[0_6px_0_0_#7f1d1d] hover:shadow-[0_4px_0_0_#7f1d1d]' 
+            ? 'neu-client border-2 border-destructive bg-destructive/20' 
             : isFree
-              ? 'border-[5px] from-white to-white border-green-500 shadow-[0_6px_0_0_#15803d] hover:shadow-[0_4px_0_0_#15803d]'
-              : 'border-[5px] from-client-card to-client-card border-client-card-border shadow-[0_6px_0_0_hsl(var(--client-card-border))] hover:shadow-[0_4px_0_0_hsl(var(--client-card-border))]'
+              ? 'neu-client-free border-[4px] border-success bg-surface'
+              : 'neu-client border-[4px] border-client-card-border bg-client-card'
         }`}
         style={{ animationDelay: `${index * 50}ms` }}
       >
@@ -266,8 +266,8 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                   ? 'bg-gradient-to-b from-green-400 to-green-600 shadow-[0_4px_0_0_#166534] hover:shadow-[0_2px_0_0_#166534]'
                     : isFree
                       ? 'bg-gray-200 shadow-[0_4px_0_0_#9ca3af] hover:shadow-[0_2px_0_0_#9ca3af]'
-                      : 'bg-client-card/70 shadow-[0_4px_0_0_hsl(var(--client-card-border))] hover:shadow-[0_2px_0_0_hsl(var(--client-card-border))]'
-            } hover:translate-y-[1px] active:translate-y-[2px]`}
+                      : 'neu-inset bg-client-card/70'
+            } active:scale-95`}
           >
             {isPaid && !client.blocked ? (
               <Check className="h-5 w-5 text-white" />
@@ -321,7 +321,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
 
             {totalGb > 0 && (
               <div className="mt-1">
-                <div className={`h-2 w-full rounded-full overflow-hidden ${isFree ? 'bg-black/10' : 'bg-client-card-foreground/15'}`}>
+                 <div className={`neu-track h-2 w-full overflow-hidden rounded-full ${isFree ? 'bg-foreground/10' : 'bg-client-card-foreground/15'}`}>
                   <div
                     className={`h-full rounded-full transition-all ${
                       usedPercent >= 100 ? 'bg-red-500' : usedPercent >= 80 ? 'bg-yellow-400' : 'bg-blue-500'
