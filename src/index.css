@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
-
 @layer base {
   :root {
     --background: 250 55% 6%;
@@ -48,6 +46,13 @@
     --client-card-bg: 0 0% 100%;
     --client-card-foreground: 0 0% 4%;
     --client-card-border: 270 75% 48%;
+
+    --neu-surface: 263 45% 13%;
+    --neu-surface-raised: 263 43% 16%;
+    --neu-shadow-dark: 264 70% 4%;
+    --neu-shadow-light: 265 50% 25%;
+    --neu-glow: 269 70% 49%;
+    --neu-success: 153 78% 51%;
   }
 
 
@@ -99,7 +104,69 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Manrope', system-ui, sans-serif;
+    letter-spacing: 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Sora', system-ui, sans-serif;
+    letter-spacing: 0;
+  }
+}
+
+@layer components {
+  .neu-shell {
+    background: hsl(var(--neu-surface));
+  }
+
+  .neu-raised {
+    background: hsl(var(--neu-surface));
+    border: 1px solid hsl(var(--neu-shadow-light) / 0.32);
+    box-shadow: 7px 7px 14px hsl(var(--neu-shadow-dark) / 0.86), -6px -6px 13px hsl(var(--neu-shadow-light) / 0.42);
+  }
+
+  .neu-raised-sm {
+    background: hsl(var(--neu-surface));
+    border: 1px solid hsl(var(--neu-shadow-light) / 0.28);
+    box-shadow: 4px 4px 9px hsl(var(--neu-shadow-dark) / 0.82), -4px -4px 9px hsl(var(--neu-shadow-light) / 0.38);
+  }
+
+  .neu-inset {
+    background: hsl(var(--neu-surface));
+    border: 1px solid hsl(var(--neu-shadow-light) / 0.22);
+    box-shadow: inset 4px 4px 9px hsl(var(--neu-shadow-dark) / 0.82), inset -4px -4px 9px hsl(var(--neu-shadow-light) / 0.35);
+  }
+
+  .neu-action {
+    background: hsl(var(--neu-surface));
+    border: 1px solid hsl(var(--neu-shadow-light) / 0.3);
+    box-shadow: 5px 5px 10px hsl(var(--neu-shadow-dark) / 0.86), -4px -4px 9px hsl(var(--neu-shadow-light) / 0.4);
+    transition: transform 160ms ease, box-shadow 160ms ease, color 160ms ease;
+  }
+
+  .neu-action:active {
+    transform: scale(0.97);
+    box-shadow: inset 4px 4px 8px hsl(var(--neu-shadow-dark) / 0.86), inset -3px -3px 7px hsl(var(--neu-shadow-light) / 0.34);
+  }
+
+  .neu-client {
+    box-shadow: inset 3px 3px 8px hsl(var(--neu-shadow-light) / 0.25), inset -5px -5px 11px hsl(var(--neu-shadow-dark) / 0.45), 7px 7px 14px hsl(var(--neu-shadow-dark) / 0.78), -4px -4px 10px hsl(var(--neu-shadow-light) / 0.3);
+  }
+
+  .neu-client-free {
+    box-shadow: inset 3px 3px 8px hsl(var(--neu-success) / 0.2), inset -5px -5px 11px hsl(var(--neu-shadow-dark) / 0.18), 6px 6px 12px hsl(var(--neu-shadow-dark) / 0.62), -3px -3px 9px hsl(var(--neu-success) / 0.2);
+  }
+
+  .neu-track {
+    box-shadow: inset 3px 3px 6px hsl(var(--neu-shadow-dark) / 0.72), inset -2px -2px 5px hsl(var(--neu-shadow-light) / 0.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neu-action,
+  .neu-client {
+    transition: none;
+    animation: none;
   }
 }
 
