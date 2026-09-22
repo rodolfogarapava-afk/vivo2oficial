@@ -34,10 +34,10 @@ export const OfflineIndicator = ({ onClick }: OfflineIndicatorProps) => {
     <button
       type="button"
       onClick={onClick}
-      className="flex flex-col items-center gap-1 bg-transparent px-2 py-1 text-xs font-medium text-success"
+      className="flex items-center gap-1.5 rounded-full bg-green-500/20 px-2 py-1 text-xs font-medium text-green-400 transition-colors hover:bg-green-500/30"
       title="Abrir lista completa do Gestor"
     >
-      <Users className="h-5 w-5" />
+      <Users className="h-3 w-3" />
       <span>Gestor</span>
     </button>
   );
