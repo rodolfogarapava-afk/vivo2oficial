@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface ClientCardProps {
+  valueOverride?: number;
   client: Client;
   index: number;
   onToggleVirtualChip: (id: string, virtual_chip: boolean) => void;
@@ -46,7 +47,7 @@ const formatPhoneDisplay = (phone: string) => {
   return phone;
 };
 
-export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, isPaid = false, onTogglePayment, dayPaymentSent = false, inPanel = null, supportWhatsapp = null }: ClientCardProps) => {
+export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, isPaid = false, onTogglePayment, dayPaymentSent = false, inPanel = null, supportWhatsapp = null, valueOverride }: ClientCardProps) => {
   const showGlobe = client.company !== "nexus" && inPanel !== false;
   const showMissingPanelWarning = client.company !== "nexus" && inPanel === false;
   const { settings } = useWhatsAppSettings();
@@ -320,7 +321,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                   ? 'text-green-700'
                   : 'text-client-card-foreground'
             }`}>
-              {formatCurrency(client.bonus ? 0 : Number(client.value_paid))}
+              {formatCurrency(valueOverride ?? (client.bonus ? 0 : Number(client.value_paid)))}
               {Number(client.data_gb ?? 0) > 0 && (
                 <span className={`ml-2 text-[10px] font-bold ${client.blocked ? 'text-blue-400' : isFree ? 'text-black/70' : 'text-client-card-foreground/75'}`}>
                   {Number(client.data_gb)} GB

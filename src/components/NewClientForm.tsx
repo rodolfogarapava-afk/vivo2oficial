@@ -13,6 +13,7 @@ interface NewClientFormProps {
   fixedExpense: number;
   existingPhones?: string[];
   availableLineCosts?: number[];
+  simple?: boolean;
 }
 
 const formatCurrency = (value: number) => {
@@ -22,7 +23,7 @@ const formatCurrency = (value: number) => {
   }).format(value);
 };
 
-export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, existingPhones = [], availableLineCosts }: NewClientFormProps) => {
+export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, existingPhones = [], availableLineCosts, simple = false }: NewClientFormProps) => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -144,7 +145,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
         </div>
 
         {/* WhatsApp opcional */}
-        <div className="space-y-2">
+        {!simple && <div className="space-y-2">
           <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
              WhatsApp (opcional)
           </label>
@@ -158,10 +159,10 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
               inputMode="tel"
             />
           </div>
-        </div>
+        </div>}
 
         {/* Valor do Produto + Despesa fixa lado a lado */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className={`grid gap-3 ${simple ? "grid-cols-1" : "grid-cols-2"}`}>
           <div className="space-y-2">
             <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
               Valor do Produto
@@ -177,18 +178,18 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
               required
             />
           </div>
-          <div className="space-y-2">
+          {!simple && <div className="space-y-2">
             <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
               Despesa fixa
             </label>
             <div className="h-14 bg-primary/30 border border-primary/50 rounded-xl flex items-center justify-center text-foreground font-bold text-base">
               {formatCurrency(lineCost ?? fixedExpense)}
             </div>
-          </div>
+          </div>}
         </div>
 
         {/* Custo da linha */}
-        <div className="space-y-2">
+        {!simple && <div className="space-y-2">
           <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
             Custo da linha
           </label>
@@ -214,7 +215,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
           {costList.length === 0 && (
             <p className="text-[11px] text-muted-foreground">Adicione outros valores na engrenagem → Gasto por Cliente.</p>
           )}
-        </div>
+        </div>}
 
 
         {/* Tipo de chip */}
