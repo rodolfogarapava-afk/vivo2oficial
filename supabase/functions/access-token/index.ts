@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
         .from("access_tokens")
         .select("*")
         .eq("revoked", false)
-        .is("used_by", null);
+        .or(`used_by.is.null,used_by.eq.${user.id}`);
       if (error) throw error;
 
       const match = (rows ?? []).find((row) => normalizeCode(row.code) === code);
@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
         .from("access_tokens")
         .update({ used_by: user.id, used_at: new Date().toISOString(), expires_at: expiresAt })
         .eq("id", match.id)
-        .is("used_by", null);
+        .or(`used_by.is.null,used_by.eq.${user.id}`);
       if (tokenError) throw tokenError;
 
       const { error: profileError } = await supabase

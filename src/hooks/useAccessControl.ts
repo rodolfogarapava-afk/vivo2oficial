@@ -84,7 +84,11 @@ export const redeemAccessToken = async (code: string) => {
   const { data, error } = await supabase.functions.invoke("access-token", {
     body: { action: "redeem", code },
   });
-  if (error) throw error;
+  if (error) {
+    let msg = "";
+    try { msg = (await (error as any).context?.json())?.error ?? ""; } catch { /* ignore */ }
+    throw new Error(msg || error.message);
+  }
   if (data?.error) throw new Error(data.error);
   return data as { ok: boolean; plan: string; expires_at: string | null };
 };

@@ -58,7 +58,7 @@ const Auth = () => {
       }
     }
 
-    if (mode === "signup" && !isOwnerEmail) {
+    if (false) {
       const tokenResult = tokenSchema.safeParse(accessToken);
       if (!tokenResult.success) {
         newErrors.token = tokenResult.error.errors[0].message;
@@ -148,26 +148,12 @@ const Auth = () => {
               : "Enviamos um link para seu e-mail. Confirme e depois toque em Entrar.",
           });
         } else {
-          try {
-            const result = await redeemAccessToken(accessToken);
-            toast({
-              title: "Conta criada!",
-              description:
-                result.plan === "lifetime"
-                  ? "Acesso vitalício liberado."
-                  : "Acesso liberado por 30 dias.",
-            });
-          } catch (redeemError) {
-            const message = redeemError instanceof Error ? redeemError.message : "";
-            toast({
-              title: "Conta criada, mas o token não foi aceito",
-              description:
-                message === "TOKEN_NOT_FOUND"
-                  ? "Esse token não existe, já foi usado ou foi cancelado. Fale com o administrador."
-                  : "Confirme seu e-mail, entre e digite o token novamente.",
-              variant: "destructive",
-            });
-          }
+          toast({
+            title: "Conta criada!",
+            description: data.session
+              ? "Agora digite o token que o administrador te enviar."
+              : "Confirme seu e-mail, depois toque em Entrar e digite o token.",
+          });
         }
       } else if (mode === "forgot") {
         const { error } = await resetPassword(email);
@@ -300,7 +286,7 @@ const Auth = () => {
           )}
 
           {/* Access token - signup only */}
-          {mode === "signup" && !isOwnerEmail && (
+          {false && (
             <div className="space-y-2">
               <Label htmlFor="token" className="text-purple-100">Token de acesso</Label>
               <div className="relative">
