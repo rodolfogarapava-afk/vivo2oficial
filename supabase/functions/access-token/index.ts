@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { z } from "npm:zod@3.25.76";
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -26,6 +27,14 @@ const makeCode = () => {
 const normalizeCode = (value: string) =>
   value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
 
+const actionSchema = z.discriminatedUnion("action", [
+  z.object({ action: z.literal("redeem"), code: z.string().trim().min(6).max(40) }),
+  z.object({ action: z.literal("list") }),
+  z.object({ action: z.literal("create"), plan: z.enum(["30d", "lifetime"]).optional(), note: z.string().trim().max(120).optional() }),
+  z.object({ action: z.literal("create_reseller"), panelLabel: z.string().trim().min(1).max(40) }),
+  z.object({ action: z.literal("revoke"), id: z.string().uuid() }),
+]);
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
@@ -39,8 +48,11 @@ Deno.serve(async (req) => {
     const user = userData?.user;
     if (userError || !user) return json({ error: "NOT_AUTHENTICATED" }, 401);
 
-    const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
-    const action = typeof body?.action === "string" ? body.action : "";
+    const rawBody = req.method === "POST" ? await req.json().catch(() => ({})) : {};
+    const parsedBody = actionSchema.safeParse(rawBody);
+    if (!parsedBody.success) return json({ error: "INVALID_REQUEST" }, 400);
+    const body = parsedBody.data;
+    const action = body.action;
 
     const { data: roleRow } = await supabase
       .from("user_roles")
@@ -63,6 +75,25 @@ Deno.serve(async (req) => {
 
       const match = (rows ?? []).find((row) => normalizeCode(row.code) === code);
       if (!match) return json({ error: "TOKEN_NOT_FOUND" }, 404);
+
+      if (match.purpose === "reseller") {
+        const { data: identity, error: identityError } = await supabase
+          .from("profiles")
+          .select("full_name, cpf, birth_date, whatsapp, adhesion_accepted")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (identityError) throw identityError;
+        const whatsappDigits = String(identity?.whatsapp ?? "").replace(/\D/g, "");
+        if (
+          !identity?.full_name ||
+          !identity?.cpf ||
+          !identity?.birth_date ||
+          !identity?.adhesion_accepted ||
+          ![10, 11].includes(whatsappDigits.length)
+        ) {
+          return json({ error: "RESELLER_PROFILE_INCOMPLETE" }, 400);
+        }
+      }
 
       const expiresAt =
         match.plan === "lifetime"

@@ -98,7 +98,7 @@ const Index = () => {
     try { return localStorage.getItem("active_reseller_panel") === "true"; } catch { return false; }
   });
   const [showResellerPicker, setShowResellerPicker] = useState(false);
-  const [manageResellers, setManageResellers] = useState(false);
+  const [showResellerManager, setShowResellerManager] = useState(false);
   const [partnerCounts, setPartnerCounts] = useState<Record<string, number>>({});
   const [openGestorList, setOpenGestorList] = useState(false);
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | undefined>(() => {
@@ -786,11 +786,14 @@ const Index = () => {
         <DialogContent className="w-[92vw] max-w-sm rounded-xl border-border bg-card p-4">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-foreground">
-              <span className="min-w-0 flex-1">{manageResellers ? "Editar revendas" : "Escolher revenda"}</span>
+               <span className="min-w-0 flex-1">Escolher revenda</span>
               {isAdmin && <Button
                 type="button"
                 size="sm"
-                onClick={() => setManageResellers(true)}
+                 onClick={() => {
+                   setShowResellerPicker(false);
+                   setShowResellerManager(true);
+                 }}
                 className="h-9 gap-1 rounded-lg"
               >
                 <UserPlus className="h-4 w-4" />
@@ -799,8 +802,11 @@ const Index = () => {
               {isAdmin && <Button
                 type="button"
                 size="icon"
-                variant={manageResellers ? "default" : "secondary"}
-                onClick={() => setManageResellers((value) => !value)}
+                 variant="secondary"
+                 onClick={() => {
+                   setShowResellerPicker(false);
+                   setShowResellerManager(true);
+                 }}
                 className="h-9 w-9 rounded-lg"
                 aria-label="Editar revendas"
               >
@@ -808,11 +814,7 @@ const Index = () => {
               </Button>}
             </DialogTitle>
           </DialogHeader>
-          {isAdmin && manageResellers ? (
-            <div className="max-h-[65dvh] overflow-y-auto overscroll-contain pt-1">
-              <PanelNamesSection userId={user?.id} showMyPanel={false} />
-            </div>
-          ) : <div className="max-h-[60dvh] space-y-2 overflow-y-auto overscroll-contain pt-1">
+           <div className="max-h-[60dvh] space-y-2 overflow-y-auto overscroll-contain pt-1">
             {linkedPanels.map((panel, index) => (
               <button
                 key={panel.userId}
@@ -840,9 +842,20 @@ const Index = () => {
             {linkedPanels.length === 0 && (
               <p className="py-6 text-center text-sm text-muted-foreground">Nenhuma revenda cadastrada.</p>
             )}
-          </div>}
+           </div>
         </DialogContent>
       </Dialog>
+
+       <Dialog open={showResellerManager} onOpenChange={setShowResellerManager}>
+         <DialogContent className="w-[94vw] max-w-md rounded-xl border-border bg-card p-4">
+           <DialogHeader>
+             <DialogTitle className="text-foreground">Revendas Raio Telecom</DialogTitle>
+           </DialogHeader>
+           <div className="max-h-[76dvh] overflow-y-auto overscroll-contain pt-1">
+             <PanelNamesSection userId={user?.id} showMyPanel={false} />
+           </div>
+         </DialogContent>
+       </Dialog>
 
 
       {/* New Client Form */}

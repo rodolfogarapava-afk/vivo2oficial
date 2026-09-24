@@ -237,8 +237,14 @@ export type Database = {
         Row: {
           access_expires_at: string | null
           access_plan: string | null
+          adhesion_accepted: boolean
+          adhesion_accepted_at: string | null
+          adhesion_term_version: string | null
+          birth_date: string | null
+          cpf: string | null
           created_at: string
           fixed_expense: number | null
+          full_name: string | null
           id: string
           updated_at: string
           user_id: string
@@ -249,8 +255,14 @@ export type Database = {
         Insert: {
           access_expires_at?: string | null
           access_plan?: string | null
+          adhesion_accepted?: boolean
+          adhesion_accepted_at?: string | null
+          adhesion_term_version?: string | null
+          birth_date?: string | null
+          cpf?: string | null
           created_at?: string
           fixed_expense?: number | null
+          full_name?: string | null
           id?: string
           updated_at?: string
           user_id: string
@@ -261,8 +273,14 @@ export type Database = {
         Update: {
           access_expires_at?: string | null
           access_plan?: string | null
+          adhesion_accepted?: boolean
+          adhesion_accepted_at?: string | null
+          adhesion_term_version?: string | null
+          birth_date?: string | null
+          cpf?: string | null
           created_at?: string
           fixed_expense?: number | null
+          full_name?: string | null
           id?: string
           updated_at?: string
           user_id?: string
@@ -360,6 +378,7 @@ export type Database = {
         Returns: boolean
       }
       is_panel_blocked: { Args: { _user_id: string }; Returns: boolean }
+      is_valid_cpf: { Args: { value: string }; Returns: boolean }
       list_panel_clients: {
         Args: { p_panel_user: string }
         Returns: {

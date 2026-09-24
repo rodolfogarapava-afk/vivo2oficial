@@ -34,6 +34,8 @@ export const AccessBlocked = ({ onUnlocked, onSignOut }: AccessBlockedProps) => 
         description:
           message === "TOKEN_NOT_FOUND"
             ? "Esse token não existe, já foi usado ou foi cancelado."
+            : message === "RESELLER_PROFILE_INCOMPLETE"
+              ? "Abra novamente o link da revenda e complete seus dados."
             : "Confira o token e tente de novo.",
         variant: "destructive",
       });

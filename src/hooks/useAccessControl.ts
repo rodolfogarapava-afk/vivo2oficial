@@ -90,5 +90,5 @@ export const redeemAccessToken = async (code: string) => {
     throw new Error(msg || error.message);
   }
   if (data?.error) throw new Error(data.error);
-  return data as { ok: boolean; plan: string; expires_at: string | null };
+  return data as { ok: boolean; plan: string; expires_at: string | null; purpose?: string };
 };
