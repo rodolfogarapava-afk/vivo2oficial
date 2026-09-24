@@ -76,6 +76,25 @@ Deno.serve(async (req) => {
       const match = (rows ?? []).find((row) => normalizeCode(row.code) === code);
       if (!match) return json({ error: "TOKEN_NOT_FOUND" }, 404);
 
+      if (match.purpose === "reseller") {
+        const { data: identity, error: identityError } = await supabase
+          .from("profiles")
+          .select("full_name, cpf, birth_date, whatsapp, adhesion_accepted")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (identityError) throw identityError;
+        const whatsappDigits = String(identity?.whatsapp ?? "").replace(/\D/g, "");
+        if (
+          !identity?.full_name ||
+          !identity?.cpf ||
+          !identity?.birth_date ||
+          !identity?.adhesion_accepted ||
+          ![10, 11].includes(whatsappDigits.length)
+        ) {
+          return json({ error: "RESELLER_PROFILE_INCOMPLETE" }, 400);
+        }
+      }
+
       const expiresAt =
         match.plan === "lifetime"
           ? null
