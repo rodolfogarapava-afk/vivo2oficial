@@ -238,7 +238,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
           client.blocked 
             ? 'border-2 from-red-900/80 to-red-950/90 border-red-700 shadow-[0_6px_0_0_#7f1d1d] hover:shadow-[0_4px_0_0_#7f1d1d]' 
             : isFree
-              ? 'border-[5px] from-white to-white border-green-500 shadow-[0_6px_0_0_#15803d] hover:shadow-[0_4px_0_0_#15803d]'
+              ? 'border-[3px] border-free-card-border bg-free-card shadow-[0_7px_0_0_hsl(var(--free-card-deep))] active:translate-y-0.5'
               : 'border-2 border-client-card-border bg-client-card shadow-client-card active:translate-y-0.5'
         }`}
         style={{ animationDelay: `${index * 50}ms` }}
@@ -287,7 +287,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                 : isPaid 
                   ? 'bg-gradient-to-b from-green-400 to-green-600 shadow-[0_4px_0_0_#166534] hover:shadow-[0_2px_0_0_#166534]'
                     : isFree
-                      ? 'bg-gray-200 shadow-[0_4px_0_0_#9ca3af] hover:shadow-[0_2px_0_0_#9ca3af]'
+                      ? 'bg-free-card-deep shadow-client-inset'
                        : 'bg-client-card-deep shadow-client-inset'
              } active:translate-y-0.5`}
           >
@@ -299,6 +299,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                   ? 'text-red-300'
                    : isFree
                      ? 'text-black'
+                      ? 'text-free-card-foreground'
                      : 'text-client-card-foreground'
               }`}>
                 {index + 1}

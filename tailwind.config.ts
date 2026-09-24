@@ -72,6 +72,12 @@ export default {
           shadow: "hsl(var(--client-card-shadow))",
           glow: "hsl(var(--client-card-glow))",
         },
+        "free-card": {
+          DEFAULT: "hsl(var(--free-card-bg))",
+          foreground: "hsl(var(--free-card-foreground))",
+          border: "hsl(var(--free-card-border))",
+          deep: "hsl(var(--free-card-deep))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
