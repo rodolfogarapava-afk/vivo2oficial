@@ -28,6 +28,7 @@ interface ClientCardProps {
   dayPaymentSent?: boolean;
   /** null = desconhecido (mostra o globo), true = está no gestor, false = não está */
   inPanel?: boolean | null;
+  supportWhatsapp?: string | null;
 }
 
 const formatCurrency = (value: number) => {
@@ -45,7 +46,7 @@ const formatPhoneDisplay = (phone: string) => {
   return phone;
 };
 
-export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, isPaid = false, onTogglePayment, dayPaymentSent = false, inPanel = null }: ClientCardProps) => {
+export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, isPaid = false, onTogglePayment, dayPaymentSent = false, inPanel = null, supportWhatsapp = null }: ClientCardProps) => {
   const showGlobe = client.company !== "nexus" && inPanel !== false;
   const showMissingPanelWarning = client.company !== "nexus" && inPanel === false;
   const { settings } = useWhatsAppSettings();
@@ -103,6 +104,10 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
   };
 
   const handleWhatsAppClick = () => {
+    if (supportWhatsapp) {
+      handleWhatsApp();
+      return;
+    }
     // If client is blocked, clicking will unblock and send unblock message
     // If client is not blocked, clicking will send normal message OR block (show confirmation)
     if (client.blocked) {
@@ -136,7 +141,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
 
   const handleWhatsApp = () => {
     const destination =
-      (client.whatsapp?.replace(/\D/g, "") || client.phone?.replace(/\D/g, "")) ?? "";
+      (supportWhatsapp?.replace(/\D/g, "") || client.whatsapp?.replace(/\D/g, "") || client.phone?.replace(/\D/g, "")) ?? "";
     if (!destination) {
       toast({
         title: "Telefone não cadastrado",
@@ -152,12 +157,14 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
     const dateStr = now.toLocaleDateString("pt-BR");
     const timeStr = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
-    const message = settings.clientMessageTemplate
-      .replace(/\{nome\}/g, client.name)
-      .replace(/\{telefone\}/g, formatPhoneDisplay(client.phone))
-      .replace(/\{valor\}/g, formatCurrency(Number(client.value_paid)))
-      .replace(/\{data\}/g, dateStr)
-      .replace(/\{hora\}/g, timeStr);
+    const message = supportWhatsapp
+      ? `Olá, preciso de suporte para o cliente ${formatClientName(client.name)}, linha ${formatPhoneDisplay(client.phone)}.`
+      : settings.clientMessageTemplate
+        .replace(/\{nome\}/g, client.name)
+        .replace(/\{telefone\}/g, formatPhoneDisplay(client.phone))
+        .replace(/\{valor\}/g, formatCurrency(Number(client.value_paid)))
+        .replace(/\{data\}/g, dateStr)
+        .replace(/\{hora\}/g, timeStr);
     
     const encodedMessage = encodeURIComponent(message);
     
@@ -246,7 +253,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
               {showGlobe && <span className="mr-1">🌐</span>}
               {formatClientName(client.name)}
             </h3>
-            {settings.showClientWhatsApp && (client.whatsapp || client.phone) && <button
+            {settings.showClientWhatsApp && (supportWhatsapp || client.whatsapp || client.phone) && <button
               onClick={handleWhatsAppClick}
               className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-b from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 shadow-[0_3px_0_0_#166534] hover:translate-y-[1px] active:translate-y-[2px] transition-all"
               title="Enviar suporte via WhatsApp"
@@ -352,7 +359,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
               
               <div className="flex gap-2">
                 {/* WhatsApp button */}
-                {settings.showClientWhatsApp && (client.whatsapp || client.phone) && <button
+                {settings.showClientWhatsApp && (supportWhatsapp || client.whatsapp || client.phone) && <button
                   onClick={handleWhatsAppClick}
                   onTouchStart={handleTouchStart}
                   onTouchEnd={handleTouchEnd}
