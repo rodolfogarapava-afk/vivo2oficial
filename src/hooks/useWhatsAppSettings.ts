@@ -118,6 +118,57 @@ const saveProfileToCloud = async (
 // Custom event for settings updates
 const SETTINGS_UPDATED_EVENT = "whatsapp-settings-updated";
 
+type CloudClientSettings = {
+  showClientWhatsApp: boolean;
+  clientMessageTemplate: string;
+};
+
+let cloudSettingsPromise: Promise<CloudClientSettings | null> | null = null;
+
+// ClientCard uses this hook once per card. Share the cloud request so opening a
+// list with many clients never performs the same account lookup dozens of times.
+const loadCloudSettings = () => {
+  if (cloudSettingsPromise) return cloudSettingsPromise;
+
+  cloudSettingsPromise = (async () => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData.session?.user.id;
+    if (!userId) return null;
+
+    const { data } = await supabase
+      .from("profiles")
+      .select("whatsapp_show_card, whatsapp_client_message")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (!data) {
+      const stored = readStoredSettings();
+      await saveProfileToCloud(userId, {
+        showClientWhatsApp: stored.showClientWhatsApp,
+        clientMessageTemplate: stored.clientMessageTemplate,
+      });
+      return {
+        showClientWhatsApp: stored.showClientWhatsApp,
+        clientMessageTemplate: stored.clientMessageTemplate,
+      };
+    }
+
+    const stored = readStoredSettings();
+    return {
+      showClientWhatsApp:
+        data.whatsapp_show_card === null || data.whatsapp_show_card === undefined
+          ? stored.showClientWhatsApp
+          : data.whatsapp_show_card,
+      clientMessageTemplate: data.whatsapp_client_message ?? stored.clientMessageTemplate,
+    };
+  })().catch((error) => {
+    cloudSettingsPromise = null;
+    throw error;
+  });
+
+  return cloudSettingsPromise;
+};
+
 export const useWhatsAppSettings = () => {
   const [settings, setSettings] = useState<WhatsAppSettings>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -136,32 +187,13 @@ export const useWhatsAppSettings = () => {
     let cancelled = false;
     (async () => {
       try {
-        const { data: userData } = await supabase.auth.getUser();
-        const userId = userData?.user?.id;
-        if (!userId) return;
-        const { data } = await supabase
-          .from("profiles")
-          .select("whatsapp_show_card, whatsapp_client_message")
-          .eq("user_id", userId)
-          .maybeSingle();
-        if (cancelled) return;
-        if (!data) {
-          // No record yet: create it with what is saved on this device
-          const stored = readStoredSettings();
-          await saveProfileToCloud(userId, {
-            showClientWhatsApp: stored.showClientWhatsApp,
-            clientMessageTemplate: stored.clientMessageTemplate,
-          });
-          return;
-        }
+        const data = await loadCloudSettings();
+        if (cancelled || !data) return;
         setSettings((prev) => {
           const merged = withDefaults({
             ...prev,
-            showClientWhatsApp:
-              data.whatsapp_show_card === null || data.whatsapp_show_card === undefined
-                ? prev.showClientWhatsApp
-                : data.whatsapp_show_card,
-            clientMessageTemplate: data.whatsapp_client_message ?? prev.clientMessageTemplate,
+            showClientWhatsApp: data.showClientWhatsApp,
+            clientMessageTemplate: data.clientMessageTemplate,
           });
           localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
           return merged;
