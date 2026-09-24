@@ -260,9 +260,9 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             </h3>
             {(supportWhatsapp || (settings.showClientWhatsApp && (client.whatsapp || client.phone))) && (
               <div className="flex flex-col items-center gap-1">
-                <span className="flex items-center gap-1 whitespace-nowrap text-[8px] font-extrabold uppercase text-client-card-foreground">
+                <span className="flex items-center gap-1 whitespace-nowrap text-[9px] font-extrabold uppercase text-client-card-foreground">
                     {client.virtual_chip ? <Wifi className="h-2.5 w-2.5" /> : <Smartphone className="h-2.5 w-2.5" />}
-                    {client.virtual_chip ? "Chip Virtual" : "Chip Físico"}
+                    {client.virtual_chip ? "VIRTUAL" : "FÍSICO"}
                 </span>
                 <button
                   onClick={handleWhatsAppClick}
@@ -275,37 +275,38 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             )}
           </div>
         ) : (
-          <div className="grid min-h-[68px] grid-cols-[42px_minmax(0,1fr)_46px] items-center gap-2 sm:grid-cols-[46px_minmax(0,1fr)_50px] sm:gap-2.5">
-          <button
-            onClick={handleNumberClick}
-            disabled={client.blocked}
-             className={`flex h-12 w-[42px] flex-shrink-0 items-center justify-center rounded-xl transition-transform sm:w-[46px] ${
-              client.blocked
-                ? 'bg-red-800 cursor-not-allowed'
-                : isPaid 
-                  ? 'bg-gradient-to-b from-green-400 to-green-600 shadow-[0_4px_0_0_#166534] hover:shadow-[0_2px_0_0_#166534]'
-                    : isFree
-                      ? 'bg-free-card-deep shadow-client-inset'
-                       : 'bg-client-card-deep shadow-client-inset'
-             } active:translate-y-0.5`}
-          >
-            {isPaid && !client.blocked ? (
-              <Check className="h-5 w-5 text-white" />
-            ) : (
-               <span className={`text-[20px] font-extrabold ${
-                client.blocked
-                  ? 'text-red-300'
-                   : isFree
-                     ? 'text-client-card-foreground'
-                     : 'text-client-card-foreground'
+          <div className="grid min-h-[72px] grid-cols-[58px_minmax(0,1fr)_48px] items-stretch gap-2 sm:grid-cols-[66px_minmax(0,1fr)_52px] sm:gap-2.5">
+            <div className="flex min-w-0 flex-col items-center justify-center gap-1">
+              <button
+                onClick={handleNumberClick}
+                disabled={client.blocked}
+                className={`flex h-10 w-[42px] flex-shrink-0 items-center justify-center rounded-xl transition-transform sm:w-[46px] ${
+                  client.blocked
+                    ? 'cursor-not-allowed bg-destructive'
+                    : isPaid
+                      ? 'bg-accent shadow-client-action'
+                      : isFree
+                        ? 'bg-free-card-deep shadow-client-inset'
+                        : 'bg-client-card-deep shadow-client-inset'
+                } active:translate-y-0.5`}
+              >
+                {isPaid && !client.blocked ? (
+                  <Check className="h-5 w-5 text-accent-foreground" />
+                ) : (
+                  <span className={`text-[20px] font-extrabold ${client.blocked ? 'text-destructive-foreground' : 'text-client-card-foreground'}`}>
+                    {index + 1}
+                  </span>
+                )}
+              </button>
+              <p className={`w-full whitespace-nowrap text-center text-[10px] font-extrabold leading-none sm:text-[11px] ${
+                client.blocked ? 'text-destructive-foreground line-through' : isFree ? 'text-free-card-foreground' : 'text-client-card-foreground'
               }`}>
-                {index + 1}
-              </span>
-            )}
-          </button>
-          
-           <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(100px,0.75fr)] gap-x-2 overflow-hidden sm:grid-cols-[minmax(0,1fr)_minmax(145px,0.8fr)] sm:gap-x-3">
-             <div className="min-w-0 self-center">
+                {formatCurrency(valueOverride ?? (client.bonus ? 0 : Number(client.value_paid)))}
+              </p>
+            </div>
+
+            <div className="flex min-w-0 flex-col justify-center overflow-hidden">
+              <div className="min-w-0">
                <h3 className={`break-words text-[13px] font-extrabold leading-tight sm:text-[16px] ${
               client.blocked 
                 ? 'text-red-300 line-through' 
@@ -325,57 +326,29 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                <Phone className="h-4 w-4 flex-shrink-0" />
                  <span className={`whitespace-nowrap text-[12px] font-medium sm:text-[14px] ${client.blocked ? 'line-through text-red-400/60' : ''}`}>{formatPhoneDisplay(client.phone)}</span>
             </div>
-             </div>
-
-             <div className="min-w-0 self-center">
-                <p className={`flex items-baseline whitespace-nowrap text-[15px] font-extrabold leading-none sm:text-[18px] ${
-              client.blocked
-                ? 'text-red-400 line-through'
-                : isFree
-                  ? 'text-green-700'
-                  : 'text-client-card-foreground'
-            }`}>
-              {formatCurrency(valueOverride ?? (client.bonus ? 0 : Number(client.value_paid)))}
-              {Number(client.data_gb ?? 0) > 0 && (
-                   <span className={`ml-1 text-[11px] font-extrabold sm:ml-2 sm:text-[15px] ${client.blocked ? 'text-blue-400' : isFree ? 'text-black/70' : 'text-client-card-muted'}`}>
-                  {Number(client.data_gb)} GB
-                </span>
-              )}
-            </p>
-
-            {totalGb > 0 && (
-                <div className="mt-1">
-                   <div className={`h-2 w-full overflow-hidden rounded-full shadow-client-inset ${isFree ? 'bg-black/10' : 'bg-client-card-deep'}`}>
-                  <div
-                    className={`h-full rounded-full transition-all ${
-                       usedPercent >= 100 ? 'bg-destructive' : usedPercent >= 80 ? 'bg-warning' : 'bg-client-card-highlight'
-                    }`}
-                    style={{ width: `${usedPercent}%` }}
-                  />
-                </div>
-                  <p className={`mt-0.5 overflow-hidden text-ellipsis whitespace-nowrap text-[10px] font-semibold sm:text-[11px] ${
-                  usedPercent >= 100
-                    ? 'text-red-500'
-                    : client.blocked
-                      ? 'text-muted-foreground'
-                      : isFree
-                        ? 'text-black/70'
-                         : 'text-client-card-muted'
-                }`}>
-                  {usedGb} de {totalGb} GB usados ({usedPercent}%)
-                  {usedPercent >= 100 && " • franquia esgotada"}
-                </p>
               </div>
-            )}
-             </div>
 
-          </div>
-          
-          
-           <div className="flex min-w-0 flex-shrink-0 flex-col items-center gap-1">
-              <span className="flex items-center gap-0.5 whitespace-nowrap text-[7px] font-extrabold uppercase text-client-card-muted">
+              {totalGb > 0 && (
+                <div className="mt-1.5 grid grid-cols-2 items-center gap-2">
+                  <div className={`h-2 w-full overflow-hidden rounded-full shadow-client-inset ${isFree ? 'bg-free-card-deep/20' : 'bg-client-card-deep'}`}>
+                    <div
+                      className={`h-full rounded-full transition-all ${usedPercent >= 100 ? 'bg-destructive' : usedPercent >= 80 ? 'bg-warning' : 'bg-client-card-highlight'}`}
+                      style={{ width: `${usedPercent}%` }}
+                    />
+                  </div>
+                  <p className={`whitespace-nowrap text-center text-[9px] font-extrabold leading-none sm:text-[10px] ${
+                    usedPercent >= 100 ? 'text-destructive' : client.blocked ? 'text-muted-foreground' : isFree ? 'text-free-card-foreground' : 'text-client-card-foreground'
+                  }`}>
+                    {usedGb} de {totalGb} GB usados
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex min-w-0 flex-shrink-0 flex-col items-center justify-center gap-1">
+              <span className="flex items-center gap-0.5 whitespace-nowrap text-[8px] font-extrabold uppercase text-client-card-foreground">
                    {client.virtual_chip ? <Wifi className="h-2.5 w-2.5" /> : <Smartphone className="h-2.5 w-2.5" />}
-                  {client.virtual_chip ? "Chip Virtual" : "Chip Físico"}
+                  {client.virtual_chip ? "VIRTUAL" : "FÍSICO"}
               </span>
               <div className="flex gap-2">
                 {/* WhatsApp button */}
@@ -395,8 +368,8 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                     <img src={whatsappIcon} alt="WhatsApp" className="h-6 w-6 drop-shadow-sm" />
                 </button>}
               </div>
+            </div>
           </div>
-        </div>
         )}
 
 

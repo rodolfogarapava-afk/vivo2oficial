@@ -12,3 +12,4 @@
 - [x] Compactar os cartões, reduzir os botões e mostrar o tipo de chip acima do WhatsApp
 - [x] Ativar a revenda automaticamente pelo link, sem pedir o token novamente
 - [x] Mostrar o nome completo do cliente no topo do cartão
+- [x] Alinhar dados do cartão na vertical, com valor sob a ordem e consumo dividido na parte inferior
