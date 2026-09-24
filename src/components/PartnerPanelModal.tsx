@@ -12,6 +12,9 @@ import { useToast } from "@/hooks/use-toast";
 import type { Client } from "@/hooks/useClients";
 import { formatClientName } from "@/lib/formatName";
 import { AiWhatsAppMessage } from "@/components/AiWhatsAppMessage";
+import { ResellerHistory, ResellerValuesList, addMessageLog } from "@/components/ResellerTools";
+
+const currentMonth = () => new Date().toISOString().slice(0, 7);
 
 interface PartnerPanelModalProps {
   open: boolean;
@@ -50,6 +53,10 @@ export const PartnerPanelModal = ({
   const [editValue, setEditValue] = useState("");
   const [editDataGb, setEditDataGb] = useState("0");
   const [editDataUsedGb, setEditDataUsedGb] = useState("0");
+  const [showValues, setShowValues] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [paidIds, setPaidIds] = useState<Set<string>>(new Set());
+  const [myId, setMyId] = useState<string | null>(null);
   const { fixedExpense } = useFixedExpense();
   const { toast } = useToast();
 
@@ -74,9 +81,41 @@ export const PartnerPanelModal = ({
     }
   }, [partnerUserId]);
 
+  const loadPaid = useCallback(async () => {
+    const { data: s } = await supabase.auth.getSession();
+    const uid = s.session?.user.id ?? null;
+    setMyId(uid);
+    if (!uid) return;
+    const { data } = await supabase
+      .from("client_payments")
+      .select("client_id, paid")
+      .eq("user_id", uid)
+      .eq("month", currentMonth());
+    setPaidIds(new Set((data ?? []).filter((r) => r.paid).map((r) => r.client_id)));
+  }, []);
+
   useEffect(() => {
-    if (open) void load();
-  }, [open, load]);
+    if (open) {
+      void load();
+      void loadPaid();
+    }
+  }, [open, load, loadPaid]);
+
+  const togglePaid = async (client: Client) => {
+    if (!myId) return;
+    const month = currentMonth();
+    const isPaid = paidIds.has(client.id);
+    const next = new Set(paidIds);
+    if (isPaid) {
+      next.delete(client.id);
+      setPaidIds(next);
+      await supabase.from("client_payments").delete().eq("user_id", myId).eq("client_id", client.id).eq("month", month);
+    } else {
+      next.add(client.id);
+      setPaidIds(next);
+      await supabase.from("client_payments").insert({ user_id: myId, client_id: client.id, month, paid: true, amount: Number(client.value_paid ?? 0) });
+    }
+  };
 
   const ordered = useMemo(
     () => [...clients].sort((a, b) => Number(isFreeLine(b.name)) - Number(isFreeLine(a.name))),
@@ -260,6 +299,22 @@ export const PartnerPanelModal = ({
         </div>
       </div>
 
+      <div className="grid grid-cols-2 gap-2 px-3 pb-3">
+        <Button type="button" onClick={() => setShowValues(true)} className="h-11 rounded-xl bg-green-700 font-bold text-white hover:bg-green-600">
+          Lista de valores
+        </Button>
+        <Button type="button" variant="secondary" onClick={() => setShowHistory(true)} className="h-11 rounded-xl border border-border font-bold">
+          Status e mensagens
+        </Button>
+      </div>
+
+      {showValues && partnerUserId && (
+        <ResellerValuesList panelUserId={partnerUserId} clients={ordered} onBack={() => setShowValues(false)} onDone={() => void load()} />
+      )}
+      {showHistory && partnerUserId && (
+        <ResellerHistory panelUserId={partnerUserId} clients={ordered} paidIds={paidIds} onTogglePaid={(c) => void togglePaid(c)} onBack={() => setShowHistory(false)} />
+      )}
+
       {panels.length > 1 && (
         <div className="flex gap-2 overflow-x-auto px-3 pb-3">
           {panels.map((panel) => (
@@ -406,7 +461,12 @@ export const PartnerPanelModal = ({
       )}
 
       {messageClient && (
-        <AiWhatsAppMessage client={messageClient} reseller={label} onClose={() => setMessageClient(null)} />
+        <AiWhatsAppMessage client={messageClient} reseller={label} onClose={() => setMessageClient(null)}
+          onSent={(message, phone) =>
+            partnerUserId &&
+            addMessageLog(partnerUserId, { clientId: messageClient.id, clientName: messageClient.name, phone, message })
+          }
+        />
       )}
     </div>,
     document.body,
