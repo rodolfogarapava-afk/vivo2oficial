@@ -45,7 +45,7 @@ export const usePanelNames = (userId?: string) => {
     setLoading(true);
     try {
       const [{ data: names }, { data: links }] = await Promise.all([
-        supabase.from("panel_names").select("user_id, label, support_whatsapp, fixed_expense, line_costs"),
+        supabase.from("panel_names").select("user_id, label, support_whatsapp, reseller_whatsapp, fixed_expense, line_costs"),
         supabase.from("panel_links").select("owner_user_id, partner_user_id, partner_label"),
       ]);
 
