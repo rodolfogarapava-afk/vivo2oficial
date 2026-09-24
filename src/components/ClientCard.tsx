@@ -157,8 +157,10 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
     const dateStr = now.toLocaleDateString("pt-BR");
     const timeStr = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
+    const dataAmount = Number(client.data_gb ?? 0);
+    const offer = dataAmount > 0 ? `VIVO ${dataAmount.toLocaleString("pt-BR")}GB` : "VIVO";
     const message = supportWhatsapp
-      ? `Olá, preciso de suporte para o cliente ${formatClientName(client.name)}, linha ${formatPhoneDisplay(client.phone)}.`
+      ? `*👷${formatClientName(client.name)}!*▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n*🧑‍🔧SUPORTE ATUALIZAR LINHA*\n\n*📊${offer}*\n\n*📱Número: ${formatPhoneDisplay(client.phone)}*\n\n*📅Data: ${dateStr}*\n\n*🕕 Horas: ${timeStr}*\n\n*🚨SEM CONEXÃO*\n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n*✅Preferência gera preferência✅*`
       : settings.clientMessageTemplate
         .replace(/\{nome\}/g, client.name)
         .replace(/\{telefone\}/g, formatPhoneDisplay(client.phone))
