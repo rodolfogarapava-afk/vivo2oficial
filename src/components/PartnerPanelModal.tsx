@@ -7,7 +7,6 @@ import { NewClientForm } from "@/components/NewClientForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { isFreeLine } from "@/hooks/useFreeLineColor";
-import { useFixedExpense } from "@/hooks/useFixedExpense";
 import { useToast } from "@/hooks/use-toast";
 import type { Client } from "@/hooks/useClients";
 import { formatClientName } from "@/lib/formatName";
@@ -143,6 +142,7 @@ export const PartnerPanelModal = ({
     bonus: boolean;
     company: string;
     account: number | null;
+    line_cost?: number | null;
   }) => {
     if (!partnerUserId) return;
     setSaving(true);

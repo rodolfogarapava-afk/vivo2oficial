@@ -226,7 +226,7 @@ const Index = () => {
   const { visibleDays } = useVisibleDueDays();
   const activeClients = useMemo(() => clients.filter(c => !c.name.toUpperCase().includes("CANCELADO")), [clients]);
   const billableClients = useMemo(() => activeClients.filter(c => !c.bonus), [activeClients]);
-  const totalExpenses = billableClients.reduce((sum, c) => sum + clientCost(c.id, fixedExpense), 0);
+  const totalExpenses = billableClients.reduce((sum, c) => sum + (c.line_cost ?? clientCost(c.id, fixedExpense)), 0);
 
   // Stats per visible due day (excluding cancelled; bonus excluded from expenses)
   const dayStats = useMemo(
