@@ -47,7 +47,7 @@ const formatPhoneDisplay = (phone: string) => {
   return phone;
 };
 
-export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, isPaid = false, onTogglePayment, dayPaymentSent = false, inPanel = null, supportWhatsapp = null }: ClientCardProps) => {
+export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, isPaid = false, onTogglePayment, dayPaymentSent = false, inPanel = null, supportWhatsapp = null, valueOverride }: ClientCardProps) => {
   const showGlobe = client.company !== "nexus" && inPanel !== false;
   const showMissingPanelWarning = client.company !== "nexus" && inPanel === false;
   const { settings } = useWhatsAppSettings();
