@@ -29,6 +29,7 @@ const Auth = () => {
   const [accessToken, setAccessToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; whatsapp?: string; token?: string }>({});
+  const isOwnerEmail = email.trim().toLowerCase() === "www.raio.top@gmail.com";
   
   const { signIn, signUp, resetPassword, updatePassword, user, loading } = useAuth();
   const { toast } = useToast();
@@ -57,7 +58,7 @@ const Auth = () => {
       }
     }
 
-    if (mode === "signup") {
+    if (mode === "signup" && !isOwnerEmail) {
       const tokenResult = tokenSchema.safeParse(accessToken);
       if (!tokenResult.success) {
         newErrors.token = tokenResult.error.errors[0].message;
@@ -121,6 +122,8 @@ const Auth = () => {
               variant: "destructive",
             });
           }
+        } else if (isOwnerEmail) {
+          toast({ title: "Conta criada!", description: "Acesso de administrador liberado." });
         } else {
           try {
             const result = await redeemAccessToken(accessToken);
