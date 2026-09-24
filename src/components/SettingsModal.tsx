@@ -1,4 +1,6 @@
 import { useLineCosts } from "@/hooks/useLineCosts";
+import { ResellerValuesList } from "@/components/ResellerTools";
+import { supabase as sbValues } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1701,6 +1703,18 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
           </div>
         </div>,
         document.body
+      )}
+      {showValuesList && (
+        <ResellerValuesList
+          panelUserId={userId ?? ""}
+          clients={clients}
+          onBack={() => setShowValuesList(false)}
+          onDone={() => onRefresh?.()}
+          saveValue={async (c, v) => {
+            const { error } = await sbValues.from("clients").update({ value_paid: v }).eq("id", c.id);
+            if (error) throw new Error(error.message);
+          }}
+        />
       )}
     </>
   );
