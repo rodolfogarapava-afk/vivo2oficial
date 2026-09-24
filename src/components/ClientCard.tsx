@@ -232,12 +232,12 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
   return (
     <>
       <div 
-        className={`relative overflow-hidden bg-gradient-to-b rounded-xl ${compactMode ? 'p-2' : 'p-3'} animate-slide-up hover:translate-y-[2px] transition-all ${
+        className={`relative overflow-hidden rounded-2xl ${compactMode ? 'p-3' : 'p-4'} animate-slide-up transition-all ${
           client.blocked 
             ? 'border-2 from-red-900/80 to-red-950/90 border-red-700 shadow-[0_6px_0_0_#7f1d1d] hover:shadow-[0_4px_0_0_#7f1d1d]' 
             : isFree
               ? 'border-[5px] from-white to-white border-green-500 shadow-[0_6px_0_0_#15803d] hover:shadow-[0_4px_0_0_#15803d]'
-              : 'border-[5px] from-client-card to-client-card border-client-card-border shadow-[0_6px_0_0_hsl(var(--client-card-border))] hover:shadow-[0_4px_0_0_hsl(var(--client-card-border))]'
+              : 'border-2 border-client-card-border bg-client-card shadow-client-card active:translate-y-0.5'
         }`}
         style={{ animationDelay: `${index * 50}ms` }}
       >
@@ -245,10 +245,10 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
           <div className="flex items-center gap-2">
             <button
               onClick={handleNumberClick}
-              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all bg-gradient-to-b from-green-400 to-green-600 shadow-[0_3px_0_0_#166534] hover:translate-y-[1px] active:translate-y-[2px]"
+               className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-accent shadow-client-action transition-transform active:translate-y-0.5"
               title="Desmarcar pagamento"
             >
-              <Check className="h-4 w-4 text-white" />
+               <Check className="h-5 w-5 text-accent-foreground" />
             </button>
             <h3 className={`flex-1 font-semibold text-sm whitespace-nowrap overflow-x-auto ${isFree ? 'text-black' : 'text-client-card-foreground'}`}>
               {isFree && <span className="mr-1">✅</span>}
@@ -266,7 +266,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                 )}
                 <button
                   onClick={handleWhatsAppClick}
-                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-b from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 shadow-[0_3px_0_0_#166534] hover:translate-y-[1px] active:translate-y-[2px] transition-all"
+                 className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-accent shadow-client-action transition-transform active:translate-y-0.5"
                   title="Enviar suporte via WhatsApp"
                 >
                   <img src={whatsappIcon} alt="WhatsApp" className="h-5 w-5 drop-shadow-sm" />
@@ -275,24 +275,24 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             )}
           </div>
         ) : (
-        <div className="flex items-center gap-3">
+         <div className="flex items-start gap-3">
           <button
             onClick={handleNumberClick}
             disabled={client.blocked}
-            className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-all ${
+             className={`flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl transition-transform ${
               client.blocked
                 ? 'bg-red-800 cursor-not-allowed'
                 : isPaid 
                   ? 'bg-gradient-to-b from-green-400 to-green-600 shadow-[0_4px_0_0_#166534] hover:shadow-[0_2px_0_0_#166534]'
                     : isFree
                       ? 'bg-gray-200 shadow-[0_4px_0_0_#9ca3af] hover:shadow-[0_2px_0_0_#9ca3af]'
-                      : 'bg-client-card/70 shadow-[0_4px_0_0_hsl(var(--client-card-border))] hover:shadow-[0_2px_0_0_hsl(var(--client-card-border))]'
-            } hover:translate-y-[1px] active:translate-y-[2px]`}
+                       : 'bg-client-card-deep shadow-client-inset'
+             } active:translate-y-0.5`}
           >
             {isPaid && !client.blocked ? (
               <Check className="h-5 w-5 text-white" />
             ) : (
-              <span className={`text-base font-bold ${
+               <span className={`text-xl font-bold ${
                 client.blocked
                   ? 'text-red-300'
                    : isFree
@@ -304,8 +304,8 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             )}
           </button>
           
-          <div className="flex-1 overflow-hidden">
-            <h3 className={`font-semibold text-sm sm:text-base whitespace-nowrap overflow-x-auto ${
+           <div className="min-w-0 flex-1 overflow-hidden">
+             <h3 className={`overflow-x-auto whitespace-nowrap text-base font-bold ${
               client.blocked 
                 ? 'text-red-300 line-through' 
                 : isFree
@@ -320,11 +320,11 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
               {client.blocked && <span className="ml-2 text-[10px] font-bold text-red-400 no-underline">(BLOQUEADO)</span>}
               {client.bonus && !client.blocked && <span className="ml-2 text-[10px] font-bold text-yellow-600">★ BÔNUS</span>}
             </h3>
-            <div className={`flex items-center gap-1 ${client.blocked ? 'text-muted-foreground' : isFree ? 'text-black/70' : 'text-client-card-foreground/75'}`}>
+             <div className={`mt-0.5 flex items-center gap-1 ${client.blocked ? 'text-muted-foreground' : isFree ? 'text-black/70' : 'text-client-card-muted'}`}>
               <Phone className={`h-3 w-3 flex-shrink-0`} />
               <span className={`text-xs whitespace-nowrap ${client.blocked ? 'line-through text-red-400/60' : ''}`}>{formatPhoneDisplay(client.phone)}</span>
             </div>
-            <p className={`font-semibold text-xs mt-0.5 ${
+             <p className={`mt-1 text-base font-bold ${
               client.blocked
                 ? 'text-red-400 line-through'
                 : isFree
@@ -333,30 +333,30 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             }`}>
               {formatCurrency(valueOverride ?? (client.bonus ? 0 : Number(client.value_paid)))}
               {Number(client.data_gb ?? 0) > 0 && (
-                <span className={`ml-2 text-[10px] font-bold ${client.blocked ? 'text-blue-400' : isFree ? 'text-black/70' : 'text-client-card-foreground/75'}`}>
+                 <span className={`ml-3 text-sm font-bold ${client.blocked ? 'text-blue-400' : isFree ? 'text-black/70' : 'text-client-card-muted'}`}>
                   {Number(client.data_gb)} GB
                 </span>
               )}
             </p>
 
             {totalGb > 0 && (
-              <div className="mt-1">
-                <div className={`h-2 w-full rounded-full overflow-hidden ${isFree ? 'bg-black/10' : 'bg-client-card-foreground/15'}`}>
+               <div className="mt-3">
+                 <div className={`h-3 w-full overflow-hidden rounded-full shadow-client-inset ${isFree ? 'bg-black/10' : 'bg-client-card-deep'}`}>
                   <div
                     className={`h-full rounded-full transition-all ${
-                      usedPercent >= 100 ? 'bg-red-500' : usedPercent >= 80 ? 'bg-yellow-400' : 'bg-blue-500'
+                       usedPercent >= 100 ? 'bg-destructive' : usedPercent >= 80 ? 'bg-warning' : 'bg-client-card-highlight'
                     }`}
                     style={{ width: `${usedPercent}%` }}
                   />
                 </div>
-                <p className={`mt-0.5 text-[10px] font-semibold ${
+                 <p className={`mt-2 text-xs font-medium ${
                   usedPercent >= 100
                     ? 'text-red-500'
                     : client.blocked
                       ? 'text-muted-foreground'
                       : isFree
                         ? 'text-black/70'
-                        : 'text-client-card-foreground/75'
+                         : 'text-client-card-muted'
                 }`}>
                   {usedGb} de {totalGb} GB usados ({usedPercent}%)
                   {usedPercent >= 100 && " • franquia esgotada"}
@@ -369,7 +369,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
           
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
               {supportWhatsapp && (
-                <span className="flex items-center gap-1 whitespace-nowrap text-[9px] font-extrabold uppercase text-client-card-foreground">
+                 <span className="flex items-center gap-1 whitespace-nowrap text-[9px] font-extrabold uppercase text-client-card-muted">
                   {client.virtual_chip ? <Wifi className="h-3 w-3" /> : <Smartphone className="h-3 w-3" />}
                   {client.virtual_chip ? "Chip Virtual" : "Chip Físico"}
                 </span>
@@ -383,13 +383,13 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                   onMouseDown={handleTouchStart}
                   onMouseUp={handleTouchEnd}
                   onMouseLeave={handleTouchEnd}
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                   className={`flex h-14 w-14 items-center justify-center rounded-xl transition-transform ${
                     client.blocked || client.name.toUpperCase().includes("CANCELADO")
                       ? 'bg-gradient-to-b from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 shadow-[0_4px_0_0_#7f1d1d] hover:shadow-[0_2px_0_0_#7f1d1d]'
-                      : 'bg-gradient-to-b from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 shadow-[0_4px_0_0_#166534] hover:shadow-[0_2px_0_0_#166534]'
-                  } hover:translate-y-[2px] active:shadow-none active:translate-y-[4px]`}
+                       : 'bg-accent shadow-client-action'
+                  } active:translate-y-0.5`}
                 >
-                  <img src={whatsappIcon} alt="WhatsApp" className="h-6 w-6 drop-shadow-sm" />
+                   <img src={whatsappIcon} alt="WhatsApp" className="h-8 w-8 drop-shadow-sm" />
                 </button>}
               </div>
           </div>

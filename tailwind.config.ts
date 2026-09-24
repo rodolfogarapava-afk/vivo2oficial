@@ -66,6 +66,9 @@ export default {
           DEFAULT: "hsl(var(--client-card-bg))",
           foreground: "hsl(var(--client-card-foreground))",
           border: "hsl(var(--client-card-border))",
+          deep: "hsl(var(--client-card-deep))",
+          muted: "hsl(var(--client-card-muted))",
+          highlight: "hsl(var(--client-card-highlight))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
@@ -82,6 +85,11 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        "client-card": "0 10px 32px -10px hsl(var(--client-card-border) / 0.72), 0 5px 0 hsl(var(--client-card-deep))",
+        "client-inset": "inset 0 2px 8px hsl(var(--background) / 0.42)",
+        "client-action": "0 4px 0 hsl(145 72% 28%), 0 8px 18px hsl(145 70% 35% / 0.35)",
       },
       keyframes: {
         "accordion-down": {
