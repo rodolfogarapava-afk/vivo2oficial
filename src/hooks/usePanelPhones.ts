@@ -2,6 +2,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const CACHE_KEY = "vivo-panel-phones";
+let sharedRefreshPromise: Promise<{
+  phones: string[];
+  sync: unknown;
+} | null> | null = null;
 
 const digits = (s: string) => (s || "").replace(/\D/g, "");
 
@@ -29,19 +33,29 @@ export const usePanelPhones = () => {
     if (!navigator.onLine || loadingRef.current) return false;
     loadingRef.current = true;
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) return false;
-      const { data, error } = await supabase.functions.invoke("vivo-gestao", {
-        body: { action: "auto_sync" },
-      });
-      if (error || !data?.lines) return false;
-      const phones = (data.lines as { phone?: string }[])
-        .map((line) => digits(line.phone || ""))
-        .filter((phone) => phone.length >= 10);
+      if (!sharedRefreshPromise) {
+        sharedRefreshPromise = (async () => {
+          const { data: sessionData } = await supabase.auth.getSession();
+          if (!sessionData.session) return null;
+          const { data, error } = await supabase.functions.invoke("vivo-gestao", {
+            body: { action: "auto_sync" },
+          });
+          if (error || !data?.lines) return null;
+          const phones = [...new Set((data.lines as { phone?: string }[])
+            .map((line) => digits(line.phone || ""))
+            .filter((phone) => phone.length >= 10))];
+          return { phones, sync: data.sync ?? null };
+        })().finally(() => {
+          sharedRefreshPromise = null;
+        });
+      }
+      const result = await sharedRefreshPromise;
+      if (!result) return false;
+      const { phones, sync } = result;
       if (phones.length === 0) return false;
       localStorage.setItem(CACHE_KEY, JSON.stringify({ phones, ts: Date.now() }));
       setPanelPhones(new Set(phones));
-      window.dispatchEvent(new CustomEvent("vivo-panel-synced", { detail: data.sync ?? null }));
+      window.dispatchEvent(new CustomEvent("vivo-panel-synced", { detail: sync }));
       return true;
     } catch {
       return false;
