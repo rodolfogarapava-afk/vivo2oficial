@@ -161,8 +161,8 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
           </div>
         </div>}
 
-        {/* Valor do Produto + Despesa fixa lado a lado */}
-        <div className={`grid gap-3 ${simple ? "grid-cols-1" : "grid-cols-2"}`}>
+        {/* Valor do Produto */}
+        <div className="grid gap-3 grid-cols-1">
           <div className="space-y-2">
             <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
               Valor do Produto
@@ -178,14 +178,6 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
               required
             />
           </div>
-          {!simple && <div className="space-y-2">
-            <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
-              Despesa fixa
-            </label>
-            <div className="h-14 bg-primary/30 border border-primary/50 rounded-xl flex items-center justify-center text-foreground font-bold text-base">
-              {formatCurrency(lineCost ?? fixedExpense)}
-            </div>
-          </div>}
         </div>
 
         {/* Custo da linha */}
