@@ -61,8 +61,24 @@ const Auth = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const arrivalCheckedRef = useRef(false);
+
   useEffect(() => {
-    if (!user || loading || mode === "reset" || redeemingRef.current) return;
+    if (loading) return;
+    // Link de revenda aberto com outra conta já logada: sai dela para o
+    // novo revendedor se cadastrar, sem gastar o link na conta errada.
+    if (!arrivalCheckedRef.current) {
+      arrivalCheckedRef.current = true;
+      if (user && isResellerSignup) {
+        redeemingRef.current = true;
+        localStorage.removeItem("access-control-cache");
+        void supabase.auth.signOut().finally(() => {
+          redeemingRef.current = false;
+        });
+        return;
+      }
+    }
+    if (!user || mode === "reset" || redeemingRef.current) return;
     const pendingToken = resellerToken || localStorage.getItem("pending_reseller_token") || "";
     if (!pendingToken) {
       navigate("/");
