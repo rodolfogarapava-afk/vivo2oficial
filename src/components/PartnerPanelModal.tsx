@@ -22,6 +22,7 @@ interface PartnerPanelModalProps {
   /** User id of the linked panel (resale). */
   partnerUserId?: string;
   panelLabel?: string;
+  supportWhatsapp?: string | null;
   panels?: { userId: string; label: string }[];
   onSelectPanel?: (userId: string) => void;
 }
@@ -34,6 +35,7 @@ export const PartnerPanelModal = ({
   onOpenChange,
   partnerUserId,
   panelLabel,
+  supportWhatsapp,
   panels = [],
   onSelectPanel,
 }: PartnerPanelModalProps) => {
@@ -360,6 +362,7 @@ export const PartnerPanelModal = ({
                 index={index}
                 onToggleVirtualChip={() => {}}
                 inPanel={null}
+                supportWhatsapp={supportWhatsapp}
               />
               {!isFreeLine(client.name) && (
                 <Button

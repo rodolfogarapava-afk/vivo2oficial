@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Copy, Loader2, Plus, Save, Store } from "lucide-react";
+import { Copy, Loader2, MessageCircle, Plus, Save, Store } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePanelNames } from "@/hooks/usePanelNames";
 import { useToast } from "@/hooks/use-toast";
@@ -11,13 +11,14 @@ interface PanelNamesSectionProps {
 
 export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSectionProps) => {
   const { toast } = useToast();
-  const { myLabel, others, loading, saveLabel } = usePanelNames(userId);
+  const { myLabel, others, loading, saveLabel, saveSupportWhatsapp } = usePanelNames(userId);
   const [mine, setMine] = useState("");
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState<string | null>(null);
   const [newReseller, setNewReseller] = useState("");
   const [creating, setCreating] = useState(false);
   const [resellerToken, setResellerToken] = useState("");
+  const [supportDrafts, setSupportDrafts] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setMine(myLabel ?? "RAIO TELECOM");
@@ -27,6 +28,16 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
     setDrafts((prev) => {
       const next = { ...prev };
       for (const panel of others) if (next[panel.userId] === undefined) next[panel.userId] = panel.label;
+      return next;
+    });
+  }, [others]);
+
+  useEffect(() => {
+    setSupportDrafts((prev) => {
+      const next = { ...prev };
+      for (const panel of others) {
+        if (next[panel.userId] === undefined) next[panel.userId] = panel.supportWhatsapp ?? "";
+      }
       return next;
     });
   }, [others]);
@@ -63,6 +74,22 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
       toast({ title: "Erro", description: "Não foi possível criar a revenda.", variant: "destructive" });
     } finally {
       setCreating(false);
+    }
+  };
+
+  const saveSupport = async (targetUserId: string) => {
+    setSaving(`support-${targetUserId}`);
+    try {
+      await saveSupportWhatsapp(targetUserId, supportDrafts[targetUserId] ?? "");
+      toast({ title: "WhatsApp de suporte salvo!" });
+    } catch (error) {
+      toast({
+        title: "Número inválido",
+        description: error instanceof Error ? error.message : "Confira o WhatsApp.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(null);
     }
   };
 
@@ -144,22 +171,43 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
         <div className="space-y-2">
           <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Revendas</p>
           {others.map((panel, index) => (
-            <div key={panel.userId} className="flex items-center gap-2">
-              <span className="w-7 shrink-0 text-center text-xs font-extrabold text-cyan-400">{index + 1}ª</span>
-              <input
-                value={drafts[panel.userId] ?? panel.label}
-                onChange={(e) => setDrafts((prev) => ({ ...prev, [panel.userId]: e.target.value }))}
-                maxLength={40}
-                className="h-11 flex-1 rounded-xl border border-border bg-card px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-cyan-500"
-              />
-              <button
-                type="button"
-                onClick={() => save(panel.userId, drafts[panel.userId] ?? panel.label)}
-                disabled={saving === panel.userId}
-                className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-b from-cyan-500 to-cyan-700 text-white disabled:opacity-60"
-              >
-                {saving === panel.userId ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-              </button>
+            <div key={panel.userId} className="space-y-2 rounded-xl border border-border bg-card p-2">
+              <div className="flex items-center gap-2">
+                <span className="w-7 shrink-0 text-center text-xs font-extrabold text-cyan-400">{index + 1}ª</span>
+                <input
+                  value={drafts[panel.userId] ?? panel.label}
+                  onChange={(e) => setDrafts((prev) => ({ ...prev, [panel.userId]: e.target.value }))}
+                  maxLength={40}
+                  className="h-11 flex-1 rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => save(panel.userId, drafts[panel.userId] ?? panel.label)}
+                  disabled={saving === panel.userId}
+                  className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-b from-cyan-500 to-cyan-700 text-white disabled:opacity-60"
+                >
+                  {saving === panel.userId ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                </button>
+              </div>
+              <div className="flex items-center gap-2 pl-9">
+                <MessageCircle className="h-4 w-4 shrink-0 text-green-500" />
+                <input
+                  value={supportDrafts[panel.userId] ?? ""}
+                  onChange={(event) => setSupportDrafts((prev) => ({ ...prev, [panel.userId]: event.target.value }))}
+                  placeholder="Seu WhatsApp para suporte"
+                  inputMode="tel"
+                  className="h-11 min-w-0 flex-1 rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-green-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => void saveSupport(panel.userId)}
+                  disabled={saving === `support-${panel.userId}`}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-600 text-white disabled:opacity-60"
+                  aria-label="Salvar WhatsApp de suporte"
+                >
+                  {saving === `support-${panel.userId}` ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
           ))}
         </div>

@@ -127,7 +127,7 @@ const Index = () => {
   } = useClients(user?.id);
 
   const { isAdmin, isBlocked, reload: reloadAccess } = useAccessControl(user?.id);
-  const { otherPanelLabel, others: linkedPanels } = usePanelNames(user?.id);
+  const { mySupportWhatsapp, otherPanelLabel, others: linkedPanels } = usePanelNames(user?.id);
   const selectedPartner = linkedPanels.find((panel) => panel.userId === selectedPartnerId) ?? linkedPanels[0];
   const otherPanelUserId = selectedPartner?.userId;
   const selectedPartnerLabel = selectedPartner?.label ?? otherPanelLabel;
@@ -750,6 +750,7 @@ const Index = () => {
         panelLabel={selectedPartnerLabel}
         panels={linkedPanels}
         onSelectPanel={setSelectedPartnerId}
+        supportWhatsapp={selectedPartner?.supportWhatsapp}
       />
 
       <Dialog open={showResellerPicker} onOpenChange={setShowResellerPicker}>
@@ -854,6 +855,7 @@ const Index = () => {
               onTogglePayment={togglePayment}
               dayPaymentSent={sentPaymentDays.includes(client.due_day || 10)}
               inPanel={isInPanel(client.phone)}
+              supportWhatsapp={!isAdmin ? mySupportWhatsapp : null}
             />
           ))
         )}

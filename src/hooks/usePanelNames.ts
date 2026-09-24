@@ -4,11 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 export interface PanelName {
   user_id: string;
   label: string;
+  support_whatsapp: string | null;
 }
 
 export interface LinkedPanel {
   userId: string;
   label: string;
+  supportWhatsapp: string | null;
 }
 
 const CACHE_KEY = "panel-names-cache";
@@ -37,7 +39,7 @@ export const usePanelNames = (userId?: string) => {
     setLoading(true);
     try {
       const [{ data: names }, { data: links }] = await Promise.all([
-        supabase.from("panel_names").select("user_id, label"),
+        supabase.from("panel_names").select("user_id, label, support_whatsapp"),
         supabase.from("panel_links").select("owner_user_id, partner_user_id, partner_label"),
       ]);
 
@@ -50,16 +52,24 @@ export const usePanelNames = (userId?: string) => {
       const mine = nameList.find((n) => n.user_id === userId)?.label ?? null;
       setMyLabel(mine);
 
-      const linkedIds = new Map<string, string>();
+      const linkedIds = new Map<string, LinkedPanel>();
       for (const link of links ?? []) {
         if (link.owner_user_id === userId) {
-          linkedIds.set(link.partner_user_id, labelFor(link.partner_user_id, link.partner_label ?? DEFAULT_PARTNER_LABEL));
+          linkedIds.set(link.partner_user_id, {
+            userId: link.partner_user_id,
+            label: labelFor(link.partner_user_id, link.partner_label ?? DEFAULT_PARTNER_LABEL),
+            supportWhatsapp: nameList.find((name) => name.user_id === link.partner_user_id)?.support_whatsapp ?? null,
+          });
         } else if (link.partner_user_id === userId) {
-          linkedIds.set(link.owner_user_id, labelFor(link.owner_user_id, "PAINEL PRINCIPAL"));
+          linkedIds.set(link.owner_user_id, {
+            userId: link.owner_user_id,
+            label: labelFor(link.owner_user_id, "PAINEL PRINCIPAL"),
+            supportWhatsapp: nameList.find((name) => name.user_id === userId)?.support_whatsapp ?? null,
+          });
         }
       }
 
-      const nextOthers = Array.from(linkedIds.entries()).map(([id, label]) => ({ userId: id, label }));
+      const nextOthers = Array.from(linkedIds.values());
       setOthers(nextOthers);
 
       try {
@@ -91,8 +101,29 @@ export const usePanelNames = (userId?: string) => {
     [load],
   );
 
+  const saveSupportWhatsapp = useCallback(
+    async (targetUserId: string, whatsapp: string) => {
+      const digits = whatsapp.replace(/\D/g, "");
+      if (digits.length < 10 || digits.length > 13) throw new Error("Informe um WhatsApp válido");
+      const existing = allNames.find((name) => name.user_id === targetUserId);
+      const { error } = await supabase.from("panel_names").upsert(
+        {
+          user_id: targetUserId,
+          label: existing?.label ?? DEFAULT_PARTNER_LABEL,
+          support_whatsapp: digits,
+        },
+        { onConflict: "user_id" },
+      );
+      if (error) throw error;
+      await load();
+    },
+    [allNames, load],
+  );
+
   // Label shown on the panel button: the other panel's name
   const otherPanelLabel = others.length > 1 ? "REVENDAS" : (others[0]?.label ?? DEFAULT_PARTNER_LABEL);
 
-  return { myLabel, others, allNames, otherPanelLabel, loading, reload: load, saveLabel };
+  const mySupportWhatsapp = allNames.find((name) => name.user_id === userId)?.support_whatsapp ?? null;
+
+  return { myLabel, mySupportWhatsapp, others, allNames, otherPanelLabel, loading, reload: load, saveLabel, saveSupportWhatsapp };
 };
