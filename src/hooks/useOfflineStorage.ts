@@ -15,6 +15,10 @@ export interface OfflineClient {
   bonus: boolean;
   company?: string;
   account?: number | null;
+  whatsapp?: string | null;
+  data_gb?: number | null;
+  data_used_gb?: number | null;
+  line_cost?: number | null;
 }
 
 
