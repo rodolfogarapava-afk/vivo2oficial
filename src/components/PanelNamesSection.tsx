@@ -106,6 +106,22 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
     }
   };
 
+  const saveResellerNumber = async (targetUserId: string) => {
+    setSaving(`reseller-${targetUserId}`);
+    try {
+      await saveResellerWhatsapp(targetUserId, resellerDrafts[targetUserId] ?? "");
+      toast({ title: "WhatsApp da revenda salvo!" });
+    } catch (error) {
+      toast({
+        title: "Número inválido",
+        description: error instanceof Error ? error.message : "Confira o WhatsApp.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(null);
+    }
+  };
+
   const saveCosts = async (targetUserId: string, currentCosts: number[]) => {
     const expense = Number((expenseDrafts[targetUserId] ?? "0").replace(",", "."));
     const entered = Number((costDrafts[targetUserId] ?? "").replace(",", "."));
