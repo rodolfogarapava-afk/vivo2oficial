@@ -304,6 +304,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      claim_owner_admin: { Args: never; Returns: boolean }
       delete_panel_client: {
         Args: { p_client_id: string; p_panel_user: string }
         Returns: boolean
