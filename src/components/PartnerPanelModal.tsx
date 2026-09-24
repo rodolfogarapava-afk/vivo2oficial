@@ -24,6 +24,7 @@ interface PartnerPanelModalProps {
   supportWhatsapp?: string | null;
   fixedExpense?: number;
   lineCosts?: number[];
+  onSaveSupportWhatsapp?: (whatsapp: string) => Promise<void>;
   panels?: { userId: string; label: string }[];
   onSelectPanel?: (userId: string) => void;
 }
@@ -39,6 +40,7 @@ export const PartnerPanelModal = ({
   supportWhatsapp,
   fixedExpense: panelFixedExpense = 0,
   lineCosts = [],
+  onSaveSupportWhatsapp,
   panels = [],
   onSelectPanel,
 }: PartnerPanelModalProps) => {
@@ -147,6 +149,9 @@ export const PartnerPanelModal = ({
     if (!partnerUserId) return;
     setSaving(true);
     try {
+      if (client.whatsapp && onSaveSupportWhatsapp) {
+        await onSaveSupportWhatsapp(client.whatsapp);
+      }
       const { data: created, error: rpcError } = await (supabase.rpc as unknown as (
         fn: string,
         args: Record<string, unknown>,
@@ -161,7 +166,7 @@ export const PartnerPanelModal = ({
         p_bonus: client.bonus,
         p_company: client.company,
         p_account: client.account,
-        p_whatsapp: client.whatsapp,
+        p_whatsapp: null,
         p_line_cost: client.line_cost ?? null,
       });
       if (rpcError) throw new Error(rpcError.message);
@@ -350,6 +355,8 @@ export const PartnerPanelModal = ({
             isLoading={saving}
             fixedExpense={panelFixedExpense}
             availableLineCosts={lineCosts}
+            whatsappLabel="Meu WhatsApp de suporte"
+            initialWhatsapp={supportWhatsapp ?? ""}
             existingPhones={clients.map((c) => c.phone)}
           />
         )}

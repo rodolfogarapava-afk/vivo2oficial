@@ -127,7 +127,7 @@ const Index = () => {
   } = useClients(user?.id);
 
   const { isAdmin, isBlocked, reload: reloadAccess } = useAccessControl(user?.id);
-  const { mySupportWhatsapp, otherPanelLabel, others: linkedPanels } = usePanelNames(user?.id);
+  const { mySupportWhatsapp, otherPanelLabel, others: linkedPanels, saveSupportWhatsapp } = usePanelNames(user?.id);
   const selectedPartner = linkedPanels.find((panel) => panel.userId === selectedPartnerId) ?? linkedPanels[0];
   const otherPanelUserId = selectedPartner?.userId;
   const selectedPartnerLabel = selectedPartner?.label ?? otherPanelLabel;
@@ -753,6 +753,10 @@ const Index = () => {
         supportWhatsapp={selectedPartner?.supportWhatsapp}
         fixedExpense={selectedPartner?.fixedExpense ?? 0}
         lineCosts={selectedPartner?.lineCosts ?? []}
+        onSaveSupportWhatsapp={async (whatsapp) => {
+          if (!otherPanelUserId) return;
+          await saveSupportWhatsapp(otherPanelUserId, whatsapp);
+        }}
       />
 
       <Dialog open={showResellerPicker} onOpenChange={setShowResellerPicker}>
