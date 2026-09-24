@@ -11,9 +11,10 @@ interface AiWhatsAppMessageProps {
   client: Client;
   reseller: string;
   onClose: () => void;
+  onSent?: (message: string, phone: string) => void;
 }
 
-export const AiWhatsAppMessage = ({ client, reseller, onClose }: AiWhatsAppMessageProps) => {
+export const AiWhatsAppMessage = ({ client, reseller, onClose, onSent }: AiWhatsAppMessageProps) => {
   const [clientName, setClientName] = useState(client.name);
   const [phone, setPhone] = useState(client.whatsapp || client.phone);
   const [chip, setChip] = useState(client.virtual_chip ? "Chip Virtual" : "Chip Físico");
@@ -62,6 +63,7 @@ export const AiWhatsAppMessage = ({ client, reseller, onClose }: AiWhatsAppMessa
     const digits = phone.replace(/\D/g, "");
     if (!digits || !message.trim()) return;
     const destination = digits.startsWith("55") ? digits : `55${digits}`;
+    onSent?.(message, phone);
     window.open(`https://api.whatsapp.com/send?phone=${destination}&text=${encodeURIComponent(message)}`, "_blank");
   };
 
