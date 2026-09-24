@@ -86,6 +86,12 @@ Deno.serve(async (req) => {
 
       if (match.purpose === "reseller" && match.created_by && match.created_by !== user.id) {
         const panelLabel = String(match.panel_label || match.note || "NOVA REVENDA").trim().slice(0, 40);
+        const { data: ownerProfile } = await supabase
+          .from("profiles")
+          .select("whatsapp")
+          .eq("user_id", match.created_by)
+          .maybeSingle();
+        const supportWhatsapp = String(ownerProfile?.whatsapp ?? "").replace(/\D/g, "") || null;
         const { error: linkError } = await supabase.from("panel_links").upsert(
           {
             owner_user_id: match.created_by,
@@ -97,7 +103,7 @@ Deno.serve(async (req) => {
         if (linkError) throw linkError;
 
         const { error: nameError } = await supabase.from("panel_names").upsert(
-          { user_id: user.id, label: panelLabel },
+          { user_id: user.id, label: panelLabel, support_whatsapp: supportWhatsapp },
           { onConflict: "user_id" },
         );
         if (nameError) throw nameError;
