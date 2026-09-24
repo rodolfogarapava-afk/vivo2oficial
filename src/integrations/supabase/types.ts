@@ -188,6 +188,7 @@ export type Database = {
           fixed_expense: number
           label: string
           line_costs: number[]
+          reseller_whatsapp: string | null
           support_whatsapp: string | null
           updated_at: string
           user_id: string
@@ -197,6 +198,7 @@ export type Database = {
           fixed_expense?: number
           label: string
           line_costs?: number[]
+          reseller_whatsapp?: string | null
           support_whatsapp?: string | null
           updated_at?: string
           user_id: string
@@ -206,6 +208,7 @@ export type Database = {
           fixed_expense?: number
           label?: string
           line_costs?: number[]
+          reseller_whatsapp?: string | null
           support_whatsapp?: string | null
           updated_at?: string
           user_id?: string

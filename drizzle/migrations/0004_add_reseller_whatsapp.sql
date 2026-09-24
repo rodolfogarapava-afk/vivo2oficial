@@ -1,0 +1,1 @@
+ALTER TABLE public.panel_names ADD COLUMN IF NOT EXISTS reseller_whatsapp text;

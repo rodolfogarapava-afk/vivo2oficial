@@ -29,6 +29,13 @@
       "when": 1790270585849,
       "tag": "0003_fix_reseller_client_write_functions",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790271450773,
+      "tag": "0004_add_reseller_whatsapp",
+      "breakpoints": true
     }
   ]
 }
