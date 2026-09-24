@@ -9,3 +9,4 @@
 - [x] Gerar token e link de cadastro ao adicionar uma revenda
 - [x] Personalizar o cadastro como Revenda Raio Telecom
 - [x] Cadastrar nome completo, CPF, nascimento, WhatsApp e aceite de fidelidade
+- [x] Compactar os cartões, reduzir os botões e mostrar o tipo de chip acima do WhatsApp

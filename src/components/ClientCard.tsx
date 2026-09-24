@@ -234,7 +234,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
   return (
     <>
       <div 
-        className={`relative overflow-hidden rounded-2xl ${compactMode ? 'p-2' : 'px-2.5 py-1.5'} animate-slide-up transition-all ${
+        className={`relative overflow-hidden rounded-2xl ${compactMode ? 'px-2 py-1' : 'px-2.5 py-1'} animate-slide-up transition-all ${
           client.blocked 
             ? 'border-2 from-red-900/80 to-red-950/90 border-red-700 shadow-[0_6px_0_0_#7f1d1d] hover:shadow-[0_4px_0_0_#7f1d1d]' 
             : isFree
@@ -260,15 +260,13 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             </h3>
             {(supportWhatsapp || (settings.showClientWhatsApp && (client.whatsapp || client.phone))) && (
               <div className="flex flex-col items-center gap-1">
-                {supportWhatsapp && (
-                  <span className="flex items-center gap-1 whitespace-nowrap text-[9px] font-extrabold uppercase text-client-card-foreground">
-                    {client.virtual_chip ? <Wifi className="h-3 w-3" /> : <Smartphone className="h-3 w-3" />}
+                <span className="flex items-center gap-1 whitespace-nowrap text-[8px] font-extrabold uppercase text-client-card-foreground">
+                    {client.virtual_chip ? <Wifi className="h-2.5 w-2.5" /> : <Smartphone className="h-2.5 w-2.5" />}
                     {client.virtual_chip ? "Chip Virtual" : "Chip Físico"}
-                  </span>
-                )}
+                </span>
                 <button
                   onClick={handleWhatsAppClick}
-                 className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-accent shadow-client-action transition-transform active:translate-y-0.5"
+                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-accent shadow-client-action transition-transform active:translate-y-0.5"
                   title="Enviar suporte via WhatsApp"
                 >
                   <img src={whatsappIcon} alt="WhatsApp" className="h-5 w-5 drop-shadow-sm" />
@@ -277,11 +275,11 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             )}
           </div>
         ) : (
-          <div className="grid min-h-[66px] grid-cols-[46px_minmax(0,1fr)_46px] items-center gap-2 sm:grid-cols-[50px_minmax(0,1fr)_50px] sm:gap-3">
+          <div className="grid min-h-[56px] grid-cols-[38px_minmax(0,1fr)_40px] items-center gap-2 sm:grid-cols-[40px_minmax(0,1fr)_42px] sm:gap-2.5">
           <button
             onClick={handleNumberClick}
             disabled={client.blocked}
-             className={`flex h-14 w-[46px] flex-shrink-0 items-center justify-center rounded-xl transition-transform sm:w-[50px] ${
+             className={`flex h-11 w-[38px] flex-shrink-0 items-center justify-center rounded-lg transition-transform sm:w-10 ${
               client.blocked
                 ? 'bg-red-800 cursor-not-allowed'
                 : isPaid 
@@ -294,7 +292,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             {isPaid && !client.blocked ? (
               <Check className="h-5 w-5 text-white" />
             ) : (
-               <span className={`text-[23px] font-extrabold ${
+               <span className={`text-[20px] font-extrabold ${
                 client.blocked
                   ? 'text-red-300'
                    : isFree
@@ -306,7 +304,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             )}
           </button>
           
-           <div className="grid min-w-0 grid-cols-1 gap-x-4 overflow-hidden min-[560px]:grid-cols-[minmax(0,1fr)_minmax(150px,0.8fr)]">
+           <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(112px,0.8fr)] gap-x-2 overflow-hidden sm:grid-cols-[minmax(0,1fr)_minmax(145px,0.8fr)] sm:gap-x-3">
              <div className="min-w-0 self-center">
               <h3 className={`overflow-hidden text-ellipsis whitespace-nowrap text-[15px] font-extrabold sm:text-[16px] ${
               client.blocked 
@@ -330,7 +328,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
              </div>
 
              <div className="min-w-0 self-center">
-               <p className={`mt-0.5 whitespace-nowrap text-[18px] font-extrabold leading-none sm:text-[20px] min-[560px]:mt-0 ${
+                <p className={`whitespace-nowrap text-[16px] font-extrabold leading-none sm:text-[18px] ${
               client.blocked
                 ? 'text-red-400 line-through'
                 : isFree
@@ -339,15 +337,15 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             }`}>
               {formatCurrency(valueOverride ?? (client.bonus ? 0 : Number(client.value_paid)))}
               {Number(client.data_gb ?? 0) > 0 && (
-                  <span className={`ml-2 text-[15px] font-extrabold sm:text-[16px] ${client.blocked ? 'text-blue-400' : isFree ? 'text-black/70' : 'text-client-card-muted'}`}>
+                   <span className={`ml-1 text-[13px] font-extrabold sm:ml-2 sm:text-[15px] ${client.blocked ? 'text-blue-400' : isFree ? 'text-black/70' : 'text-client-card-muted'}`}>
                   {Number(client.data_gb)} GB
                 </span>
               )}
             </p>
 
             {totalGb > 0 && (
-               <div className="mt-1.5">
-                  <div className={`h-2.5 w-full overflow-hidden rounded-full shadow-client-inset ${isFree ? 'bg-black/10' : 'bg-client-card-deep'}`}>
+                <div className="mt-1">
+                   <div className={`h-2 w-full overflow-hidden rounded-full shadow-client-inset ${isFree ? 'bg-black/10' : 'bg-client-card-deep'}`}>
                   <div
                     className={`h-full rounded-full transition-all ${
                        usedPercent >= 100 ? 'bg-destructive' : usedPercent >= 80 ? 'bg-warning' : 'bg-client-card-highlight'
@@ -375,12 +373,10 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
           
           
            <div className="flex min-w-0 flex-shrink-0 flex-col items-center gap-1">
-              {supportWhatsapp && (
-                  <span className="flex items-center gap-0.5 whitespace-nowrap text-[7px] font-extrabold uppercase text-client-card-muted sm:text-[8px]">
-                  {client.virtual_chip ? <Wifi className="h-3 w-3" /> : <Smartphone className="h-3 w-3" />}
+              <span className="flex items-center gap-0.5 whitespace-nowrap text-[7px] font-extrabold uppercase text-client-card-muted">
+                   {client.virtual_chip ? <Wifi className="h-2.5 w-2.5" /> : <Smartphone className="h-2.5 w-2.5" />}
                   {client.virtual_chip ? "Chip Virtual" : "Chip Físico"}
-                </span>
-              )}
+              </span>
               <div className="flex gap-2">
                 {/* WhatsApp button */}
                 {(supportWhatsapp || (settings.showClientWhatsApp && (client.whatsapp || client.phone))) && <button
@@ -390,13 +386,13 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                   onMouseDown={handleTouchStart}
                   onMouseUp={handleTouchEnd}
                   onMouseLeave={handleTouchEnd}
-                    className={`flex h-14 w-[46px] items-center justify-center rounded-xl transition-transform sm:w-[50px] ${
+                    className={`flex h-11 w-10 items-center justify-center rounded-lg transition-transform sm:w-[42px] ${
                     client.blocked || client.name.toUpperCase().includes("CANCELADO")
                       ? 'bg-gradient-to-b from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 shadow-[0_4px_0_0_#7f1d1d] hover:shadow-[0_2px_0_0_#7f1d1d]'
                        : 'bg-accent shadow-client-action'
                   } active:translate-y-0.5`}
                 >
-                    <img src={whatsappIcon} alt="WhatsApp" className="h-7 w-7 drop-shadow-sm" />
+                    <img src={whatsappIcon} alt="WhatsApp" className="h-6 w-6 drop-shadow-sm" />
                 </button>}
               </div>
           </div>
