@@ -205,7 +205,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
             ))}
           </div>
           {costList.length === 0 && (
-            <p className="text-[11px] text-muted-foreground">Adicione outros valores na engrenagem → Gasto por Cliente.</p>
+            <p className="text-[11px] text-muted-foreground">Adicione outros valores na engrenagem → Custo da Linha.</p>
           )}
         </div>}
 
