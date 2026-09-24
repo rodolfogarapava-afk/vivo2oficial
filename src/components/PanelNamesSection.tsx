@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Copy, KeyRound, Loader2, MessageCircle, Plus, RefreshCw, Save, Store } from "lucide-react";
+import { Ban, Copy, KeyRound, Trash2, Unlock, Loader2, MessageCircle, Plus, RefreshCw, Save, Store } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePanelNames } from "@/hooks/usePanelNames";
 import { useToast } from "@/hooks/use-toast";
@@ -11,7 +11,7 @@ interface PanelNamesSectionProps {
 
 export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSectionProps) => {
   const { toast } = useToast();
-  const { myLabel, others, loading, saveLabel, saveSupportWhatsapp, saveResellerWhatsapp, savePanelCosts } = usePanelNames(userId);
+  const { myLabel, others, loading, saveLabel, saveSupportWhatsapp, saveResellerWhatsapp, savePanelCosts, setBlocked, deleteReseller } = usePanelNames(userId);
   const [mine, setMine] = useState("");
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState<string | null>(null);
@@ -171,6 +171,32 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
     }
   };
 
+  const toggleBlock = async (targetUserId: string, label: string, block: boolean) => {
+    if (block && !window.confirm(`Bloquear a revenda ${label}? Ela não verá mais os clientes.`)) return;
+    setSaving(`block-${targetUserId}`);
+    try {
+      await setBlocked(targetUserId, block);
+      toast({ title: block ? "Revenda bloqueada" : "Revenda desbloqueada", description: label });
+    } catch {
+      toast({ title: "Erro", description: "Não foi possível alterar o bloqueio.", variant: "destructive" });
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const removeReseller = async (targetUserId: string, label: string) => {
+    if (!window.confirm(`Excluir a revenda ${label} e todos os clientes dela? Isso não pode ser desfeito.`)) return;
+    setSaving(`delete-${targetUserId}`);
+    try {
+      await deleteReseller(targetUserId);
+      toast({ title: "Revenda excluída", description: label });
+    } catch {
+      toast({ title: "Erro", description: "Não foi possível excluir a revenda.", variant: "destructive" });
+    } finally {
+      setSaving(null);
+    }
+  };
+
   const copyRenewedToken = async (code: string) => {
     await navigator.clipboard.writeText(code);
     toast({ title: "Token copiado!", description: code });
@@ -251,6 +277,7 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
             <div key={panel.userId} className="space-y-2 rounded-xl border border-border bg-card p-2">
               <div className="flex items-center gap-2">
                 <span className="w-7 shrink-0 text-center text-xs font-extrabold text-cyan-400">{index + 1}ª</span>
+                {panel.blocked && <span className="shrink-0 rounded bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-destructive-foreground">BLOQUEADA</span>}
                 <input
                   value={drafts[panel.userId] ?? panel.label}
                   onChange={(e) => setDrafts((prev) => ({ ...prev, [panel.userId]: e.target.value }))}
@@ -330,6 +357,26 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
                 </div>
                 <button type="button" onClick={() => void saveCosts(panel.userId, panel.lineCosts)} disabled={saving === `cost-${panel.userId}`} className="flex h-10 items-center gap-1 rounded-lg bg-green-600 px-3 text-xs font-bold text-white disabled:opacity-60">
                   {saving === `cost-${panel.userId}` ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Custos
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2 pl-9">
+                <button
+                  type="button"
+                  onClick={() => void toggleBlock(panel.userId, panel.label, !panel.blocked)}
+                  disabled={saving === `block-${panel.userId}`}
+                  className="flex h-11 items-center justify-center gap-2 rounded-xl border border-orange-500/50 bg-orange-500/10 text-xs font-extrabold uppercase text-orange-400 disabled:opacity-60"
+                >
+                  {saving === `block-${panel.userId}` ? <Loader2 className="h-4 w-4 animate-spin" /> : panel.blocked ? <Unlock className="h-4 w-4" /> : <Ban className="h-4 w-4" />}
+                  {panel.blocked ? "Desbloquear" : "Bloquear"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void removeReseller(panel.userId, panel.label)}
+                  disabled={saving === `delete-${panel.userId}`}
+                  className="flex h-11 items-center justify-center gap-2 rounded-xl border border-destructive/60 bg-destructive/10 text-xs font-extrabold uppercase text-destructive disabled:opacity-60"
+                >
+                  {saving === `delete-${panel.userId}` ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                  Excluir
                 </button>
               </div>
               <div className="space-y-2 pl-9">

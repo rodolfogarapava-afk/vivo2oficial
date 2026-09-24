@@ -17,6 +17,7 @@ export interface LinkedPanel {
   resellerWhatsapp: string | null;
   fixedExpense: number;
   lineCosts: number[];
+  blocked?: boolean;
 }
 
 const CACHE_KEY = "panel-names-cache";
@@ -44,10 +45,12 @@ export const usePanelNames = (userId?: string) => {
     if (!userId) return;
     setLoading(true);
     try {
-      const [{ data: names }, { data: links }] = await Promise.all([
+      const [{ data: names }, { data: links }, { data: blocks }] = await Promise.all([
         supabase.from("panel_names").select("user_id, label, support_whatsapp, reseller_whatsapp, fixed_expense, line_costs"),
         supabase.from("panel_links").select("owner_user_id, partner_user_id, partner_label"),
+        supabase.from("panel_blocks").select("user_id"),
       ]);
+      const blockedSet = new Set((blocks ?? []).map((b) => b.user_id));
 
       const nameList = (names ?? []) as PanelName[];
       setAllNames(nameList);
@@ -68,6 +71,7 @@ export const usePanelNames = (userId?: string) => {
             resellerWhatsapp: nameList.find((name) => name.user_id === link.partner_user_id)?.reseller_whatsapp ?? null,
             fixedExpense: Number(nameList.find((name) => name.user_id === link.partner_user_id)?.fixed_expense ?? 0),
             lineCosts: nameList.find((name) => name.user_id === link.partner_user_id)?.line_costs ?? [],
+            blocked: blockedSet.has(link.partner_user_id),
           });
         } else if (link.partner_user_id === userId) {
           linkedIds.set(link.owner_user_id, {
@@ -170,10 +174,35 @@ export const usePanelNames = (userId?: string) => {
     [allNames, load],
   );
 
+  const setBlocked = useCallback(
+    async (targetUserId: string, blocked: boolean) => {
+      const { error } = blocked
+        ? await supabase.from("panel_blocks").upsert({ user_id: targetUserId, blocked_by: userId ?? null }, { onConflict: "user_id" })
+        : await supabase.from("panel_blocks").delete().eq("user_id", targetUserId);
+      if (error) throw error;
+      await load();
+    },
+    [load, userId],
+  );
+
+  const deleteReseller = useCallback(
+    async (targetUserId: string) => {
+      if (!userId) return;
+      await supabase.from("panel_blocks").upsert({ user_id: targetUserId, blocked_by: userId }, { onConflict: "user_id" });
+      const { error: clientsError } = await supabase.from("clients").delete().eq("user_id", targetUserId);
+      if (clientsError) throw clientsError;
+      await supabase.from("panel_names").delete().eq("user_id", targetUserId);
+      const { error } = await supabase.from("panel_links").delete().eq("owner_user_id", userId).eq("partner_user_id", targetUserId);
+      if (error) throw error;
+      await load();
+    },
+    [load, userId],
+  );
+
   // Label shown on the panel button: the other panel's name
   const otherPanelLabel = others.length > 1 ? "REVENDAS" : (others[0]?.label ?? DEFAULT_PARTNER_LABEL);
 
   const mySupportWhatsapp = allNames.find((name) => name.user_id === userId)?.support_whatsapp ?? null;
 
-  return { myLabel, mySupportWhatsapp, others, allNames, otherPanelLabel, loading, reload: load, saveLabel, saveSupportWhatsapp, saveResellerWhatsapp, savePanelCosts };
+  return { myLabel, mySupportWhatsapp, others, allNames, otherPanelLabel, loading, reload: load, saveLabel, saveSupportWhatsapp, saveResellerWhatsapp, savePanelCosts, setBlocked, deleteReseller };
 };

@@ -36,6 +36,13 @@
       "when": 1790271450773,
       "tag": "0004_add_reseller_whatsapp",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790273311126,
+      "tag": "0005_panel_blocks",
+      "breakpoints": true
     }
   ]
 }

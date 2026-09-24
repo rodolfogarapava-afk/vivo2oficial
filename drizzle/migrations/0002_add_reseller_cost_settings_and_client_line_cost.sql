@@ -5,12 +5,14 @@ ALTER TABLE public.panel_names
 ALTER TABLE public.clients
   ADD COLUMN IF NOT EXISTS line_cost numeric;
 
+DROP POLICY IF EXISTS "Users can insert own panel settings" ON public.panel_names;
 CREATE POLICY "Users can insert own panel settings"
 ON public.panel_names
 FOR INSERT
 TO authenticated
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own panel settings" ON public.panel_names;
 CREATE POLICY "Users can update own panel settings"
 ON public.panel_names
 FOR UPDATE

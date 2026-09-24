@@ -158,6 +158,24 @@ export type Database = {
         }
         Relationships: []
       }
+      panel_blocks: {
+        Row: {
+          blocked_by: string | null
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          blocked_by?: string | null
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          blocked_by?: string | null
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       panel_links: {
         Row: {
           created_at: string
@@ -341,6 +359,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_panel_blocked: { Args: { _user_id: string }; Returns: boolean }
       list_panel_clients: {
         Args: { p_panel_user: string }
         Returns: {
