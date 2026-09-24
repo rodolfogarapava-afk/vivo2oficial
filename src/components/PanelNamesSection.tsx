@@ -11,7 +11,7 @@ interface PanelNamesSectionProps {
 
 export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSectionProps) => {
   const { toast } = useToast();
-  const { myLabel, others, loading, saveLabel, saveSupportWhatsapp, savePanelCosts } = usePanelNames(userId);
+  const { myLabel, others, loading, saveLabel, saveSupportWhatsapp, saveResellerWhatsapp, savePanelCosts } = usePanelNames(userId);
   const [mine, setMine] = useState("");
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState<string | null>(null);
@@ -21,6 +21,7 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
   const [renewing, setRenewing] = useState<string | null>(null);
   const [renewedTokens, setRenewedTokens] = useState<Record<string, string>>({});
   const [supportDrafts, setSupportDrafts] = useState<Record<string, string>>({});
+  const [resellerDrafts, setResellerDrafts] = useState<Record<string, string>>({});
   const [expenseDrafts, setExpenseDrafts] = useState<Record<string, string>>({});
   const [costDrafts, setCostDrafts] = useState<Record<string, string>>({});
 
@@ -49,6 +50,13 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
       const next = { ...prev };
       for (const panel of others) {
         if (next[panel.userId] === undefined) next[panel.userId] = panel.supportWhatsapp ?? "";
+      }
+      return next;
+    });
+    setResellerDrafts((prev) => {
+      const next = { ...prev };
+      for (const panel of others) {
+        if (next[panel.userId] === undefined) next[panel.userId] = panel.resellerWhatsapp ?? "";
       }
       return next;
     });
@@ -94,6 +102,22 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
     try {
       await saveSupportWhatsapp(targetUserId, supportDrafts[targetUserId] ?? "");
       toast({ title: "WhatsApp de suporte salvo!" });
+    } catch (error) {
+      toast({
+        title: "Número inválido",
+        description: error instanceof Error ? error.message : "Confira o WhatsApp.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const saveResellerNumber = async (targetUserId: string) => {
+    setSaving(`reseller-${targetUserId}`);
+    try {
+      await saveResellerWhatsapp(targetUserId, resellerDrafts[targetUserId] ?? "");
+      toast({ title: "WhatsApp da revenda salvo!" });
     } catch (error) {
       toast({
         title: "Número inválido",
