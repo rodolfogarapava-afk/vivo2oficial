@@ -76,6 +76,7 @@ const Auth = () => {
         navigate("/");
       })
       .catch(() => {
+        localStorage.removeItem("pending_reseller_token");
         toast({ title: "Não foi possível liberar", description: "O link está vencido ou já pertence a outra conta.", variant: "destructive" });
         navigate("/");
       });
