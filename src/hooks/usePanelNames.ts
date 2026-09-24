@@ -5,6 +5,7 @@ export interface PanelName {
   user_id: string;
   label: string;
   support_whatsapp: string | null;
+  reseller_whatsapp: string | null;
   fixed_expense: number;
   line_costs: number[];
 }
@@ -13,6 +14,7 @@ export interface LinkedPanel {
   userId: string;
   label: string;
   supportWhatsapp: string | null;
+  resellerWhatsapp: string | null;
   fixedExpense: number;
   lineCosts: number[];
 }
