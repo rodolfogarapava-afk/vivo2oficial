@@ -261,6 +261,25 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
                   {saving === `support-${panel.userId}` ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 </button>
               </div>
+              <div className="flex items-center gap-2 pl-9">
+                <MessageCircle className="h-4 w-4 shrink-0 text-purple-400" />
+                <input
+                  value={resellerDrafts[panel.userId] ?? ""}
+                  onChange={(event) => setResellerDrafts((prev) => ({ ...prev, [panel.userId]: event.target.value }))}
+                  placeholder="WhatsApp da revenda (cobrança)"
+                  inputMode="tel"
+                  className="h-11 min-w-0 flex-1 rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-purple-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => void saveResellerNumber(panel.userId)}
+                  disabled={saving === `reseller-${panel.userId}`}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-600 text-white disabled:opacity-60"
+                  aria-label="Salvar WhatsApp da revenda"
+                >
+                  {saving === `reseller-${panel.userId}` ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                </button>
+              </div>
               <div className="grid grid-cols-2 gap-2 pl-9">
                 <input
                   value={expenseDrafts[panel.userId] ?? "0"}
