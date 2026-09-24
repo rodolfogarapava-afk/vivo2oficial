@@ -420,6 +420,7 @@ export const PartnerPanelModal = ({
                 inPanel={null}
                 supportWhatsapp={supportWhatsapp}
                 valueOverride={Number(client.line_cost ?? panelFixedExpense ?? 0)}
+                dense
               />
             </div>
           ))

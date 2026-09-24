@@ -30,6 +30,8 @@ interface ClientCardProps {
   /** null = desconhecido (mostra o globo), true = está no gestor, false = não está */
   inPanel?: boolean | null;
   supportWhatsapp?: string | null;
+  /** Reduz a altura do cartão (~20%) — usado no painel da revenda. */
+  dense?: boolean;
 }
 
 const formatCurrency = (value: number) => {
@@ -47,7 +49,7 @@ const formatPhoneDisplay = (phone: string) => {
   return phone;
 };
 
-export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, isPaid = false, onTogglePayment, dayPaymentSent = false, inPanel = null, supportWhatsapp = null, valueOverride }: ClientCardProps) => {
+export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, isPaid = false, onTogglePayment, dayPaymentSent = false, inPanel = null, supportWhatsapp = null, valueOverride, dense = false }: ClientCardProps) => {
   const showGlobe = client.company !== "nexus" && inPanel !== false;
   const showMissingPanelWarning = client.company !== "nexus" && inPanel === false;
   const { settings } = useWhatsAppSettings();
@@ -232,7 +234,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
   return (
     <>
       <div 
-        className={`relative overflow-hidden rounded-2xl ${compactMode ? 'p-3' : 'p-4'} animate-slide-up transition-all ${
+        className={`relative overflow-hidden rounded-2xl ${compactMode || dense ? 'p-3' : 'p-4'} animate-slide-up transition-all ${
           client.blocked 
             ? 'border-2 from-red-900/80 to-red-950/90 border-red-700 shadow-[0_6px_0_0_#7f1d1d] hover:shadow-[0_4px_0_0_#7f1d1d]' 
             : isFree
@@ -279,7 +281,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
           <button
             onClick={handleNumberClick}
             disabled={client.blocked}
-             className={`flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl transition-transform ${
+             className={`flex ${dense ? 'h-11 w-11' : 'h-14 w-14'} flex-shrink-0 items-center justify-center rounded-xl transition-transform ${
               client.blocked
                 ? 'bg-red-800 cursor-not-allowed'
                 : isPaid 
@@ -340,7 +342,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             </p>
 
             {totalGb > 0 && (
-               <div className="mt-3">
+               <div className={dense ? "mt-2" : "mt-3"}>
                  <div className={`h-3 w-full overflow-hidden rounded-full shadow-client-inset ${isFree ? 'bg-black/10' : 'bg-client-card-deep'}`}>
                   <div
                     className={`h-full rounded-full transition-all ${
@@ -383,13 +385,13 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                   onMouseDown={handleTouchStart}
                   onMouseUp={handleTouchEnd}
                   onMouseLeave={handleTouchEnd}
-                   className={`flex h-14 w-14 items-center justify-center rounded-xl transition-transform ${
+                   className={`flex ${dense ? 'h-11 w-11' : 'h-14 w-14'} items-center justify-center rounded-xl transition-transform ${
                     client.blocked || client.name.toUpperCase().includes("CANCELADO")
                       ? 'bg-gradient-to-b from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 shadow-[0_4px_0_0_#7f1d1d] hover:shadow-[0_2px_0_0_#7f1d1d]'
                        : 'bg-accent shadow-client-action'
                   } active:translate-y-0.5`}
                 >
-                   <img src={whatsappIcon} alt="WhatsApp" className="h-8 w-8 drop-shadow-sm" />
+                   <img src={whatsappIcon} alt="WhatsApp" className={`${dense ? 'h-6 w-6' : 'h-8 w-8'} drop-shadow-sm`} />
                 </button>}
               </div>
           </div>
