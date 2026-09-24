@@ -27,6 +27,7 @@ export const AccessBlocked = ({ onUnlocked, onSignOut }: AccessBlockedProps) => 
         onUnlocked();
       })
       .catch((error) => {
+        localStorage.removeItem("pending_reseller_token");
         console.error("Não foi possível ativar a revenda pelo link:", error);
         toast({
           title: "Não foi possível ativar a revenda",
