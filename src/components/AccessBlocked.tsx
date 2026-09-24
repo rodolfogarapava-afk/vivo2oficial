@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { KeyRound, Loader2, LogOut } from "lucide-react";
 import { redeemAccessToken } from "@/hooks/useAccessControl";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +12,30 @@ export const AccessBlocked = ({ onUnlocked, onSignOut }: AccessBlockedProps) => 
   const { toast } = useToast();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const automaticRedemptionStarted = useRef(false);
+
+  useEffect(() => {
+    const pendingResellerToken = localStorage.getItem("pending_reseller_token")?.trim() ?? "";
+    if (!pendingResellerToken || automaticRedemptionStarted.current) return;
+
+    automaticRedemptionStarted.current = true;
+    setLoading(true);
+    void redeemAccessToken(pendingResellerToken)
+      .then(() => {
+        localStorage.removeItem("pending_reseller_token");
+        toast({ title: "Revenda ativada!", description: "Abrindo seu painel." });
+        onUnlocked();
+      })
+      .catch((error) => {
+        console.error("Não foi possível ativar a revenda pelo link:", error);
+        toast({
+          title: "Não foi possível ativar a revenda",
+          description: "Abra novamente o link enviado pelo administrador.",
+          variant: "destructive",
+        });
+      })
+      .finally(() => setLoading(false));
+  }, [onUnlocked, toast]);
 
   const handleRedeem = async () => {
     if (code.trim().length < 6) {
@@ -21,6 +45,7 @@ export const AccessBlocked = ({ onUnlocked, onSignOut }: AccessBlockedProps) => 
     setLoading(true);
     try {
       const result = await redeemAccessToken(code);
+      localStorage.removeItem("pending_reseller_token");
       toast({
         title: "Acesso liberado!",
         description: result.plan === "lifetime" ? "Acesso vitalício." : "Acesso válido por 30 dias.",

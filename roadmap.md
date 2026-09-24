@@ -10,3 +10,5 @@
 - [x] Personalizar o cadastro como Revenda Raio Telecom
 - [x] Cadastrar nome completo, CPF, nascimento, WhatsApp e aceite de fidelidade
 - [x] Compactar os cartões, reduzir os botões e mostrar o tipo de chip acima do WhatsApp
+- [x] Ativar a revenda automaticamente pelo link, sem pedir o token novamente
+- [x] Mostrar o nome completo do cliente no topo do cartão

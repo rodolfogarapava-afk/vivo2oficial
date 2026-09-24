@@ -306,7 +306,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
           
            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(100px,0.75fr)] gap-x-2 overflow-hidden sm:grid-cols-[minmax(0,1fr)_minmax(145px,0.8fr)] sm:gap-x-3">
              <div className="min-w-0 self-center">
-               <h3 className={`overflow-hidden text-ellipsis whitespace-nowrap text-[14px] font-extrabold leading-tight sm:text-[16px] ${
+               <h3 className={`break-words text-[13px] font-extrabold leading-tight sm:text-[16px] ${
               client.blocked 
                 ? 'text-red-300 line-through' 
                 : isFree

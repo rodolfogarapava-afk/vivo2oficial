@@ -108,9 +108,12 @@ export const useAuth = () => {
       birthDate?: string;
       adhesionAccepted?: boolean;
       resellerSignup?: boolean;
+      resellerToken?: string;
     },
   ) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = profile?.resellerToken
+      ? `${window.location.origin}/auth?r=${encodeURIComponent(profile.resellerToken)}`
+      : `${window.location.origin}/`;
     
     const { data, error } = await supabase.auth.signUp({
       email,
