@@ -1,4 +1,4 @@
-import { Phone, Check } from "lucide-react";
+import { Phone, Check, Smartphone, Wifi } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Client } from "@/hooks/useClients";
 import { useWhatsAppSettings } from "@/hooks/useWhatsAppSettings";
@@ -256,13 +256,23 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
               {showGlobe && <span className="mr-1">🌐</span>}
               {formatClientName(client.name)}
             </h3>
-            {(supportWhatsapp || (settings.showClientWhatsApp && (client.whatsapp || client.phone))) && <button
-              onClick={handleWhatsAppClick}
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-b from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 shadow-[0_3px_0_0_#166534] hover:translate-y-[1px] active:translate-y-[2px] transition-all"
-              title="Enviar suporte via WhatsApp"
-            >
-              <img src={whatsappIcon} alt="WhatsApp" className="h-5 w-5 drop-shadow-sm" />
-            </button>}
+            {(supportWhatsapp || (settings.showClientWhatsApp && (client.whatsapp || client.phone))) && (
+              <div className="flex flex-col items-center gap-1">
+                {supportWhatsapp && (
+                  <span className="flex items-center gap-1 whitespace-nowrap text-[9px] font-extrabold uppercase text-client-card-foreground">
+                    {client.virtual_chip ? <Wifi className="h-3 w-3" /> : <Smartphone className="h-3 w-3" />}
+                    {client.virtual_chip ? "Chip Virtual" : "Chip Físico"}
+                  </span>
+                )}
+                <button
+                  onClick={handleWhatsAppClick}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-b from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 shadow-[0_3px_0_0_#166534] hover:translate-y-[1px] active:translate-y-[2px] transition-all"
+                  title="Enviar suporte via WhatsApp"
+                >
+                  <img src={whatsappIcon} alt="WhatsApp" className="h-5 w-5 drop-shadow-sm" />
+                </button>
+              </div>
+            )}
           </div>
         ) : (
         <div className="flex items-center gap-3">
@@ -358,8 +368,12 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
           
           
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
-
-              
+              {supportWhatsapp && (
+                <span className="flex items-center gap-1 whitespace-nowrap text-[9px] font-extrabold uppercase text-client-card-foreground">
+                  {client.virtual_chip ? <Wifi className="h-3 w-3" /> : <Smartphone className="h-3 w-3" />}
+                  {client.virtual_chip ? "Chip Virtual" : "Chip Físico"}
+                </span>
+              )}
               <div className="flex gap-2">
                 {/* WhatsApp button */}
                 {(supportWhatsapp || (settings.showClientWhatsApp && (client.whatsapp || client.phone))) && <button
