@@ -182,6 +182,7 @@ const Auth = () => {
           birthDate,
           adhesionAccepted,
           resellerSignup: isResellerSignup,
+          resellerToken: isResellerSignup ? resellerToken : undefined,
         });
         if (error) {
           if (isResellerSignup) localStorage.removeItem("pending_reseller_token");
@@ -209,8 +210,8 @@ const Auth = () => {
           toast({
             title: "Conta criada!",
             description: data.session
-              ? "Agora digite o token que o administrador te enviar."
-              : "Confirme seu e-mail, depois toque em Entrar e digite o token.",
+              ? "Ativando sua revenda e abrindo o painel."
+              : "Confirme seu e-mail para ativar a revenda e abrir o painel.",
           });
         }
       } else if (mode === "forgot") {
