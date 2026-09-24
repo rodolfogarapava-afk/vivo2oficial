@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Mail, Lock, Phone, KeyRound, UserRound, CreditCard, CalendarDays } from "lucide-react";
 import { redeemAccessToken } from "@/hooks/useAccessControl";
+import { supabase } from "@/integrations/supabase/client";
 import vivoLogo from "@/assets/vivo-logo.png";
 
 const emailSchema = z.string().email("Email inválido");
