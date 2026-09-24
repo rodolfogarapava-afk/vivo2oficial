@@ -6,9 +6,10 @@ import { useToast } from "@/hooks/use-toast";
 
 interface PanelNamesSectionProps {
   userId?: string;
+  showMyPanel?: boolean;
 }
 
-export const PanelNamesSection = ({ userId }: PanelNamesSectionProps) => {
+export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSectionProps) => {
   const { toast } = useToast();
   const { myLabel, others, loading, saveLabel } = usePanelNames(userId);
   const [mine, setMine] = useState("");
@@ -111,7 +112,7 @@ export const PanelNamesSection = ({ userId }: PanelNamesSectionProps) => {
         <p className="text-[11px] text-muted-foreground">Envie este token para a revenda criar a conta e aparecer aqui automaticamente.</p>
       </div>
 
-      <div className="space-y-1">
+      {showMyPanel && <div className="space-y-1">
         <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Meu painel</label>
         <div className="flex gap-2">
           <input
@@ -129,7 +130,7 @@ export const PanelNamesSection = ({ userId }: PanelNamesSectionProps) => {
             {saving === userId ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           </button>
         </div>
-      </div>
+      </div>}
 
       {loading && others.length === 0 ? (
         <div className="flex justify-center py-2">
@@ -142,8 +143,9 @@ export const PanelNamesSection = ({ userId }: PanelNamesSectionProps) => {
       ) : (
         <div className="space-y-2">
           <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Revendas</p>
-          {others.map((panel) => (
-            <div key={panel.userId} className="flex gap-2">
+          {others.map((panel, index) => (
+            <div key={panel.userId} className="flex items-center gap-2">
+              <span className="w-7 shrink-0 text-center text-xs font-extrabold text-cyan-400">{index + 1}ª</span>
               <input
                 value={drafts[panel.userId] ?? panel.label}
                 onChange={(e) => setDrafts((prev) => ({ ...prev, [panel.userId]: e.target.value }))}
