@@ -209,6 +209,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [showClientList, setShowClientList] = useState(false);
+  const [showValuesList, setShowValuesList] = useState(false);
   const [showPanelList, setShowPanelList] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [editName, setEditName] = useState("");
@@ -962,6 +963,16 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
               >
                 <Users className="h-5 w-5 mr-2" />
                 Lista de clientes
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  onOpenChange(false);
+                  setTimeout(() => setShowValuesList(true), 150);
+                }}
+                className="w-full h-12 mt-3 bg-green-700 hover:bg-green-600 text-white rounded-xl font-bold"
+              >
+                Lista de valores
               </Button>
             </div>
 
