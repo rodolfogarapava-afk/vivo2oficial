@@ -125,8 +125,8 @@ export const PartnerPanelModal = ({
   );
 
   const total = useMemo(
-    () => clients.reduce((sum, c) => sum + Number(c.value_paid ?? 0), 0),
-    [clients],
+    () => clients.reduce((sum, c) => sum + Number(c.line_cost ?? panelFixedExpense ?? 0), 0),
+    [clients, panelFixedExpense],
   );
 
   const handleCreate = async (client: {
@@ -368,6 +368,7 @@ export const PartnerPanelModal = ({
                 onToggleVirtualChip={() => {}}
                 inPanel={null}
                 supportWhatsapp={supportWhatsapp}
+                valueOverride={Number(client.line_cost ?? panelFixedExpense ?? 0)}
               />
             </div>
           ))

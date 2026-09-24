@@ -823,6 +823,7 @@ const Index = () => {
             onCancel={() => setShowForm(false)}
             isLoading={addClient.isPending}
             fixedExpense={fixedExpense}
+            simple={!isAdmin}
             existingPhones={clients.map(c => c.phone)}
           />
         </DialogContent>
