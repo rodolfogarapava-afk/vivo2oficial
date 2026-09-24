@@ -132,6 +132,25 @@ export const usePanelNames = (userId?: string) => {
     [allNames, load],
   );
 
+  const saveResellerWhatsapp = useCallback(
+    async (targetUserId: string, whatsapp: string) => {
+      const digits = whatsapp.replace(/\D/g, "");
+      if (digits.length < 10 || digits.length > 13) throw new Error("Informe um WhatsApp válido");
+      const existing = allNames.find((name) => name.user_id === targetUserId);
+      const { error } = await supabase.from("panel_names").upsert(
+        {
+          user_id: targetUserId,
+          label: existing?.label ?? DEFAULT_PARTNER_LABEL,
+          reseller_whatsapp: digits,
+        },
+        { onConflict: "user_id" },
+      );
+      if (error) throw error;
+      await load();
+    },
+    [allNames, load],
+  );
+
   const savePanelCosts = useCallback(
     async (targetUserId: string, fixedExpense: number, lineCosts: number[]) => {
       const existing = allNames.find((name) => name.user_id === targetUserId);
