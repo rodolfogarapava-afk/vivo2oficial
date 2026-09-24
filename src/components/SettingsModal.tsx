@@ -224,6 +224,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
 
   // Fixed expense settings
   const { fixedExpense: currentFixedExpense, setFixedExpense } = useFixedExpense();
+  const { list: costList, addCost, removeCost } = useLineCosts();
+  const [newCostInput, setNewCostInput] = useState("");
   const [expenseInput, setExpenseInput] = useState<string>(String(currentFixedExpense));
   useEffect(() => {
     setExpenseInput(String(currentFixedExpense));
@@ -1083,6 +1085,51 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   Salvar
                 </Button>
               </div>
+
+              <p className="text-[11px] text-purple-200/80 mt-3 mb-2">
+                Lista de custos da linha (para clientes com valor diferente). Escolha no cadastro do cliente.
+              </p>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-200 text-sm">R$</span>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    step="0.01"
+                    min="0"
+                    value={newCostInput}
+                    onChange={(e) => setNewCostInput(e.target.value)}
+                    className="h-10 pl-9 bg-purple-950/50 border-purple-700 text-white rounded-xl"
+                    placeholder="Ex.: 45"
+                  />
+                </div>
+                <Button
+                  onClick={() => {
+                    const v = Number(newCostInput.replace(",", "."));
+                    if (!newCostInput || Number.isNaN(v) || v < 0) return;
+                    addCost(v);
+                    setNewCostInput("");
+                  }}
+                  className="h-10 bg-green-600 hover:bg-green-700 text-white rounded-xl px-4"
+                >
+                  + Adicionar
+                </Button>
+              </div>
+              {costList.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {costList.map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => removeCost(c)}
+                      className="px-3 h-8 rounded-lg bg-purple-950/60 border border-purple-700 text-white text-xs font-bold"
+                      title="Remover"
+                    >
+                      {formatCurrency(c)} ✕
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* ===== Tema ===== */}
