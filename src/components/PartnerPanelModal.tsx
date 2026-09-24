@@ -21,6 +21,7 @@ interface PartnerPanelModalProps {
   partnerUserId?: string;
   panelLabel?: string;
   supportWhatsapp?: string | null;
+  resellerWhatsapp?: string | null;
   fixedExpense?: number;
   lineCosts?: number[];
   panels?: { userId: string; label: string }[];
@@ -36,6 +37,7 @@ export const PartnerPanelModal = ({
   partnerUserId,
   panelLabel,
   supportWhatsapp,
+  resellerWhatsapp,
   fixedExpense: panelFixedExpense = 0,
   lineCosts = [],
   panels = [],
