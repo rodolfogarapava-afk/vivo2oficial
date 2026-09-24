@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Mail, Lock, Phone, KeyRound } from "lucide-react";
+import { Loader2, Mail, Lock, Phone, UserRound, CreditCard, CalendarDays } from "lucide-react";
 import { redeemAccessToken } from "@/hooks/useAccessControl";
 import vivoLogo from "@/assets/vivo-logo.png";
 
@@ -14,6 +15,24 @@ const emailSchema = z.string().email("Email inválido");
 const passwordSchema = z.string().min(6, "A senha deve ter no mínimo 6 caracteres");
 const whatsappSchema = z.string().regex(/^\d{10,11}$/, "WhatsApp deve ter 10 ou 11 dígitos").optional().or(z.literal(""));
 const tokenSchema = z.string().trim().min(6, "Informe o token de acesso").max(40, "Token muito longo");
+const fullNameSchema = z.string().trim().min(3, "Informe seu nome completo").max(120, "Nome muito longo");
+const birthDateSchema = z.string().refine((value) => {
+  const date = new Date(`${value}T12:00:00`);
+  const earliest = new Date();
+  earliest.setFullYear(earliest.getFullYear() - 120);
+  return value.length === 10 && !Number.isNaN(date.getTime()) && date <= new Date() && date >= earliest;
+}, "Data de nascimento inválida");
+
+const isValidCpf = (value: string) => {
+  const cpf = value.replace(/\D/g, "");
+  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+  const calculate = (length: number) => {
+    const sum = cpf.slice(0, length).split("").reduce((total, digit, index) => total + Number(digit) * (length + 1 - index), 0);
+    const result = 11 - (sum % 11);
+    return result >= 10 ? 0 : result;
+  };
+  return calculate(9) === Number(cpf[9]) && calculate(10) === Number(cpf[10]);
+};
 
 type AuthMode = "login" | "signup" | "forgot" | "reset";
 
@@ -21,14 +40,21 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
   const [mode, setMode] = useState<AuthMode>(() => {
     const urlMode = searchParams.get("mode");
-    return urlMode === "reset" ? "reset" : "login";
+    return urlMode === "reset" ? "reset" : searchParams.get("r") ? "signup" : "login";
   });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [accessToken, setAccessToken] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [adhesionAccepted, setAdhesionAccepted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; whatsapp?: string; token?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; whatsapp?: string; token?: string; fullName?: string; cpf?: string; birthDate?: string; adhesion?: string }>({});
+  const resellerToken = searchParams.get("r")?.trim().toUpperCase() ?? "";
+  const isResellerSignup = resellerToken.length >= 6;
+  const redeemingRef = useRef(false);
   const isOwnerEmail = email.trim().toLowerCase() === "www.raio.top@gmail.com";
   
   const { signIn, signUp, resetPassword, updatePassword, user, loading } = useAuth();
@@ -36,13 +62,27 @@ const Auth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user && !loading && mode !== "reset") {
+    if (!user || loading || mode === "reset" || redeemingRef.current) return;
+    const pendingToken = resellerToken || localStorage.getItem("pending_reseller_token") || "";
+    if (!pendingToken) {
       navigate("/");
+      return;
     }
-  }, [user, loading, navigate, mode]);
+    redeemingRef.current = true;
+    void redeemAccessToken(pendingToken)
+      .then(() => {
+        localStorage.removeItem("pending_reseller_token");
+        toast({ title: "Cadastro concluído!", description: "Sua revenda foi ligada à Raio Telecom." });
+        navigate("/");
+      })
+      .catch(() => {
+        toast({ title: "Não foi possível liberar", description: "O link está vencido ou já pertence a outra conta.", variant: "destructive" });
+        navigate("/");
+      });
+  }, [user, loading, navigate, mode, resellerToken, toast]);
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string; whatsapp?: string; token?: string } = {};
+    const newErrors: { email?: string; password?: string; whatsapp?: string; token?: string; fullName?: string; cpf?: string; birthDate?: string; adhesion?: string } = {};
     
     if (mode !== "reset") {
       const emailResult = emailSchema.safeParse(email);
@@ -65,11 +105,20 @@ const Auth = () => {
       }
     }
 
-    if (mode === "signup" && whatsapp) {
+    if (mode === "signup" && (whatsapp || isResellerSignup)) {
       const whatsappResult = whatsappSchema.safeParse(whatsapp);
       if (!whatsappResult.success) {
         newErrors.whatsapp = whatsappResult.error.errors[0].message;
       }
+    }
+
+    if (mode === "signup" && isResellerSignup) {
+      const nameResult = fullNameSchema.safeParse(fullName);
+      if (!nameResult.success) newErrors.fullName = nameResult.error.errors[0].message;
+      if (!isValidCpf(cpf)) newErrors.cpf = "CPF inválido";
+      const birthResult = birthDateSchema.safeParse(birthDate);
+      if (!birthResult.success) newErrors.birthDate = birthResult.error.errors[0].message;
+      if (!adhesionAccepted) newErrors.adhesion = "Aceite o termo de adesão para continuar";
     }
     
     setErrors(newErrors);
@@ -88,7 +137,7 @@ const Auth = () => {
         const { error } = await signIn(email, password);
         if (error) {
           if (error.message.includes("Invalid login credentials") && isOwnerEmail) {
-            const { data, error: signupError } = await signUp(email, password, whatsapp || undefined);
+            const { data, error: signupError } = await signUp(email, password, { whatsapp });
             if (signupError) {
               toast({
                 title: "Não foi possível criar a conta",
@@ -125,8 +174,17 @@ const Auth = () => {
           });
         }
       } else if (mode === "signup") {
-        const { data, error } = await signUp(email, password, whatsapp || undefined);
+        if (isResellerSignup) localStorage.setItem("pending_reseller_token", resellerToken);
+        const { data, error } = await signUp(email, password, {
+          whatsapp,
+          fullName,
+          cpf: cpf.replace(/\D/g, ""),
+          birthDate,
+          adhesionAccepted,
+          resellerSignup: isResellerSignup,
+        });
         if (error) {
+          if (isResellerSignup) localStorage.removeItem("pending_reseller_token");
           if (error.message.includes("already registered")) {
             toast({
               title: "Erro no cadastro",
@@ -194,7 +252,7 @@ const Auth = () => {
   const getTitle = () => {
     switch (mode) {
       case "login": return "Entre na sua conta";
-      case "signup": return "Crie sua conta";
+      case "signup": return isResellerSignup ? "Cadastro da revenda" : "Crie sua conta";
       case "forgot": return "Recuperar senha";
       case "reset": return "Nova senha";
     }
@@ -227,7 +285,7 @@ const Auth = () => {
             alt="Vivo Logo" 
             className="w-24 h-24 mx-auto mb-4"
           />
-          <h1 className="text-2xl font-bold text-white">Cliente Vivo</h1>
+           <h1 className="text-2xl font-bold text-white">{isResellerSignup ? "Revenda Raio Telecom" : "Cliente Vivo"}</h1>
           <p className="text-purple-200 mt-2">{getTitle()}</p>
         </div>
 
@@ -257,11 +315,42 @@ const Auth = () => {
             </div>
           )}
 
+          {mode === "signup" && isResellerSignup && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="fullName" className="text-purple-100">Nome completo</Label>
+                <div className="relative">
+                  <UserRound className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-purple-300" />
+                  <Input id="fullName" value={fullName} onChange={(event) => { setFullName(event.target.value); setErrors((current) => ({ ...current, fullName: undefined })); }} maxLength={120} placeholder="Nome e sobrenome" className="pl-10 bg-purple-800 border-purple-600 text-white placeholder:text-purple-300" />
+                </div>
+                {errors.fullName && <p className="text-sm text-red-300">{errors.fullName}</p>}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="cpf" className="text-purple-100">CPF</Label>
+                  <div className="relative">
+                    <CreditCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-purple-300" />
+                    <Input id="cpf" inputMode="numeric" value={cpf} onChange={(event) => { setCpf(event.target.value.replace(/\D/g, "").slice(0, 11)); setErrors((current) => ({ ...current, cpf: undefined })); }} placeholder="00000000000" className="pl-9 bg-purple-800 border-purple-600 text-white placeholder:text-purple-300" />
+                  </div>
+                  {errors.cpf && <p className="text-sm text-red-300">{errors.cpf}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="birthDate" className="text-purple-100">Nascimento</Label>
+                  <div className="relative">
+                    <CalendarDays className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-purple-300" />
+                    <Input id="birthDate" type="date" value={birthDate} onChange={(event) => { setBirthDate(event.target.value); setErrors((current) => ({ ...current, birthDate: undefined })); }} className="pl-9 bg-purple-800 border-purple-600 text-white" />
+                  </div>
+                  {errors.birthDate && <p className="text-sm text-red-300">{errors.birthDate}</p>}
+                </div>
+              </div>
+            </>
+          )}
+
           {/* Owner's support number is inherited automatically by reseller accounts. */}
-          {mode === "signup" && isOwnerEmail && (
+          {mode === "signup" && (isOwnerEmail || isResellerSignup) && (
             <div className="space-y-2">
               <Label htmlFor="whatsapp" className="text-purple-100">
-                Meu WhatsApp de suporte (opcional)
+                {isResellerSignup ? "WhatsApp" : "Meu WhatsApp de suporte (opcional)"}
               </Label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-300" />
@@ -282,6 +371,16 @@ const Auth = () => {
               {errors.whatsapp && (
                 <p className="text-red-300 text-sm">{errors.whatsapp}</p>
               )}
+            </div>
+          )}
+
+          {mode === "signup" && isResellerSignup && (
+            <div className="space-y-2 rounded-lg border border-purple-600 bg-purple-800/60 p-3">
+              <label className="flex cursor-pointer items-start gap-3 text-sm text-purple-100">
+                <Checkbox checked={adhesionAccepted} onCheckedChange={(checked) => { setAdhesionAccepted(checked === true); setErrors((current) => ({ ...current, adhesion: undefined })); }} className="mt-0.5" />
+                <span>Aceito o termo de adesão da Revenda Raio Telecom, com fidelidade de 6 meses.</span>
+              </label>
+              {errors.adhesion && <p className="text-sm text-red-300">{errors.adhesion}</p>}
             </div>
           )}
 
