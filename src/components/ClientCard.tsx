@@ -234,7 +234,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
   return (
     <>
       <div 
-        className={`relative overflow-hidden rounded-2xl ${compactMode ? 'p-2.5' : 'px-2.5 py-2'} animate-slide-up transition-all ${
+        className={`relative overflow-hidden rounded-2xl ${compactMode ? 'p-2' : 'px-2.5 py-1.5'} animate-slide-up transition-all ${
           client.blocked 
             ? 'border-2 from-red-900/80 to-red-950/90 border-red-700 shadow-[0_6px_0_0_#7f1d1d] hover:shadow-[0_4px_0_0_#7f1d1d]' 
             : isFree
@@ -277,11 +277,11 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             )}
           </div>
         ) : (
-          <div className="grid min-h-[82px] grid-cols-[50px_minmax(0,1fr)_50px] items-center gap-2 sm:grid-cols-[54px_minmax(0,1fr)_54px] sm:gap-3">
+          <div className="grid min-h-[66px] grid-cols-[46px_minmax(0,1fr)_46px] items-center gap-2 sm:grid-cols-[50px_minmax(0,1fr)_50px] sm:gap-3">
           <button
             onClick={handleNumberClick}
             disabled={client.blocked}
-             className={`flex h-16 w-[50px] flex-shrink-0 items-center justify-center rounded-xl transition-transform sm:w-[54px] ${
+             className={`flex h-14 w-[46px] flex-shrink-0 items-center justify-center rounded-xl transition-transform sm:w-[50px] ${
               client.blocked
                 ? 'bg-red-800 cursor-not-allowed'
                 : isPaid 
@@ -294,7 +294,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             {isPaid && !client.blocked ? (
               <Check className="h-5 w-5 text-white" />
             ) : (
-               <span className={`text-[25px] font-extrabold ${
+               <span className={`text-[23px] font-extrabold ${
                 client.blocked
                   ? 'text-red-300'
                    : isFree
@@ -390,13 +390,13 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                   onMouseDown={handleTouchStart}
                   onMouseUp={handleTouchEnd}
                   onMouseLeave={handleTouchEnd}
-                    className={`flex h-16 w-[50px] items-center justify-center rounded-xl transition-transform sm:w-[54px] ${
+                    className={`flex h-14 w-[46px] items-center justify-center rounded-xl transition-transform sm:w-[50px] ${
                     client.blocked || client.name.toUpperCase().includes("CANCELADO")
                       ? 'bg-gradient-to-b from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 shadow-[0_4px_0_0_#7f1d1d] hover:shadow-[0_2px_0_0_#7f1d1d]'
                        : 'bg-accent shadow-client-action'
                   } active:translate-y-0.5`}
                 >
-                    <img src={whatsappIcon} alt="WhatsApp" className="h-8 w-8 drop-shadow-sm" />
+                    <img src={whatsappIcon} alt="WhatsApp" className="h-7 w-7 drop-shadow-sm" />
                 </button>}
               </div>
           </div>
