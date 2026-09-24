@@ -226,7 +226,7 @@ const Index = () => {
   const { visibleDays } = useVisibleDueDays();
   const activeClients = useMemo(() => clients.filter(c => !c.name.toUpperCase().includes("CANCELADO")), [clients]);
   const billableClients = useMemo(() => activeClients.filter(c => !c.bonus), [activeClients]);
-  const totalExpenses = billableClients.reduce((sum, c) => sum + clientCost(c.id, fixedExpense), 0);
+  const totalExpenses = billableClients.reduce((sum, c) => sum + (c.line_cost ?? clientCost(c.id, fixedExpense)), 0);
 
   // Stats per visible due day (excluding cancelled; bonus excluded from expenses)
   const dayStats = useMemo(
@@ -511,7 +511,7 @@ const Index = () => {
                 }} />
               </div>
             )}
-            <button
+            {isAdmin && <button
               type="button"
               onClick={() => setShowResellerPicker(true)}
               className="flex items-center justify-center gap-1.5 h-11 rounded-xl bg-gradient-to-b from-cyan-500 to-cyan-700 border border-cyan-300/50 shadow-[0_3px_0_0_#155e75] hover:translate-y-[1px] active:translate-y-[2px] transition-all"
@@ -519,7 +519,7 @@ const Index = () => {
             >
               <Signal className="h-4 w-4 text-white" strokeWidth={2.5} />
               <span className="truncate text-xs font-extrabold text-white uppercase tracking-wider">Revenda</span>
-            </button>
+            </button>}
             <button
               type="button"
               onClick={() => setShowForm(true)}
@@ -751,6 +751,8 @@ const Index = () => {
         panels={linkedPanels}
         onSelectPanel={setSelectedPartnerId}
         supportWhatsapp={selectedPartner?.supportWhatsapp}
+        fixedExpense={selectedPartner?.fixedExpense ?? 0}
+        lineCosts={selectedPartner?.lineCosts ?? []}
       />
 
       <Dialog open={showResellerPicker} onOpenChange={setShowResellerPicker}>
@@ -758,7 +760,7 @@ const Index = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-foreground">
               <span className="min-w-0 flex-1">{manageResellers ? "Editar revendas" : "Escolher revenda"}</span>
-              <Button
+              {isAdmin && <Button
                 type="button"
                 size="sm"
                 onClick={() => setManageResellers(true)}
@@ -766,8 +768,8 @@ const Index = () => {
               >
                 <UserPlus className="h-4 w-4" />
                 Novo
-              </Button>
-              <Button
+              </Button>}
+              {isAdmin && <Button
                 type="button"
                 size="icon"
                 variant={manageResellers ? "default" : "secondary"}
@@ -776,10 +778,10 @@ const Index = () => {
                 aria-label="Editar revendas"
               >
                 <Settings className="h-4 w-4" />
-              </Button>
+              </Button>}
             </DialogTitle>
           </DialogHeader>
-          {manageResellers ? (
+          {isAdmin && manageResellers ? (
             <div className="max-h-[65dvh] overflow-y-auto overscroll-contain pt-1">
               <PanelNamesSection userId={user?.id} showMyPanel={false} />
             </div>

@@ -110,6 +110,7 @@ export type Database = {
           due_day: number | null
           id: string
           is_resale: boolean
+          line_cost: number | null
           name: string
           phone: string
           user_id: string | null
@@ -128,6 +129,7 @@ export type Database = {
           due_day?: number | null
           id?: string
           is_resale?: boolean
+          line_cost?: number | null
           name: string
           phone: string
           user_id?: string | null
@@ -146,6 +148,7 @@ export type Database = {
           due_day?: number | null
           id?: string
           is_resale?: boolean
+          line_cost?: number | null
           name?: string
           phone?: string
           user_id?: string | null
@@ -182,21 +185,27 @@ export type Database = {
       panel_names: {
         Row: {
           created_at: string
+          fixed_expense: number
           label: string
+          line_costs: number[]
           support_whatsapp: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          fixed_expense?: number
           label: string
+          line_costs?: number[]
           support_whatsapp?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          fixed_expense?: number
           label?: string
+          line_costs?: number[]
           support_whatsapp?: string | null
           updated_at?: string
           user_id?: string
@@ -275,6 +284,7 @@ export type Database = {
           p_company?: string
           p_due_day?: number
           p_is_resale?: boolean
+          p_line_cost?: number
           p_name: string
           p_panel_user: string
           p_phone: string
@@ -293,6 +303,7 @@ export type Database = {
           due_day: number | null
           id: string
           is_resale: boolean
+          line_cost: number | null
           name: string
           phone: string
           user_id: string | null
@@ -340,6 +351,7 @@ export type Database = {
           due_day: number | null
           id: string
           is_resale: boolean
+          line_cost: number | null
           name: string
           phone: string
           user_id: string | null
@@ -354,42 +366,82 @@ export type Database = {
           isSetofReturn: true
         }
       }
-      update_panel_client: {
-        Args: {
-          p_client_id: string
-          p_data_gb?: number
-          p_data_used_gb?: number
-          p_name: string
-          p_panel_user: string
-          p_phone: string
-          p_value: number
-          p_whatsapp?: string
-        }
-        Returns: {
-          account: number | null
-          blocked: boolean
-          bonus: boolean
-          company: string
-          created_at: string
-          data_gb: number
-          data_used_gb: number
-          due_day: number | null
-          id: string
-          is_resale: boolean
-          name: string
-          phone: string
-          user_id: string | null
-          value_paid: number
-          virtual_chip: boolean
-          whatsapp: string | null
-        }
-        SetofOptions: {
-          from: "*"
-          to: "clients"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
+      update_panel_client:
+        | {
+            Args: {
+              p_client_id: string
+              p_data_gb?: number
+              p_data_used_gb?: number
+              p_name: string
+              p_panel_user: string
+              p_phone: string
+              p_value: number
+              p_whatsapp?: string
+            }
+            Returns: {
+              account: number | null
+              blocked: boolean
+              bonus: boolean
+              company: string
+              created_at: string
+              data_gb: number
+              data_used_gb: number
+              due_day: number | null
+              id: string
+              is_resale: boolean
+              line_cost: number | null
+              name: string
+              phone: string
+              user_id: string | null
+              value_paid: number
+              virtual_chip: boolean
+              whatsapp: string | null
+            }
+            SetofOptions: {
+              from: "*"
+              to: "clients"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: {
+              p_client_id: string
+              p_data_gb?: number
+              p_data_used_gb?: number
+              p_line_cost?: number
+              p_name: string
+              p_panel_user: string
+              p_phone: string
+              p_value: number
+              p_whatsapp?: string
+            }
+            Returns: {
+              account: number | null
+              blocked: boolean
+              bonus: boolean
+              company: string
+              created_at: string
+              data_gb: number
+              data_used_gb: number
+              due_day: number | null
+              id: string
+              is_resale: boolean
+              line_cost: number | null
+              name: string
+              phone: string
+              user_id: string | null
+              value_paid: number
+              virtual_chip: boolean
+              whatsapp: string | null
+            }
+            SetofOptions: {
+              from: "*"
+              to: "clients"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
     }
     Enums: {
       app_role: "admin" | "user"

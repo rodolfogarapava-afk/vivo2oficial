@@ -7,7 +7,6 @@ import { NewClientForm } from "@/components/NewClientForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { isFreeLine } from "@/hooks/useFreeLineColor";
-import { useFixedExpense } from "@/hooks/useFixedExpense";
 import { useToast } from "@/hooks/use-toast";
 import type { Client } from "@/hooks/useClients";
 import { formatClientName } from "@/lib/formatName";
@@ -23,6 +22,8 @@ interface PartnerPanelModalProps {
   partnerUserId?: string;
   panelLabel?: string;
   supportWhatsapp?: string | null;
+  fixedExpense?: number;
+  lineCosts?: number[];
   panels?: { userId: string; label: string }[];
   onSelectPanel?: (userId: string) => void;
 }
@@ -36,6 +37,8 @@ export const PartnerPanelModal = ({
   partnerUserId,
   panelLabel,
   supportWhatsapp,
+  fixedExpense: panelFixedExpense = 0,
+  lineCosts = [],
   panels = [],
   onSelectPanel,
 }: PartnerPanelModalProps) => {
@@ -59,7 +62,6 @@ export const PartnerPanelModal = ({
   const [showHistory, setShowHistory] = useState(false);
   const [paidIds, setPaidIds] = useState<Set<string>>(new Set());
   const [myId, setMyId] = useState<string | null>(null);
-  const { fixedExpense } = useFixedExpense();
   const { toast } = useToast();
 
   const load = useCallback(async () => {
@@ -140,14 +142,15 @@ export const PartnerPanelModal = ({
     bonus: boolean;
     company: string;
     account: number | null;
+    line_cost?: number | null;
   }) => {
     if (!partnerUserId) return;
     setSaving(true);
     try {
-      const { error: rpcError } = await (supabase.rpc as unknown as (
+      const { data: created, error: rpcError } = await (supabase.rpc as unknown as (
         fn: string,
         args: Record<string, unknown>,
-      ) => Promise<{ error: { message: string } | null }>)("add_panel_client", {
+      ) => Promise<{ data: Client | null; error: { message: string } | null }>)('add_panel_client', {
         p_panel_user: partnerUserId,
         p_name: client.name,
         p_phone: client.phone,
@@ -159,8 +162,11 @@ export const PartnerPanelModal = ({
         p_company: client.company,
         p_account: client.account,
         p_whatsapp: client.whatsapp,
+        p_line_cost: client.line_cost ?? null,
       });
       if (rpcError) throw new Error(rpcError.message);
+      if (!created) throw new Error("O cliente não foi salvo.");
+      setClients((current) => [created, ...current.filter((item) => item.id !== created.id)]);
       toast({ title: "Cliente cadastrado!", description: `Adicionado no painel ${label}.` });
       setShowForm(false);
       await load();
@@ -342,7 +348,8 @@ export const PartnerPanelModal = ({
             onSubmit={(client) => void handleCreate(client)}
             onCancel={() => setShowForm(false)}
             isLoading={saving}
-            fixedExpense={fixedExpense}
+            fixedExpense={panelFixedExpense}
+            availableLineCosts={lineCosts}
             existingPhones={clients.map((c) => c.phone)}
           />
         )}

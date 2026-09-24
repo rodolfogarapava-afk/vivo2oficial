@@ -12,6 +12,7 @@ interface NewClientFormProps {
   isLoading: boolean;
   fixedExpense: number;
   existingPhones?: string[];
+  availableLineCosts?: number[];
 }
 
 const formatCurrency = (value: number) => {
@@ -21,7 +22,7 @@ const formatCurrency = (value: number) => {
   }).format(value);
 };
 
-export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, existingPhones = [] }: NewClientFormProps) => {
+export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, existingPhones = [], availableLineCosts }: NewClientFormProps) => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -30,7 +31,8 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
   const [virtualChip, setVirtualChip] = useState(false);
   const [phoneError, setPhoneError] = useState("");
   const [lineCost, setLineCost] = useState<number | null>(null);
-  const { list: costList } = useLineCosts();
+  const { list: storedCostList } = useLineCosts();
+  const costList = availableLineCosts ?? storedCostList;
 
 
 

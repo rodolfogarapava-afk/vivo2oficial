@@ -11,7 +11,7 @@ interface PanelNamesSectionProps {
 
 export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSectionProps) => {
   const { toast } = useToast();
-  const { myLabel, others, loading, saveLabel, saveSupportWhatsapp } = usePanelNames(userId);
+  const { myLabel, others, loading, saveLabel, saveSupportWhatsapp, savePanelCosts } = usePanelNames(userId);
   const [mine, setMine] = useState("");
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState<string | null>(null);
@@ -21,6 +21,8 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
   const [renewing, setRenewing] = useState<string | null>(null);
   const [renewedTokens, setRenewedTokens] = useState<Record<string, string>>({});
   const [supportDrafts, setSupportDrafts] = useState<Record<string, string>>({});
+  const [expenseDrafts, setExpenseDrafts] = useState<Record<string, string>>({});
+  const [costDrafts, setCostDrafts] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setMine(myLabel ?? "RAIO TELECOM");
@@ -30,6 +32,14 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
     setDrafts((prev) => {
       const next = { ...prev };
       for (const panel of others) if (next[panel.userId] === undefined) next[panel.userId] = panel.label;
+      return next;
+    });
+  }, [others]);
+
+  useEffect(() => {
+    setExpenseDrafts((prev) => {
+      const next = { ...prev };
+      for (const panel of others) if (next[panel.userId] === undefined) next[panel.userId] = String(panel.fixedExpense ?? 0);
       return next;
     });
   }, [others]);
@@ -90,6 +100,22 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
         description: error instanceof Error ? error.message : "Confira o WhatsApp.",
         variant: "destructive",
       });
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const saveCosts = async (targetUserId: string, currentCosts: number[]) => {
+    const expense = Number((expenseDrafts[targetUserId] ?? "0").replace(",", "."));
+    const entered = Number((costDrafts[targetUserId] ?? "").replace(",", "."));
+    const costs = Number.isFinite(entered) && entered >= 0 ? [...currentCosts, entered] : currentCosts;
+    setSaving(`cost-${targetUserId}`);
+    try {
+      await savePanelCosts(targetUserId, Number.isFinite(expense) ? expense : 0, costs);
+      setCostDrafts((current) => ({ ...current, [targetUserId]: "" }));
+      toast({ title: "Custos da revenda salvos!" });
+    } catch {
+      toast({ title: "Erro", description: "Não foi possível salvar os custos.", variant: "destructive" });
     } finally {
       setSaving(null);
     }
@@ -233,6 +259,34 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
                   aria-label="Salvar WhatsApp de suporte"
                 >
                   {saving === `support-${panel.userId}` ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2 pl-9">
+                <input
+                  value={expenseDrafts[panel.userId] ?? "0"}
+                  onChange={(event) => setExpenseDrafts((prev) => ({ ...prev, [panel.userId]: event.target.value }))}
+                  placeholder="Despesa fixa: 0"
+                  inputMode="decimal"
+                  className="h-11 min-w-0 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
+                />
+                <input
+                  value={costDrafts[panel.userId] ?? ""}
+                  onChange={(event) => setCostDrafts((prev) => ({ ...prev, [panel.userId]: event.target.value }))}
+                  placeholder="Novo custo"
+                  inputMode="decimal"
+                  className="h-11 min-w-0 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
+                />
+              </div>
+              <div className="flex items-center gap-2 pl-9">
+                <div className="flex min-w-0 flex-1 flex-wrap gap-1">
+                  {panel.lineCosts.map((cost) => (
+                    <button key={cost} type="button" onClick={() => void savePanelCosts(panel.userId, panel.fixedExpense, panel.lineCosts.filter((item) => item !== cost))} className="rounded-lg border border-border bg-secondary px-2 py-1 text-xs text-foreground">
+                      R$ {cost.toFixed(2).replace(".", ",")} ×
+                    </button>
+                  ))}
+                </div>
+                <button type="button" onClick={() => void saveCosts(panel.userId, panel.lineCosts)} disabled={saving === `cost-${panel.userId}`} className="flex h-10 items-center gap-1 rounded-lg bg-green-600 px-3 text-xs font-bold text-white disabled:opacity-60">
+                  {saving === `cost-${panel.userId}` ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Custos
                 </button>
               </div>
               <div className="space-y-2 pl-9">

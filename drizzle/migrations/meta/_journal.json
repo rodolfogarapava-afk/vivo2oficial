@@ -15,6 +15,20 @@
       "when": 1790269515232,
       "tag": "0001_add_reseller_support_whatsapp",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790270560004,
+      "tag": "0002_add_reseller_cost_settings_and_client_line_cost",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790270585849,
+      "tag": "0003_fix_reseller_client_write_functions",
+      "breakpoints": true
     }
   ]
 }

@@ -5,12 +5,16 @@ export interface PanelName {
   user_id: string;
   label: string;
   support_whatsapp: string | null;
+  fixed_expense: number;
+  line_costs: number[];
 }
 
 export interface LinkedPanel {
   userId: string;
   label: string;
   supportWhatsapp: string | null;
+  fixedExpense: number;
+  lineCosts: number[];
 }
 
 const CACHE_KEY = "panel-names-cache";
@@ -39,7 +43,7 @@ export const usePanelNames = (userId?: string) => {
     setLoading(true);
     try {
       const [{ data: names }, { data: links }] = await Promise.all([
-        supabase.from("panel_names").select("user_id, label, support_whatsapp"),
+        supabase.from("panel_names").select("user_id, label, support_whatsapp, fixed_expense, line_costs"),
         supabase.from("panel_links").select("owner_user_id, partner_user_id, partner_label"),
       ]);
 
@@ -59,12 +63,16 @@ export const usePanelNames = (userId?: string) => {
             userId: link.partner_user_id,
             label: labelFor(link.partner_user_id, link.partner_label ?? DEFAULT_PARTNER_LABEL),
             supportWhatsapp: nameList.find((name) => name.user_id === link.partner_user_id)?.support_whatsapp ?? null,
+            fixedExpense: Number(nameList.find((name) => name.user_id === link.partner_user_id)?.fixed_expense ?? 0),
+            lineCosts: nameList.find((name) => name.user_id === link.partner_user_id)?.line_costs ?? [],
           });
         } else if (link.partner_user_id === userId) {
           linkedIds.set(link.owner_user_id, {
             userId: link.owner_user_id,
             label: labelFor(link.owner_user_id, "PAINEL PRINCIPAL"),
             supportWhatsapp: nameList.find((name) => name.user_id === userId)?.support_whatsapp ?? null,
+            fixedExpense: Number(nameList.find((name) => name.user_id === userId)?.fixed_expense ?? 0),
+            lineCosts: nameList.find((name) => name.user_id === userId)?.line_costs ?? [],
           });
         }
       }
@@ -120,10 +128,29 @@ export const usePanelNames = (userId?: string) => {
     [allNames, load],
   );
 
+  const savePanelCosts = useCallback(
+    async (targetUserId: string, fixedExpense: number, lineCosts: number[]) => {
+      const existing = allNames.find((name) => name.user_id === targetUserId);
+      const cleanCosts = Array.from(new Set(lineCosts.filter((value) => Number.isFinite(value) && value >= 0))).sort((a, b) => a - b);
+      const { error } = await supabase.from("panel_names").upsert(
+        {
+          user_id: targetUserId,
+          label: existing?.label ?? DEFAULT_PARTNER_LABEL,
+          fixed_expense: Math.max(0, fixedExpense),
+          line_costs: cleanCosts,
+        },
+        { onConflict: "user_id" },
+      );
+      if (error) throw error;
+      await load();
+    },
+    [allNames, load],
+  );
+
   // Label shown on the panel button: the other panel's name
   const otherPanelLabel = others.length > 1 ? "REVENDAS" : (others[0]?.label ?? DEFAULT_PARTNER_LABEL);
 
   const mySupportWhatsapp = allNames.find((name) => name.user_id === userId)?.support_whatsapp ?? null;
 
-  return { myLabel, mySupportWhatsapp, others, allNames, otherPanelLabel, loading, reload: load, saveLabel, saveSupportWhatsapp };
+  return { myLabel, mySupportWhatsapp, others, allNames, otherPanelLabel, loading, reload: load, saveLabel, saveSupportWhatsapp, savePanelCosts };
 };
