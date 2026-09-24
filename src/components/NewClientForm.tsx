@@ -3,9 +3,10 @@ import { User, Phone, Star, Store } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatClientName } from "@/lib/formatName";
+import { useLineCosts } from "@/hooks/useLineCosts";
 
 interface NewClientFormProps {
-  onSubmit: (client: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; virtual_chip: boolean; is_resale: boolean; bonus: boolean; already_paid: boolean; company: string; account: number | null }) => void;
+  onSubmit: (client: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; virtual_chip: boolean; is_resale: boolean; bonus: boolean; already_paid: boolean; company: string; account: number | null; line_cost?: number | null }) => void;
 
   onCancel: () => void;
   isLoading: boolean;
@@ -29,6 +30,8 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
   const [virtualChip, setVirtualChip] = useState(false);
   const [isResale, setIsResale] = useState(false);
   const [phoneError, setPhoneError] = useState("");
+  const [lineCost, setLineCost] = useState<number | null>(null);
+  const { list: costList } = useLineCosts();
 
 
 
@@ -156,22 +159,62 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
           </div>
         </div>
 
-        {/* Valor do Produto */}
+        {/* Valor do Produto + Despesa fixa lado a lado */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
+              Valor do Produto
+            </label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="0,00"
+              value={valuePaid}
+              onChange={(e) => setValuePaid(e.target.value)}
+              className="h-14 bg-primary/30 border-primary/50 text-foreground placeholder:text-muted-foreground rounded-xl text-base"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
+              Despesa fixa
+            </label>
+            <div className="h-14 bg-primary/30 border border-primary/50 rounded-xl flex items-center justify-center text-foreground font-bold text-base">
+              {formatCurrency(lineCost ?? fixedExpense)}
+            </div>
+          </div>
+        </div>
+
+        {/* Custo da linha */}
         <div className="space-y-2">
           <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
-            Valor do Produto
+            Custo da linha
           </label>
-          <Input
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0,00"
-            value={valuePaid}
-            onChange={(e) => setValuePaid(e.target.value)}
-            className="h-14 bg-primary/30 border-primary/50 text-foreground placeholder:text-muted-foreground rounded-xl text-base"
-            required
-          />
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setLineCost(null)}
+              className={`px-3 h-10 rounded-xl text-sm font-bold border ${lineCost === null ? 'bg-primary text-primary-foreground border-primary' : 'bg-primary/30 border-primary/50 text-foreground/80'}`}
+            >
+              Padrão {formatCurrency(fixedExpense)}
+            </button>
+            {costList.filter(c => c !== fixedExpense).map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => setLineCost(c)}
+                className={`px-3 h-10 rounded-xl text-sm font-bold border ${lineCost === c ? 'bg-primary text-primary-foreground border-primary' : 'bg-primary/30 border-primary/50 text-foreground/80'}`}
+              >
+                {formatCurrency(c)}
+              </button>
+            ))}
+          </div>
+          {costList.length === 0 && (
+            <p className="text-[11px] text-muted-foreground">Adicione outros valores na engrenagem → Gasto por Cliente.</p>
+          )}
         </div>
+
 
         {/* Chip Virtual */}
         <div className="space-y-2">
@@ -213,13 +256,6 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
           </button>
         </div>
 
-        {/* Despesa Fixa */}
-        <div className="bg-primary/30 border border-primary/50 rounded-xl p-4 flex items-center justify-between">
-          <span className="text-foreground font-medium">Despesa fixa</span>
-          <span className="text-foreground font-bold text-xl">
-            {formatCurrency(fixedExpense)}
-          </span>
-        </div>
 
         {/* Buttons */}
         <div className="flex gap-3 pt-2">
