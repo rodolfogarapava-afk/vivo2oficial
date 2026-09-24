@@ -1,4 +1,4 @@
-import { Phone, Check, Smartphone, Wifi } from "lucide-react";
+import { Phone, Check, Globe2, Smartphone, Wifi } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Client } from "@/hooks/useClients";
 import { useWhatsAppSettings } from "@/hooks/useWhatsAppSettings";
@@ -238,7 +238,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
           client.blocked 
             ? 'border-2 from-red-900/80 to-red-950/90 border-red-700 shadow-[0_6px_0_0_#7f1d1d] hover:shadow-[0_4px_0_0_#7f1d1d]' 
             : isFree
-              ? 'border-[5px] from-white to-white border-green-500 shadow-[0_6px_0_0_#15803d] hover:shadow-[0_4px_0_0_#15803d]'
+              ? 'border-[3px] border-free-card-border bg-free-card shadow-[0_7px_0_0_hsl(var(--free-card-deep))] active:translate-y-0.5'
               : 'border-2 border-client-card-border bg-client-card shadow-client-card active:translate-y-0.5'
         }`}
         style={{ animationDelay: `${index * 50}ms` }}
@@ -255,7 +255,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             <h3 className={`flex-1 font-semibold text-sm whitespace-nowrap overflow-x-auto ${isFree ? 'text-black' : 'text-client-card-foreground'}`}>
               {isFree && <span className="mr-1">✅</span>}
               {showMissingPanelWarning && <span className="mr-1">⚠️</span>}
-              {showGlobe && <span className="mr-1">🌐</span>}
+              {showGlobe && <Globe2 className="mr-1 inline h-4 w-4 text-client-card-highlight" />}
               {formatClientName(client.name)}
             </h3>
             {(supportWhatsapp || (settings.showClientWhatsApp && (client.whatsapp || client.phone))) && (
@@ -287,7 +287,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                 : isPaid 
                   ? 'bg-gradient-to-b from-green-400 to-green-600 shadow-[0_4px_0_0_#166534] hover:shadow-[0_2px_0_0_#166534]'
                     : isFree
-                      ? 'bg-gray-200 shadow-[0_4px_0_0_#9ca3af] hover:shadow-[0_2px_0_0_#9ca3af]'
+                      ? 'bg-free-card-deep shadow-client-inset'
                        : 'bg-client-card-deep shadow-client-inset'
              } active:translate-y-0.5`}
           >
@@ -298,7 +298,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                 client.blocked
                   ? 'text-red-300'
                    : isFree
-                     ? 'text-black'
+                     ? 'text-client-card-foreground'
                      : 'text-client-card-foreground'
               }`}>
                 {index + 1}
@@ -317,7 +317,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
               {client.phone.replace(/\D/g, "").length === 0 && <span className="mr-1">⚠️</span>}
               {isFree && <span className="mr-1">✅</span>}
               {showMissingPanelWarning && <span className="mr-1">⚠️</span>}
-              {showGlobe && <span className="mr-1">🌐</span>}
+              {showGlobe && <Globe2 className="mr-1 inline h-4 w-4 text-client-card-highlight" />}
               {formatClientName(client.name)}
               {client.blocked && <span className="ml-2 text-[10px] font-bold text-red-400 no-underline">(BLOQUEADO)</span>}
               {client.bonus && !client.blocked && <span className="ml-2 text-[10px] font-bold text-yellow-600">★ BÔNUS</span>}

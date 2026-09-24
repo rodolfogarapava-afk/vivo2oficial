@@ -54,6 +54,10 @@
     --client-card-shadow: 274 100% 30%;
     --client-card-glow: 282 100% 62%;
     --client-action-deep: 149 82% 25%;
+    --free-card-bg: 138 68% 78%;
+    --free-card-foreground: 145 70% 15%;
+    --free-card-border: 145 72% 43%;
+    --free-card-deep: 145 76% 31%;
   }
 
 
