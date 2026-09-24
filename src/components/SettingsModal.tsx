@@ -1068,14 +1068,14 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
             </div>
 
 
-            {/* ===== Gasto Fixo ===== */}
+            {/* ===== Custo da linha ===== */}
             <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
               <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                 <CreditCard className="h-4 w-4" />
-                Gasto por Cliente
+                Custo da Linha
               </h3>
               <p className="text-[11px] text-purple-200/80 mb-2">
-                Este valor é aplicado a todos os clientes no cálculo de despesa e lucro.
+                Custo padrão da linha, usado em todos os clientes que você não escolher um valor diferente.
               </p>
               <div className="flex gap-2">
                 <div className="relative flex-1">

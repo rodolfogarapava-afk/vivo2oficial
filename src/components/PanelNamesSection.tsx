@@ -308,7 +308,7 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
                 <input
                   value={expenseDrafts[panel.userId] ?? "0"}
                   onChange={(event) => setExpenseDrafts((prev) => ({ ...prev, [panel.userId]: event.target.value }))}
-                  placeholder="Despesa fixa: 0"
+                  placeholder="Custo padrão: 0"
                   inputMode="decimal"
                   className="h-11 min-w-0 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
                 />
