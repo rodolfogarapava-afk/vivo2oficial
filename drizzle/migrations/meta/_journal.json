@@ -43,6 +43,13 @@
       "when": 1790273311126,
       "tag": "0005_panel_blocks",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790278046593,
+      "tag": "0006_add_reseller_identity_profile_fields",
+      "breakpoints": true
     }
   ]
 }
