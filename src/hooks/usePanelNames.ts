@@ -65,6 +65,7 @@ export const usePanelNames = (userId?: string) => {
             userId: link.partner_user_id,
             label: labelFor(link.partner_user_id, link.partner_label ?? DEFAULT_PARTNER_LABEL),
             supportWhatsapp: nameList.find((name) => name.user_id === link.partner_user_id)?.support_whatsapp ?? null,
+            resellerWhatsapp: nameList.find((name) => name.user_id === link.partner_user_id)?.reseller_whatsapp ?? null,
             fixedExpense: Number(nameList.find((name) => name.user_id === link.partner_user_id)?.fixed_expense ?? 0),
             lineCosts: nameList.find((name) => name.user_id === link.partner_user_id)?.line_costs ?? [],
           });
