@@ -271,11 +271,11 @@ const Auth = () => {
             </div>
           )}
 
-          {/* WhatsApp field - shown in login and signup */}
-          {(mode === "login" || mode === "signup") && (
+          {/* Owner's support number is inherited automatically by reseller accounts. */}
+          {mode === "signup" && isOwnerEmail && (
             <div className="space-y-2">
               <Label htmlFor="whatsapp" className="text-purple-100">
-                WhatsApp {mode === "signup" ? "(opcional)" : "(opcional)"}
+                Meu WhatsApp de suporte (opcional)
               </Label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-300" />
