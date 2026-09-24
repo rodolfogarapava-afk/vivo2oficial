@@ -94,12 +94,16 @@ const Index = () => {
   const [hidePaidClients, setHidePaidClients] = useState(() => {
     try { return localStorage.getItem("hide_paid_clients") === "true"; } catch { return false; }
   });
-  const [showChipNet, setShowChipNet] = useState(false);
+  const [showChipNet, setShowChipNet] = useState(() => {
+    try { return localStorage.getItem("active_reseller_panel") === "true"; } catch { return false; }
+  });
   const [showResellerPicker, setShowResellerPicker] = useState(false);
   const [manageResellers, setManageResellers] = useState(false);
   const [partnerCounts, setPartnerCounts] = useState<Record<string, number>>({});
   const [openGestorList, setOpenGestorList] = useState(false);
-  const [selectedPartnerId, setSelectedPartnerId] = useState<string>();
+  const [selectedPartnerId, setSelectedPartnerId] = useState<string | undefined>(() => {
+    try { return localStorage.getItem("active_reseller_id") || undefined; } catch { return undefined; }
+  });
   const [crossPanelResults, setCrossPanelResults] = useState<
     { client_name: string; client_phone: string; panel: string }[]
   >([]);
@@ -135,6 +139,28 @@ const Index = () => {
   useEffect(() => {
     if (!selectedPartnerId && linkedPanels[0]?.userId) setSelectedPartnerId(linkedPanels[0].userId);
   }, [linkedPanels, selectedPartnerId]);
+
+  useEffect(() => {
+    if (!showChipNet || !selectedPartnerId) return;
+    try {
+      localStorage.setItem("active_reseller_panel", "true");
+      localStorage.setItem("active_reseller_id", selectedPartnerId);
+    } catch {
+      // O painel continua funcionando mesmo sem armazenamento local.
+    }
+  }, [selectedPartnerId, showChipNet]);
+
+  const handlePartnerPanelOpenChange = useCallback((open: boolean) => {
+    setShowChipNet(open);
+    if (!open) {
+      try {
+        localStorage.removeItem("active_reseller_panel");
+        localStorage.removeItem("active_reseller_id");
+      } catch {
+        // Nada a limpar quando o armazenamento local está indisponível.
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (!showResellerPicker || linkedPanels.length === 0) return;
@@ -745,7 +771,7 @@ const Index = () => {
 
       <PartnerPanelModal
         open={showChipNet}
-        onOpenChange={setShowChipNet}
+        onOpenChange={handlePartnerPanelOpenChange}
         partnerUserId={otherPanelUserId}
         panelLabel={selectedPartnerLabel}
         panels={linkedPanels}
@@ -794,6 +820,12 @@ const Index = () => {
                   setSelectedPartnerId(panel.userId);
                   setShowResellerPicker(false);
                   setShowChipNet(true);
+                  try {
+                    localStorage.setItem("active_reseller_panel", "true");
+                    localStorage.setItem("active_reseller_id", panel.userId);
+                  } catch {
+                    // O painel abre normalmente mesmo sem armazenamento local.
+                  }
                 }}
                 className="flex h-14 w-full items-center gap-3 rounded-lg border border-border bg-secondary px-4 text-left text-secondary-foreground transition-colors hover:bg-secondary/80"
               >
