@@ -234,7 +234,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
   return (
     <>
       <div 
-        className={`relative overflow-hidden rounded-2xl ${compactMode ? 'px-2 py-1' : 'px-2.5 py-1'} animate-slide-up transition-all ${
+        className={`relative overflow-hidden rounded-2xl ${compactMode ? 'px-2 py-1.5' : 'px-2.5 py-2'} animate-slide-up transition-all ${
           client.blocked 
             ? 'border-2 from-red-900/80 to-red-950/90 border-red-700 shadow-[0_6px_0_0_#7f1d1d] hover:shadow-[0_4px_0_0_#7f1d1d]' 
             : isFree
@@ -275,11 +275,11 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             )}
           </div>
         ) : (
-          <div className="grid min-h-[56px] grid-cols-[38px_minmax(0,1fr)_40px] items-center gap-2 sm:grid-cols-[40px_minmax(0,1fr)_42px] sm:gap-2.5">
+          <div className="grid min-h-[68px] grid-cols-[42px_minmax(0,1fr)_46px] items-center gap-2 sm:grid-cols-[46px_minmax(0,1fr)_50px] sm:gap-2.5">
           <button
             onClick={handleNumberClick}
             disabled={client.blocked}
-             className={`flex h-11 w-[38px] flex-shrink-0 items-center justify-center rounded-lg transition-transform sm:w-10 ${
+             className={`flex h-12 w-[42px] flex-shrink-0 items-center justify-center rounded-xl transition-transform sm:w-[46px] ${
               client.blocked
                 ? 'bg-red-800 cursor-not-allowed'
                 : isPaid 
@@ -304,9 +304,9 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             )}
           </button>
           
-           <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(112px,0.8fr)] gap-x-2 overflow-hidden sm:grid-cols-[minmax(0,1fr)_minmax(145px,0.8fr)] sm:gap-x-3">
+           <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(100px,0.75fr)] gap-x-2 overflow-hidden sm:grid-cols-[minmax(0,1fr)_minmax(145px,0.8fr)] sm:gap-x-3">
              <div className="min-w-0 self-center">
-              <h3 className={`overflow-hidden text-ellipsis whitespace-nowrap text-[15px] font-extrabold sm:text-[16px] ${
+               <h3 className={`overflow-hidden text-ellipsis whitespace-nowrap text-[14px] font-extrabold leading-tight sm:text-[16px] ${
               client.blocked 
                 ? 'text-red-300 line-through' 
                 : isFree
@@ -323,12 +323,12 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             </h3>
               <div className={`flex items-center gap-1 ${client.blocked ? 'text-muted-foreground' : isFree ? 'text-black/70' : 'text-client-card-muted'}`}>
                <Phone className="h-4 w-4 flex-shrink-0" />
-                <span className={`whitespace-nowrap text-[13px] font-medium sm:text-[14px] ${client.blocked ? 'line-through text-red-400/60' : ''}`}>{formatPhoneDisplay(client.phone)}</span>
+                 <span className={`whitespace-nowrap text-[12px] font-medium sm:text-[14px] ${client.blocked ? 'line-through text-red-400/60' : ''}`}>{formatPhoneDisplay(client.phone)}</span>
             </div>
              </div>
 
              <div className="min-w-0 self-center">
-                <p className={`whitespace-nowrap text-[16px] font-extrabold leading-none sm:text-[18px] ${
+                <p className={`flex items-baseline whitespace-nowrap text-[15px] font-extrabold leading-none sm:text-[18px] ${
               client.blocked
                 ? 'text-red-400 line-through'
                 : isFree
@@ -337,7 +337,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             }`}>
               {formatCurrency(valueOverride ?? (client.bonus ? 0 : Number(client.value_paid)))}
               {Number(client.data_gb ?? 0) > 0 && (
-                   <span className={`ml-1 text-[13px] font-extrabold sm:ml-2 sm:text-[15px] ${client.blocked ? 'text-blue-400' : isFree ? 'text-black/70' : 'text-client-card-muted'}`}>
+                   <span className={`ml-1 text-[11px] font-extrabold sm:ml-2 sm:text-[15px] ${client.blocked ? 'text-blue-400' : isFree ? 'text-black/70' : 'text-client-card-muted'}`}>
                   {Number(client.data_gb)} GB
                 </span>
               )}
@@ -386,7 +386,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                   onMouseDown={handleTouchStart}
                   onMouseUp={handleTouchEnd}
                   onMouseLeave={handleTouchEnd}
-                    className={`flex h-11 w-10 items-center justify-center rounded-lg transition-transform sm:w-[42px] ${
+                    className={`flex h-12 w-[46px] items-center justify-center rounded-xl transition-transform sm:w-[50px] ${
                     client.blocked || client.name.toUpperCase().includes("CANCELADO")
                       ? 'bg-gradient-to-b from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 shadow-[0_4px_0_0_#7f1d1d] hover:shadow-[0_2px_0_0_#7f1d1d]'
                        : 'bg-accent shadow-client-action'
