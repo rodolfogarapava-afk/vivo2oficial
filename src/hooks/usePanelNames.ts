@@ -175,5 +175,5 @@ export const usePanelNames = (userId?: string) => {
 
   const mySupportWhatsapp = allNames.find((name) => name.user_id === userId)?.support_whatsapp ?? null;
 
-  return { myLabel, mySupportWhatsapp, others, allNames, otherPanelLabel, loading, reload: load, saveLabel, saveSupportWhatsapp, savePanelCosts };
+  return { myLabel, mySupportWhatsapp, others, allNames, otherPanelLabel, loading, reload: load, saveLabel, saveSupportWhatsapp, saveResellerWhatsapp, savePanelCosts };
 };
