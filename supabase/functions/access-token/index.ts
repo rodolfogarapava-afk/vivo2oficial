@@ -133,6 +133,17 @@ Deno.serve(async (req) => {
     if (action === "create_reseller") {
       const panelLabel = String(body?.panelLabel ?? "").trim().slice(0, 40);
       if (!panelLabel) return json({ error: "INVALID_PANEL_LABEL" }, 400);
+
+      const { error: revokeError } = await supabase
+        .from("access_tokens")
+        .update({ revoked: true })
+        .eq("created_by", user.id)
+        .eq("purpose", "reseller")
+        .eq("panel_label", panelLabel)
+        .eq("revoked", false)
+        .is("used_by", null);
+      if (revokeError) throw revokeError;
+
       const { data, error } = await supabase
         .from("access_tokens")
         .insert({

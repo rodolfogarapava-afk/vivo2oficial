@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Copy, Loader2, MessageCircle, Plus, Save, Store } from "lucide-react";
+import { Copy, KeyRound, Loader2, MessageCircle, Plus, RefreshCw, Save, Store } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePanelNames } from "@/hooks/usePanelNames";
 import { useToast } from "@/hooks/use-toast";
@@ -18,6 +18,8 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
   const [newReseller, setNewReseller] = useState("");
   const [creating, setCreating] = useState(false);
   const [resellerToken, setResellerToken] = useState("");
+  const [renewing, setRenewing] = useState<string | null>(null);
+  const [renewedTokens, setRenewedTokens] = useState<Record<string, string>>({});
   const [supportDrafts, setSupportDrafts] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -97,6 +99,31 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
     if (!resellerToken) return;
     await navigator.clipboard.writeText(resellerToken);
     toast({ title: "Token copiado!" });
+  };
+
+  const renewResellerToken = async (targetUserId: string, panelLabel: string) => {
+    setRenewing(targetUserId);
+    try {
+      const { data, error } = await supabase.functions.invoke("access-token", {
+        body: { action: "create_reseller", panelLabel },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const code = String(data?.token?.code ?? "");
+      if (!code) throw new Error("TOKEN_NOT_CREATED");
+      setRenewedTokens((current) => ({ ...current, [targetUserId]: code }));
+      await navigator.clipboard.writeText(code).catch(() => undefined);
+      toast({ title: "Novo token criado e copiado!", description: code });
+    } catch {
+      toast({ title: "Erro", description: "Não foi possível gerar outro token.", variant: "destructive" });
+    } finally {
+      setRenewing(null);
+    }
+  };
+
+  const copyRenewedToken = async (code: string) => {
+    await navigator.clipboard.writeText(code);
+    toast({ title: "Token copiado!", description: code });
   };
 
   return (
@@ -207,6 +234,30 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
                 >
                   {saving === `support-${panel.userId}` ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 </button>
+              </div>
+              <div className="space-y-2 pl-9">
+                <button
+                  type="button"
+                  onClick={() => void renewResellerToken(panel.userId, drafts[panel.userId] ?? panel.label)}
+                  disabled={renewing === panel.userId}
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-yellow-500/50 bg-yellow-500/10 text-xs font-extrabold uppercase text-yellow-400 disabled:opacity-60"
+                >
+                  {renewing === panel.userId ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                  Atualizar token
+                </button>
+                {renewedTokens[panel.userId] && (
+                  <button
+                    type="button"
+                    onClick={() => void copyRenewedToken(renewedTokens[panel.userId])}
+                    className="flex h-11 w-full items-center justify-between rounded-xl bg-secondary px-3 text-foreground"
+                  >
+                    <span className="flex min-w-0 items-center gap-2 font-bold tracking-wider">
+                      <KeyRound className="h-4 w-4 shrink-0 text-yellow-400" />
+                      <span className="truncate">{renewedTokens[panel.userId]}</span>
+                    </span>
+                    <Copy className="h-4 w-4 shrink-0" />
+                  </button>
+                )}
               </div>
             </div>
           ))}
