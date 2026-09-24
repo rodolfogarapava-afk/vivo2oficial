@@ -62,7 +62,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
       already_paid: false,
       company: "omega",
       account: null,
-
+      line_cost: lineCost,
     });
 
     setName("");
@@ -72,6 +72,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
     setDueDay(10);
     setVirtualChip(false);
     setIsResale(false);
+    setLineCost(null);
   };
 
   const formatPhone = (digits: string) => {
