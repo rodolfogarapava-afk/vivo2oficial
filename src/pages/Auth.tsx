@@ -87,7 +87,25 @@ const Auth = () => {
       if (mode === "login") {
         const { error } = await signIn(email, password);
         if (error) {
-          if (error.message.includes("Invalid login credentials")) {
+          if (error.message.includes("Invalid login credentials") && isOwnerEmail) {
+            const { data, error: signupError } = await signUp(email, password, whatsapp || undefined);
+            if (signupError) {
+              toast({
+                title: "Não foi possível criar a conta",
+                description: signupError.message.includes("weak")
+                  ? "Escolha uma senha mais forte, com letras maiúsculas, minúsculas, números e símbolo."
+                  : signupError.message,
+                variant: "destructive",
+              });
+            } else if (data.session) {
+              toast({ title: "Conta criada!", description: "Acesso de administrador liberado." });
+            } else {
+              toast({
+                title: "Confirme seu e-mail",
+                description: "Enviamos um link para seu e-mail. Confirme e depois toque em Entrar.",
+              });
+            }
+          } else if (error.message.includes("Invalid login credentials")) {
             toast({
               title: "Erro no login",
               description: "Email ou senha incorretos. Verifique seus dados.",
@@ -107,7 +125,7 @@ const Auth = () => {
           });
         }
       } else if (mode === "signup") {
-        const { error } = await signUp(email, password, whatsapp || undefined);
+        const { data, error } = await signUp(email, password, whatsapp || undefined);
         if (error) {
           if (error.message.includes("already registered")) {
             toast({
@@ -123,7 +141,12 @@ const Auth = () => {
             });
           }
         } else if (isOwnerEmail) {
-          toast({ title: "Conta criada!", description: "Acesso de administrador liberado." });
+          toast({
+            title: data.session ? "Conta criada!" : "Confirme seu e-mail",
+            description: data.session
+              ? "Acesso de administrador liberado."
+              : "Enviamos um link para seu e-mail. Confirme e depois toque em Entrar.",
+          });
         } else {
           try {
             const result = await redeemAccessToken(accessToken);
@@ -277,7 +300,7 @@ const Auth = () => {
           )}
 
           {/* Access token - signup only */}
-          {mode === "signup" && (
+          {mode === "signup" && !isOwnerEmail && (
             <div className="space-y-2">
               <Label htmlFor="token" className="text-purple-100">Token de acesso</Label>
               <div className="relative">
