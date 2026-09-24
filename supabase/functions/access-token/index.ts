@@ -27,6 +27,22 @@ const makeCode = () => {
 const normalizeCode = (value: string) =>
   value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
 
+const normalizeDigits = (value: unknown) => String(value ?? "").replace(/\D/g, "");
+
+const isValidCpf = (value: string) => {
+  const cpf = normalizeDigits(value);
+  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+  const calculate = (length: number) => {
+    const sum = cpf
+      .slice(0, length)
+      .split("")
+      .reduce((total, digit, index) => total + Number(digit) * (length + 1 - index), 0);
+    const result = 11 - (sum % 11);
+    return result >= 10 ? 0 : result;
+  };
+  return calculate(9) === Number(cpf[9]) && calculate(10) === Number(cpf[10]);
+};
+
 const actionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("redeem"), code: z.string().trim().min(6).max(40) }),
   z.object({ action: z.literal("list") }),
@@ -77,22 +93,57 @@ Deno.serve(async (req) => {
       if (!match) return json({ error: "TOKEN_NOT_FOUND" }, 404);
 
       if (match.purpose === "reseller") {
-        const { data: identity, error: identityError } = await supabase
+        const { data: storedIdentity, error: identityError } = await supabase
           .from("profiles")
           .select("full_name, cpf, birth_date, whatsapp, adhesion_accepted")
           .eq("user_id", user.id)
           .maybeSingle();
         if (identityError) throw identityError;
-        const whatsappDigits = String(identity?.whatsapp ?? "").replace(/\D/g, "");
+
+        const metadata = user.user_metadata ?? {};
+        const identity = {
+          full_name: String(storedIdentity?.full_name || metadata.full_name || "").trim(),
+          cpf: normalizeDigits(storedIdentity?.cpf || metadata.cpf),
+          birth_date: String(storedIdentity?.birth_date || metadata.birth_date || ""),
+          whatsapp: normalizeDigits(storedIdentity?.whatsapp || metadata.whatsapp),
+          adhesion_accepted: storedIdentity?.adhesion_accepted === true || metadata.adhesion_accepted === true,
+        };
+        const birthDate = /^\d{4}-\d{2}-\d{2}$/.test(identity.birth_date)
+          ? new Date(`${identity.birth_date}T12:00:00Z`)
+          : null;
+        const earliestBirthDate = new Date();
+        earliestBirthDate.setUTCFullYear(earliestBirthDate.getUTCFullYear() - 120);
+        const whatsappDigits = normalizeDigits(identity.whatsapp);
         if (
-          !identity?.full_name ||
-          !identity?.cpf ||
-          !identity?.birth_date ||
-          !identity?.adhesion_accepted ||
+          identity.full_name.length < 3 ||
+          identity.full_name.length > 120 ||
+          !isValidCpf(identity.cpf) ||
+          !birthDate ||
+          Number.isNaN(birthDate.getTime()) ||
+          birthDate > new Date() ||
+          birthDate < earliestBirthDate ||
+          !identity.adhesion_accepted ||
           ![10, 11].includes(whatsappDigits.length)
         ) {
           return json({ error: "RESELLER_PROFILE_INCOMPLETE" }, 400);
         }
+
+        const { error: identitySaveError } = await supabase
+          .from("profiles")
+          .upsert(
+            {
+              user_id: user.id,
+              full_name: identity.full_name,
+              cpf: identity.cpf,
+              birth_date: identity.birth_date,
+              whatsapp: whatsappDigits,
+              adhesion_accepted: true,
+              adhesion_accepted_at: new Date().toISOString(),
+              adhesion_term_version: String(metadata.adhesion_term_version || "raio-telecom-6-meses-v1"),
+            },
+            { onConflict: "user_id" },
+          );
+        if (identitySaveError) throw identitySaveError;
       }
 
       const expiresAt =
