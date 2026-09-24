@@ -98,7 +98,18 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, whatsapp?: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    profile?: {
+      whatsapp?: string;
+      fullName?: string;
+      cpf?: string;
+      birthDate?: string;
+      adhesionAccepted?: boolean;
+      resellerSignup?: boolean;
+    },
+  ) => {
     const redirectUrl = `${window.location.origin}/`;
     
     const { data, error } = await supabase.auth.signUp({
@@ -107,7 +118,13 @@ export const useAuth = () => {
       options: {
         emailRedirectTo: redirectUrl,
         data: {
-          whatsapp: whatsapp || null
+          whatsapp: profile?.whatsapp || null,
+          full_name: profile?.fullName || null,
+          cpf: profile?.cpf || null,
+          birth_date: profile?.birthDate || null,
+          adhesion_accepted: profile?.adhesionAccepted ?? false,
+          adhesion_term_version: profile?.adhesionAccepted ? "raio-telecom-6-meses-v1" : null,
+          reseller_signup: profile?.resellerSignup ?? false,
         }
       }
     });

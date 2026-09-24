@@ -18,6 +18,7 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
   const [newReseller, setNewReseller] = useState("");
   const [creating, setCreating] = useState(false);
   const [resellerToken, setResellerToken] = useState("");
+  const [resellerLink, setResellerLink] = useState("");
   const [renewing, setRenewing] = useState<string | null>(null);
   const [renewedTokens, setRenewedTokens] = useState<Record<string, string>>({});
   const [supportDrafts, setSupportDrafts] = useState<Record<string, string>>({});
@@ -87,7 +88,9 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      setResellerToken(String(data?.token?.code ?? ""));
+       const code = String(data?.token?.code ?? "");
+       setResellerToken(code);
+       setResellerLink(`${window.location.origin}/auth?r=${encodeURIComponent(code)}`);
       setNewReseller("");
       toast({ title: "Token da revenda criado!", description: String(data?.token?.code ?? "") });
     } catch {
@@ -146,9 +149,9 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
   };
 
   const copyToken = async () => {
-    if (!resellerToken) return;
-    await navigator.clipboard.writeText(resellerToken);
-    toast({ title: "Token copiado!" });
+    if (!resellerLink) return;
+    await navigator.clipboard.writeText(resellerLink);
+    toast({ title: "Link copiado!", description: "Envie este link para a revenda se cadastrar." });
   };
 
   const renewResellerToken = async (targetUserId: string, panelLabel: string) => {
@@ -235,11 +238,12 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
             onClick={() => void copyToken()}
             className="flex w-full items-center justify-between rounded-lg bg-secondary p-3 text-foreground"
           >
-            <span className="font-bold tracking-wider">{resellerToken}</span>
+            <span className="min-w-0 truncate text-left text-xs font-bold">{resellerLink}</span>
             <Copy className="h-4 w-4" />
           </button>
         )}
-        <p className="text-[11px] text-muted-foreground">Envie este token para a revenda criar a conta e aparecer aqui automaticamente.</p>
+        {resellerToken && <p className="text-center text-[11px] font-bold tracking-wider text-muted-foreground">Token: {resellerToken}</p>}
+        <p className="text-[11px] text-muted-foreground">Copie o link e envie para a revenda fazer o cadastro completo.</p>
       </div>
 
       {showMyPanel && <div className="space-y-1">
