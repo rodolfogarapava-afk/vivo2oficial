@@ -53,6 +53,13 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
       }
       return next;
     });
+    setResellerDrafts((prev) => {
+      const next = { ...prev };
+      for (const panel of others) {
+        if (next[panel.userId] === undefined) next[panel.userId] = panel.resellerWhatsapp ?? "";
+      }
+      return next;
+    });
   }, [others]);
 
   const save = async (targetUserId: string, label: string) => {
