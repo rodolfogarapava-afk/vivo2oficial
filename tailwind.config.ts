@@ -69,6 +69,8 @@ export default {
           deep: "hsl(var(--client-card-deep))",
           muted: "hsl(var(--client-card-muted))",
           highlight: "hsl(var(--client-card-highlight))",
+          shadow: "hsl(var(--client-card-shadow))",
+          glow: "hsl(var(--client-card-glow))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
@@ -87,9 +89,9 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        "client-card": "0 10px 32px -10px hsl(var(--client-card-border) / 0.72), 0 5px 0 hsl(var(--client-card-deep))",
-        "client-inset": "inset 0 2px 8px hsl(var(--background) / 0.42)",
-        "client-action": "0 4px 0 hsl(145 72% 28%), 0 8px 18px hsl(145 70% 35% / 0.35)",
+        "client-card": "inset 0 1px 0 hsl(var(--client-card-foreground) / 0.24), 0 7px 0 hsl(var(--client-card-shadow)), 0 12px 28px hsl(var(--client-card-glow) / 0.28)",
+        "client-inset": "inset 0 3px 10px hsl(var(--background) / 0.58), inset 0 -1px 0 hsl(var(--client-card-foreground) / 0.08)",
+        "client-action": "inset 0 1px 0 hsl(var(--client-card-foreground) / 0.45), 0 7px 0 hsl(var(--client-action-deep)), 0 11px 20px hsl(var(--client-action-deep) / 0.42)",
       },
       keyframes: {
         "accordion-down": {

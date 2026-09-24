@@ -45,12 +45,15 @@
     --surface: 0 0% 98%;
     --surface-foreground: 220 20% 20%;
 
-    --client-card-bg: 266 82% 53%;
+    --client-card-bg: 267 82% 54%;
     --client-card-foreground: 0 0% 100%;
-    --client-card-border: 272 91% 63%;
-    --client-card-deep: 267 75% 45%;
-    --client-card-muted: 265 100% 86%;
-    --client-card-highlight: 197 100% 65%;
+    --client-card-border: 285 100% 68%;
+    --client-card-deep: 268 94% 34%;
+    --client-card-muted: 268 100% 88%;
+    --client-card-highlight: 190 100% 52%;
+    --client-card-shadow: 274 100% 30%;
+    --client-card-glow: 282 100% 62%;
+    --client-action-deep: 149 82% 25%;
   }
 
 
