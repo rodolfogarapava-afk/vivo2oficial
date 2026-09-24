@@ -40,6 +40,8 @@ export const useAccessControl = (userId?: string) => {
     }
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.rpc as any)("claim_owner_admin").then(() => undefined, () => undefined);
       const [{ data: roleRow }, { data: profileRow }] = await Promise.all([
         supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle(),
         supabase.from("profiles").select("access_plan, access_expires_at").eq("user_id", userId).maybeSingle(),
