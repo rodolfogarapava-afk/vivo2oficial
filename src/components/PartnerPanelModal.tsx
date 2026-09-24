@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowLeft, Bot, Loader2, Pencil, Plus, RefreshCw, Save, Settings, Signal, Trash2, X } from "lucide-react";
+import { ArrowLeft, Loader2, Pencil, Plus, RefreshCw, Save, Settings, Signal, Trash2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ClientCard } from "@/components/ClientCard";
 import { NewClientForm } from "@/components/NewClientForm";
@@ -10,8 +10,7 @@ import { isFreeLine } from "@/hooks/useFreeLineColor";
 import { useToast } from "@/hooks/use-toast";
 import type { Client } from "@/hooks/useClients";
 import { formatClientName } from "@/lib/formatName";
-import { AiWhatsAppMessage } from "@/components/AiWhatsAppMessage";
-import { ResellerHistory, ResellerValuesList, addMessageLog } from "@/components/ResellerTools";
+import { ResellerHistory, ResellerValuesList } from "@/components/ResellerTools";
 
 const currentMonth = () => new Date().toISOString().slice(0, 7);
 
@@ -51,7 +50,6 @@ export const PartnerPanelModal = ({
   const [showAssociates, setShowAssociates] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
-  const [messageClient, setMessageClient] = useState<Client | null>(null);
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editWhatsapp, setEditWhatsapp] = useState("");
@@ -371,17 +369,6 @@ export const PartnerPanelModal = ({
                 inPanel={null}
                 supportWhatsapp={supportWhatsapp}
               />
-              {!isFreeLine(client.name) && (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setMessageClient(client)}
-                  className="h-10 w-full rounded-lg border border-cyan-700/60 text-xs font-bold text-cyan-300"
-                >
-                  <Bot className="h-4 w-4" />
-                  Criar mensagem com IA
-                </Button>
-              )}
             </div>
           ))
         )}
@@ -468,15 +455,6 @@ export const PartnerPanelModal = ({
             </div>
           </div>
         </div>
-      )}
-
-      {messageClient && (
-        <AiWhatsAppMessage client={messageClient} reseller={label} onClose={() => setMessageClient(null)}
-          onSent={(message, phone) =>
-            partnerUserId &&
-            addMessageLog(partnerUserId, { clientId: messageClient.id, clientName: messageClient.name, phone, message })
-          }
-        />
       )}
     </div>,
     document.body,
