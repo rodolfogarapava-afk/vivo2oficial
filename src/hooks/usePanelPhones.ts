@@ -29,6 +29,8 @@ export const usePanelPhones = () => {
     if (!navigator.onLine || loadingRef.current) return false;
     loadingRef.current = true;
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) return false;
       const { data, error } = await supabase.functions.invoke("vivo-gestao", {
         body: { action: "auto_sync" },
       });
