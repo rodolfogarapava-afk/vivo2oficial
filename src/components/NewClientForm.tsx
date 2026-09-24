@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User, Phone, Star, Store } from "lucide-react";
+import { User, Phone, Smartphone, Wifi } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatClientName } from "@/lib/formatName";
@@ -28,7 +28,6 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
   const [valuePaid, setValuePaid] = useState("");
   const [dueDay, setDueDay] = useState<number>(10);
   const [virtualChip, setVirtualChip] = useState(false);
-  const [isResale, setIsResale] = useState(false);
   const [phoneError, setPhoneError] = useState("");
   const [lineCost, setLineCost] = useState<number | null>(null);
   const { list: costList } = useLineCosts();
@@ -57,7 +56,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
       value_paid: parseFloat(valuePaid),
       due_day: dueDay,
       virtual_chip: virtualChip,
-      is_resale: isResale,
+      is_resale: false,
       bonus: false,
       already_paid: false,
       company: "omega",
@@ -71,7 +70,6 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
     setValuePaid("");
     setDueDay(10);
     setVirtualChip(false);
-    setIsResale(false);
     setLineCost(null);
   };
 
@@ -91,7 +89,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
   const isFormValid = name.trim() && phone.trim() && valuePaid && !phoneError;
 
   return (
-    <div className={`rounded-2xl p-5 ${isResale ? 'bg-blue-900/80 border-2 border-blue-600' : 'bg-card'}`}>
+    <div className="rounded-2xl bg-card p-5">
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Nome */}
         <div className="space-y-2">
@@ -217,44 +215,31 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
         </div>
 
 
-        {/* Chip Virtual */}
+        {/* Tipo de chip */}
         <div className="space-y-2">
           <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
             Tipo de Chip
           </label>
-          <button
-            type="button"
-            onClick={() => setVirtualChip(!virtualChip)}
-            className={`w-full h-14 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${
-              virtualChip 
-                ? 'bg-yellow-500/20 border-2 border-yellow-400 text-yellow-400' 
-                : isResale
-                  ? 'bg-blue-800/50 border border-blue-500 text-foreground/70 hover:bg-blue-700/50'
-                  : 'bg-primary/30 border border-primary/50 text-foreground/70 hover:bg-primary/40'
-            }`}
-          >
-            <Star className={`h-5 w-5 ${virtualChip ? 'fill-yellow-400' : ''}`} />
-            {virtualChip ? 'Chip Virtual' : 'Chip Físico'}
-          </button>
-        </div>
-
-        {/* Revenda */}
-        <div className="space-y-2">
-          <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
-            Tipo de Cliente
-          </label>
-          <button
-            type="button"
-            onClick={() => setIsResale(!isResale)}
-            className={`w-full h-14 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${
-              isResale 
-                ? 'bg-blue-500/30 border-2 border-blue-400 text-blue-400' 
-                : 'bg-primary/30 border border-primary/50 text-foreground/70 hover:bg-primary/40'
-            }`}
-          >
-            <Store className={`h-5 w-5 ${isResale ? 'text-blue-400' : ''}`} />
-            {isResale ? 'Revenda' : 'Cliente Final'}
-          </button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setVirtualChip(false)}
+              className={`h-14 rounded-xl border text-sm font-bold ${!virtualChip ? 'border-primary bg-primary text-primary-foreground' : 'border-primary/50 bg-primary/30 text-foreground/70'}`}
+            >
+              <Smartphone className="h-5 w-5" />
+              Chip Físico
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setVirtualChip(true)}
+              className={`h-14 rounded-xl border text-sm font-bold ${virtualChip ? 'border-primary bg-primary text-primary-foreground' : 'border-primary/50 bg-primary/30 text-foreground/70'}`}
+            >
+              <Wifi className="h-5 w-5" />
+              Chip Virtual
+            </Button>
+          </div>
         </div>
 
 

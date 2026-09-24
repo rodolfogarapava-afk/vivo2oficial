@@ -12,6 +12,7 @@ import { InstallPWA } from "@/components/InstallPWA";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { ResaleModal } from "@/components/ResaleModal";
 import { PartnerPanelModal } from "@/components/PartnerPanelModal";
+import { PanelNamesSection } from "@/components/PanelNamesSection";
 import { supabase } from "@/integrations/supabase/client";
 
 
@@ -94,6 +95,8 @@ const Index = () => {
   });
   const [showChipNet, setShowChipNet] = useState(false);
   const [showResellerPicker, setShowResellerPicker] = useState(false);
+  const [manageResellers, setManageResellers] = useState(false);
+  const [partnerCounts, setPartnerCounts] = useState<Record<string, number>>({});
   const [openGestorList, setOpenGestorList] = useState(false);
   const [selectedPartnerId, setSelectedPartnerId] = useState<string>();
   const [crossPanelResults, setCrossPanelResults] = useState<
@@ -131,6 +134,21 @@ const Index = () => {
   useEffect(() => {
     if (!selectedPartnerId && linkedPanels[0]?.userId) setSelectedPartnerId(linkedPanels[0].userId);
   }, [linkedPanels, selectedPartnerId]);
+
+  useEffect(() => {
+    if (!showResellerPicker || linkedPanels.length === 0) return;
+    let active = true;
+    void Promise.all(linkedPanels.map(async (panel) => {
+      const { data } = await (supabase.rpc as unknown as (
+        fn: string,
+        args: Record<string, unknown>,
+      ) => Promise<{ data: Client[] | null }>)('list_panel_clients', { p_panel_user: panel.userId });
+      return [panel.userId, data?.length ?? 0] as const;
+    })).then((entries) => {
+      if (active) setPartnerCounts(Object.fromEntries(entries));
+    });
+    return () => { active = false; };
+  }, [linkedPanels, showResellerPicker]);
 
   useEffect(() => {
     const reloadSyncedClients = () => void refetch();
@@ -736,10 +754,35 @@ const Index = () => {
       <Dialog open={showResellerPicker} onOpenChange={setShowResellerPicker}>
         <DialogContent className="w-[92vw] max-w-sm rounded-xl border-border bg-card p-4">
           <DialogHeader>
-            <DialogTitle className="text-foreground">Escolher revenda</DialogTitle>
+            <DialogTitle className="flex items-center gap-2 text-foreground">
+              <span className="min-w-0 flex-1">{manageResellers ? "Editar revendas" : "Escolher revenda"}</span>
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => setManageResellers(true)}
+                className="h-9 gap-1 rounded-lg"
+              >
+                <UserPlus className="h-4 w-4" />
+                Novo
+              </Button>
+              <Button
+                type="button"
+                size="icon"
+                variant={manageResellers ? "default" : "secondary"}
+                onClick={() => setManageResellers((value) => !value)}
+                className="h-9 w-9 rounded-lg"
+                aria-label="Editar revendas"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+            </DialogTitle>
           </DialogHeader>
-          <div className="max-h-[60dvh] space-y-2 overflow-y-auto overscroll-contain pt-1">
-            {linkedPanels.map((panel) => (
+          {manageResellers ? (
+            <div className="max-h-[65dvh] overflow-y-auto overscroll-contain pt-1">
+              <PanelNamesSection userId={user?.id} showMyPanel={false} />
+            </div>
+          ) : <div className="max-h-[60dvh] space-y-2 overflow-y-auto overscroll-contain pt-1">
+            {linkedPanels.map((panel, index) => (
               <button
                 key={panel.userId}
                 type="button"
@@ -750,6 +793,9 @@ const Index = () => {
                 }}
                 className="flex h-14 w-full items-center gap-3 rounded-lg border border-border bg-secondary px-4 text-left text-secondary-foreground transition-colors hover:bg-secondary/80"
               >
+                <span className="flex h-8 min-w-14 shrink-0 items-center justify-center rounded-md bg-cyan-950/60 px-2 text-xs font-extrabold text-cyan-300">
+                  {index + 1}ª ({partnerCounts[panel.userId] ?? 0})
+                </span>
                 <Signal className="h-5 w-5 shrink-0 text-cyan-400" />
                 <span className="min-w-0 flex-1 truncate text-sm font-extrabold uppercase">{panel.label}</span>
               </button>
@@ -757,7 +803,7 @@ const Index = () => {
             {linkedPanels.length === 0 && (
               <p className="py-6 text-center text-sm text-muted-foreground">Nenhuma revenda cadastrada.</p>
             )}
-          </div>
+          </div>}
         </DialogContent>
       </Dialog>
 
