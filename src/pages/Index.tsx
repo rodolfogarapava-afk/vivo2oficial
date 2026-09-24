@@ -777,6 +777,7 @@ const Index = () => {
         panels={linkedPanels}
         onSelectPanel={setSelectedPartnerId}
         supportWhatsapp={selectedPartner?.supportWhatsapp}
+        resellerWhatsapp={selectedPartner?.resellerWhatsapp}
         fixedExpense={selectedPartner?.fixedExpense ?? 0}
         lineCosts={selectedPartner?.lineCosts ?? []}
       />

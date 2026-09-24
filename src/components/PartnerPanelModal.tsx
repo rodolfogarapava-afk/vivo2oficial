@@ -21,6 +21,7 @@ interface PartnerPanelModalProps {
   partnerUserId?: string;
   panelLabel?: string;
   supportWhatsapp?: string | null;
+  resellerWhatsapp?: string | null;
   fixedExpense?: number;
   lineCosts?: number[];
   panels?: { userId: string; label: string }[];
@@ -36,6 +37,7 @@ export const PartnerPanelModal = ({
   partnerUserId,
   panelLabel,
   supportWhatsapp,
+  resellerWhatsapp,
   fixedExpense: panelFixedExpense = 0,
   lineCosts = [],
   panels = [],
@@ -128,6 +130,50 @@ export const PartnerPanelModal = ({
     () => clients.reduce((sum, c) => sum + Number(c.line_cost ?? panelFixedExpense ?? 0), 0),
     [clients, panelFixedExpense],
   );
+
+  const sendPaymentConfirmed = () => {
+    const digits = (resellerWhatsapp ?? "").replace(/\D/g, "");
+    if (!digits) {
+      toast({
+        title: "WhatsApp da revenda não configurado",
+        description: "Adicione o WhatsApp da revenda nas configurações.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const now = new Date();
+    const date = now.toLocaleDateString("pt-BR");
+    const time = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+      .toLocaleDateString("pt-BR", { month: "long" });
+    const monthName = nextMonth.charAt(0).toUpperCase() + nextMonth.slice(1);
+    const message = [
+      "👤 *Boa noite 🌛*",
+      "",
+      `*${label}*`,
+      "",
+      "*✅PAGAMENTO CONFIRMADO✅*",
+      "",
+      "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+      "",
+      "🔵 *Plano: VIVO*",
+      "",
+      `💰 *Valor: ${money(total)}*`,
+      "",
+      `📅 *Data: ${date}*`,
+      "",
+      `🕐 *Horário: ${time}*`,
+      "",
+      `*✅ ${monthName}: Pago*`,
+      "",
+      "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+      "",
+      " *♻️Sistema Continuar 100%*",
+      "",
+      "🫵Agradecemos pela confiança! 🙏",
+    ].join("\n");
+    window.open(`https://wa.me/55${digits}?text=${encodeURIComponent(message)}`, "_blank");
+  };
 
   const handleCreate = async (client: {
     name: string;
@@ -295,10 +341,15 @@ export const PartnerPanelModal = ({
       </div>
 
       <div className="grid grid-cols-2 gap-2 px-3 py-3">
-        <div className="rounded-xl border border-purple-700/60 bg-purple-950/40 p-2 text-center">
+        <button
+          type="button"
+          onClick={sendPaymentConfirmed}
+          className="rounded-xl border border-purple-700/60 bg-purple-950/40 p-2 text-center transition active:scale-95"
+          title="Enviar confirmação de pagamento no WhatsApp da revenda"
+        >
           <p className="text-[10px] font-extrabold uppercase tracking-wider text-purple-200">Total</p>
           <p className="truncate text-sm font-extrabold text-foreground">{money(total)}</p>
-        </div>
+        </button>
         <div className="rounded-xl border border-cyan-700/60 bg-cyan-950/40 p-2 text-center">
           <p className="text-[10px] font-extrabold uppercase tracking-wider text-cyan-200">Linhas</p>
           <p className="text-sm font-extrabold text-foreground">{clients.length}</p>
