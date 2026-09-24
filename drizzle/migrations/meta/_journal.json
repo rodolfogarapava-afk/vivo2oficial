@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1788272266872,
-      "tag": "0000_create_panel_links",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1788392609367,
-      "tag": "0001_add_client_account",
+      "when": 1790269240853,
+      "tag": "0000_prevent_duplicate_client_phones",
       "breakpoints": true
     }
   ]
