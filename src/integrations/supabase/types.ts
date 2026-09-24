@@ -378,6 +378,7 @@ export type Database = {
         Returns: boolean
       }
       is_panel_blocked: { Args: { _user_id: string }; Returns: boolean }
+      is_valid_cpf: { Args: { value: string }; Returns: boolean }
       list_panel_clients: {
         Args: { p_panel_user: string }
         Returns: {
