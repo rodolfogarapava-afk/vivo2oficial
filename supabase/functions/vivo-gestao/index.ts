@@ -334,6 +334,18 @@ Deno.serve(async (req) => {
               data_used_gb: usage?.usedGb ?? 0,
               company: 'omega',
             }).select('id, user_id, phone, name, blocked, data_gb, data_used_gb').single()
+            if (insertError?.code === '23505') {
+              const { data: concurrent, error: concurrentError } = await backend.from('clients')
+                .select('id, user_id, phone, name, blocked, data_gb, data_used_gb')
+                .eq('phone', phone)
+                .maybeSingle()
+              if (concurrentError) throw concurrentError
+              if (concurrent) {
+                byTargetPhone.set(`${concurrent.user_id}:${phone}`, concurrent)
+                knownPhoneOwners.set(phone, concurrent)
+                continue
+              }
+            }
             if (insertError) throw insertError
             byTargetPhone.set(`${target.userId}:${phone}`, inserted)
             knownPhoneOwners.set(phone, inserted)
