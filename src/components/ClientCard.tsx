@@ -298,8 +298,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                 client.blocked
                   ? 'text-red-300'
                    : isFree
-                     ? 'text-black'
-                      ? 'text-free-card-foreground'
+                     ? 'text-client-card-foreground'
                      : 'text-client-card-foreground'
               }`}>
                 {index + 1}
