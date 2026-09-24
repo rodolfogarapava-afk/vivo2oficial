@@ -203,6 +203,7 @@ const Index = () => {
     };
   }, [searchQuery, user]);
 
+  useLineCosts();
   const { visibleDays } = useVisibleDueDays();
   const activeClients = useMemo(() => clients.filter(c => !c.name.toUpperCase().includes("CANCELADO")), [clients]);
   const billableClients = useMemo(() => activeClients.filter(c => !c.bonus), [activeClients]);
