@@ -1,4 +1,6 @@
 import { useLineCosts } from "@/hooks/useLineCosts";
+import { ResellerValuesList } from "@/components/ResellerTools";
+import { supabase as sbValues } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -209,6 +211,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [showClientList, setShowClientList] = useState(false);
+  const [showValuesList, setShowValuesList] = useState(false);
   const [showPanelList, setShowPanelList] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [editName, setEditName] = useState("");
@@ -963,6 +966,16 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 <Users className="h-5 w-5 mr-2" />
                 Lista de clientes
               </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  onOpenChange(false);
+                  setTimeout(() => setShowValuesList(true), 150);
+                }}
+                className="w-full h-12 mt-3 bg-green-700 hover:bg-green-600 text-white rounded-xl font-bold"
+              >
+                Lista de valores
+              </Button>
             </div>
 
             {/* ===== Painel Vivo Gestão (somente ADM) ===== */}
@@ -1690,6 +1703,18 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
           </div>
         </div>,
         document.body
+      )}
+      {showValuesList && (
+        <ResellerValuesList
+          panelUserId={userId ?? ""}
+          clients={clients}
+          onBack={() => setShowValuesList(false)}
+          onDone={() => onRefresh?.()}
+          saveValue={async (c, v) => {
+            const { error } = await sbValues.from("clients").update({ value_paid: v }).eq("id", c.id);
+            if (error) throw new Error(error.message);
+          }}
+        />
       )}
     </>
   );

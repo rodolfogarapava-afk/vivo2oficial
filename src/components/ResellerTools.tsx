@@ -53,7 +53,9 @@ export const ResellerValuesList = ({
   clients,
   onBack,
   onDone,
+  saveValue,
 }: {
+  saveValue?: (client: Client, value: number) => Promise<void>;
   panelUserId: string;
   clients: Client[];
   onBack: () => void;
@@ -79,6 +81,10 @@ export const ResellerValuesList = ({
     setSaving(true);
     try {
       for (const c of items.filter((i) => marked.has(i.id))) {
+        if (saveValue) {
+          await saveValue(c, num);
+          continue;
+        }
         const { error } = await (supabase.rpc as unknown as (f: string, a: Record<string, unknown>) => Promise<{ error: { message: string } | null }>)(
           "update_panel_client",
           {
