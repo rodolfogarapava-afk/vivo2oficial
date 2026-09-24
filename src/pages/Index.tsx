@@ -1,3 +1,4 @@
+import { clientCost, setClientLineCost, useLineCosts } from "@/hooks/useLineCosts";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Settings, Loader2, LogOut, Search, X, Lock, Unlock, Ban, Save, Mail, UserPlus, Eye, EyeOff, Signal, RefreshCw, CalendarClock } from "lucide-react";
@@ -202,10 +203,11 @@ const Index = () => {
     };
   }, [searchQuery, user]);
 
+  useLineCosts();
   const { visibleDays } = useVisibleDueDays();
   const activeClients = useMemo(() => clients.filter(c => !c.name.toUpperCase().includes("CANCELADO")), [clients]);
   const billableClients = useMemo(() => activeClients.filter(c => !c.bonus), [activeClients]);
-  const totalExpenses = billableClients.length * fixedExpense;
+  const totalExpenses = billableClients.reduce((sum, c) => sum + clientCost(c.id, fixedExpense), 0);
 
   // Stats per visible due day (excluding cancelled; bonus excluded from expenses)
   const dayStats = useMemo(
@@ -253,11 +255,12 @@ const Index = () => {
   }, [clients, searchQuery, selectedDueDay, hidePaidClients, paidClientIds]);
 
 
-  const handleAddClient = (client: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; virtual_chip: boolean; is_resale: boolean; bonus: boolean; already_paid: boolean; company: string; account: number | null }) => {
-    const { already_paid, ...clientData } = client;
+  const handleAddClient = (client: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; virtual_chip: boolean; is_resale: boolean; bonus: boolean; already_paid: boolean; company: string; account: number | null; line_cost?: number | null }) => {
+    const { already_paid, line_cost, ...clientData } = client;
     addClient.mutate(clientData, {
       onSuccess: (data) => {
         setShowForm(false);
+        if (data?.id && typeof line_cost === "number") setClientLineCost(data.id, line_cost);
         if (already_paid && data?.id) {
           // Mark as paid for current month so it only shows next month
           togglePayment(data.id);

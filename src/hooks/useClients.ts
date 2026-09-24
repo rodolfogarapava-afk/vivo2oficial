@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { useFixedExpense } from "@/hooks/useFixedExpense";
+import { clientCost, useLineCosts } from "@/hooks/useLineCosts";
 
 export interface Client {
   id: string;
@@ -32,6 +33,7 @@ export const useClients = (userId?: string) => {
   const { isOnline, saveClientsLocally, getCachedClients } = useOfflineStorage(userId);
 
   const { fixedExpense: FIXED_EXPENSE } = useFixedExpense();
+  useLineCosts();
 
   // Get cached data immediately for initial render
   const cachedClients = getCachedClients();
@@ -323,7 +325,7 @@ export const useClients = (userId?: string) => {
   const activeClients = clients.filter(c => !c.name.toUpperCase().includes("CANCELADO"));
   const billableClients = activeClients.filter(c => !c.bonus);
   const totalGross = billableClients.reduce((sum, client) => sum + Number(client.value_paid), 0);
-  const totalProfit = billableClients.reduce((sum, client) => sum + (Number(client.value_paid) - FIXED_EXPENSE), 0);
+  const totalProfit = billableClients.reduce((sum, client) => sum + (Number(client.value_paid) - clientCost(client.id, FIXED_EXPENSE)), 0);
 
   return {
     clients,
