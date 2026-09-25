@@ -234,6 +234,7 @@ const applyTheme = ({
   setVar("--layout-default-border", neonLayout === "gold" ? "40 72% 87%" : neonLayout === "red" ? "13 100% 55%" : "184 100% 55%");
   setVar("--layout-border-color", BORDER_COLORS[panelBorderColor]);
   setVar("--layout-shadow-color", panelShadowColor === "white" ? "0 0% 100%" : "0 0% 0%");
+  setVar("--layout-text-color", clientCardText === "white" ? "0 0% 100%" : "0 0% 4%");
   setVar("--client-card-foreground", clientCardText === "white" ? "0 0% 100%" : "0 0% 4%");
 };
 

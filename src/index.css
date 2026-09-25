@@ -67,6 +67,7 @@
     --layout-default-border: 184 100% 55%;
     --layout-border-color: var(--layout-default-border);
     --layout-shadow-color: 0 0% 0%;
+    --layout-text-color: 0 0% 100%;
     --layout-border-width: 2px;
   }
 
@@ -367,6 +368,20 @@
 .neon-dashboard [class*="bg-client-card"] [class*="text-client-card-foreground"],
 .neon-dashboard [class*="bg-client-card"] [class*="text-client-card-muted"] {
   color: hsl(var(--client-card-foreground)) !important;
+}
+
+.neon-dashboard header button,
+.neon-dashboard header button [class*="text-"],
+.neon-dashboard header button svg,
+.neon-dashboard .neon-total-card,
+.neon-dashboard .neon-total-card [class*="text-"],
+.neon-dashboard .neon-expense-card,
+.neon-dashboard .neon-expense-card [class*="text-"],
+.neon-dashboard .neon-profit-card,
+.neon-dashboard .neon-profit-card [class*="text-"],
+.neon-dashboard .neon-due-card,
+.neon-dashboard .neon-due-card [class*="text-"] {
+  color: hsl(var(--layout-text-color)) !important;
 }
 
 .neon-layout-gold .neon-total-card,
