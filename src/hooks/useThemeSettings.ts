@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 export type ThemeMode = "dark" | "light";
-export type NeonLayout = "blue" | "red";
+export type NeonLayout = "blue" | "red" | "gold";
 
 interface ThemeSettings {
   backgroundColor: string;
@@ -94,6 +94,7 @@ const applyTheme = ({ backgroundColor, mode, buttonColor, clientCardPurple = 0, 
 
   root.classList.toggle("neon-layout-blue", neonLayout === "blue");
   root.classList.toggle("neon-layout-red", neonLayout === "red");
+  root.classList.toggle("neon-layout-gold", neonLayout === "gold");
 
   setVar("--client-card-bg", `270 ${Math.round(78 * mix)}% ${Math.round(100 - 62 * mix)}%`);
   setVar("--client-card-foreground", clientCardText === "white" ? "0 0% 100%" : "0 0% 4%");
@@ -145,7 +146,31 @@ const applyTheme = ({ backgroundColor, mode, buttonColor, clientCardPurple = 0, 
     setVar("--ring", `${h} 70% 50%`);
   }
 
-  if (neonLayout === "red") {
+  if (neonLayout === "gold") {
+    setVar("--background", "36 48% 69%");
+    setVar("--foreground", "28 46% 10%");
+    setVar("--card", "37 64% 73%");
+    setVar("--card-foreground", "28 46% 10%");
+    setVar("--popover", "37 64% 76%");
+    setVar("--popover-foreground", "28 46% 10%");
+    setVar("--primary", "34 72% 35%");
+    setVar("--primary-foreground", "40 66% 94%");
+    setVar("--secondary", "38 54% 68%");
+    setVar("--secondary-foreground", "28 46% 10%");
+    setVar("--muted", "38 43% 63%");
+    setVar("--muted-foreground", "30 39% 25%");
+    setVar("--border", "38 68% 84%");
+    setVar("--input", "38 55% 75%");
+    setVar("--ring", "34 72% 35%");
+    setVar("--client-card-bg", "37 64% 73%");
+    setVar("--client-card-foreground", "28 46% 10%");
+    setVar("--client-card-border", "40 72% 87%");
+    setVar("--client-card-deep", "32 64% 31%");
+    setVar("--client-card-muted", "30 36% 34%");
+    setVar("--client-card-highlight", "36 89% 61%");
+    setVar("--client-card-shadow", "31 43% 45%");
+    setVar("--client-card-glow", "42 91% 88%");
+  } else if (neonLayout === "red") {
     setVar("--background", "355 82% 5%");
     setVar("--card", "355 82% 8%");
     setVar("--primary", "354 92% 45%");
@@ -194,7 +219,7 @@ const readSettings = (): ThemeSettings => {
           : Math.min(100, Math.max(0, Number(parsed.clientCardPurple) || 0)),
         clientCardText: needsActivatedCardUpdate || parsed.clientCardText === "white" ? "white" : "black",
         clientCardStyleVersion: CLIENT_CARD_STYLE_VERSION,
-        neonLayout: parsed.neonLayout === "red" ? "red" : "blue",
+        neonLayout: parsed.neonLayout === "red" || parsed.neonLayout === "gold" ? parsed.neonLayout : "blue",
       };
       if (needsActivatedCardUpdate) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
