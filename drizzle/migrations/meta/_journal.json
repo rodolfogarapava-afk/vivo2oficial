@@ -64,6 +64,13 @@
       "when": 1790343850571,
       "tag": "0008_add_client_block_notice_templates",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790343907131,
+      "tag": "0009_validate_client_block_notice_templates",
+      "breakpoints": true
     }
   ]
 }
