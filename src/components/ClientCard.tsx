@@ -88,6 +88,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
   const { toast } = useToast();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showBlockConfirmDialog, setShowBlockConfirmDialog] = useState(false);
+  const [showWhatsAppMenu, setShowWhatsAppMenu] = useState(false);
   const [paymentStampTick, setPaymentStampTick] = useState(0);
 
   useEffect(() => {
