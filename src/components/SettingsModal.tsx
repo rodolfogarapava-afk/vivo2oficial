@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Download, FileText, Signal, Copy, Check, MessageCircle, Save, ArrowLeft, Palette, Pencil, Trash2, X, Users, Lock, LockOpen, Unlock, Building2, RefreshCw, CloudDownload, CreditCard, Send, Ban, Search, Star, Store, Eye, EyeOff, Calendar, Upload, Loader2, TrendingUp, KeyRound, Banknote } from "lucide-react";
+import { Download, FileText, Signal, Copy, Check, MessageCircle, Save, ArrowLeft, Palette, Pencil, Trash2, X, Users, Lock, LockOpen, Unlock, Building2, RefreshCw, CloudDownload, CreditCard, Send, Ban, Search, Star, Store, Eye, EyeOff, Calendar, Upload, Loader2, TrendingUp, KeyRound, Banknote, Type, Square, Droplets, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { VIVO_PANEL_URL, useVivoPanel, type SyncPlan } from "@/hooks/useVivoPanel";
 import { Switch } from "@/components/ui/switch";
@@ -906,94 +906,99 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
 
           <div className="space-y-3 sm:space-y-4 mt-3 sm:mt-4 overflow-y-auto max-h-[calc(80vh-80px)] pr-1">
 
-            <div className="rounded-xl border border-border bg-card/70 p-3 sm:p-4">
-              <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
-                <Palette className="h-4 w-4" />
+            <div className="layout-customizer">
+              <h3 className="layout-customizer__title">
+                <span className="layout-customizer__title-icon"><Palette /></span>
                 Layout do painel
               </h3>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <div className="layout-customizer__themes">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setNeonLayout("purple")}
-                  className={`theme-choice-purple h-20 flex-col gap-1 rounded-lg px-2 ${themeSettings.neonLayout === "purple" || !themeSettings.neonLayout ? "ring-2 ring-ring" : ""}`}
+                  className={`layout-theme-choice theme-choice-purple ${themeSettings.neonLayout === "purple" || !themeSettings.neonLayout ? "is-selected" : ""}`}
                   aria-pressed={themeSettings.neonLayout === "purple" || !themeSettings.neonLayout}
                 >
-                  <span className="theme-choice-preview h-6 w-16 max-w-full rounded-md" />
-                  <span className="text-xs font-extrabold uppercase sm:text-sm">Roxo padrão</span>
+                  <span className="theme-choice-preview" />
+                  <span>Roxo padrão</span>
+                  <span className="layout-customizer__radio"><Check /></span>
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setNeonLayout("blue")}
-                  className={`theme-choice-blue h-20 flex-col gap-1 rounded-lg px-2 ${themeSettings.neonLayout === "blue" ? "ring-2 ring-ring" : ""}`}
+                  className={`layout-theme-choice theme-choice-blue ${themeSettings.neonLayout === "blue" ? "is-selected" : ""}`}
                   aria-pressed={themeSettings.neonLayout === "blue"}
                 >
-                  <span className="theme-choice-preview h-6 w-16 rounded-md" />
-                  <span className="font-extrabold uppercase">Azul</span>
+                  <span className="theme-choice-preview" />
+                  <span>Azul</span>
+                  <span className="layout-customizer__radio"><Check /></span>
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setNeonLayout("red")}
-                  className={`theme-choice-red h-20 flex-col gap-1 rounded-lg px-2 ${themeSettings.neonLayout === "red" ? "ring-2 ring-ring" : ""}`}
+                  className={`layout-theme-choice theme-choice-red ${themeSettings.neonLayout === "red" ? "is-selected" : ""}`}
                   aria-pressed={themeSettings.neonLayout === "red"}
                 >
-                  <span className="theme-choice-preview h-6 w-16 rounded-md" />
-                  <span className="font-extrabold uppercase">Vermelho</span>
+                  <span className="theme-choice-preview" />
+                  <span>Vermelho</span>
+                  <span className="layout-customizer__radio"><Check /></span>
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setNeonLayout("gold")}
-                  className={`theme-choice-gold h-20 flex-col gap-1 rounded-lg px-2 ${themeSettings.neonLayout === "gold" ? "ring-2 ring-ring" : ""}`}
+                  className={`layout-theme-choice theme-choice-gold ${themeSettings.neonLayout === "gold" ? "is-selected" : ""}`}
                   aria-pressed={themeSettings.neonLayout === "gold"}
                 >
-                  <span className="theme-choice-preview h-6 w-16 max-w-full rounded-md" />
-                  <span className="text-xs font-extrabold uppercase sm:text-sm">Dourado</span>
+                  <span className="theme-choice-preview" />
+                  <span>Dourado</span>
+                  <span className="layout-customizer__radio"><Check /></span>
                 </Button>
               </div>
 
-              <div className="mt-4 space-y-4 border-t border-border pt-4">
-                <div>
-                  <p className="mb-2 text-xs font-bold text-foreground">Cor das letras</p>
+              <div className="layout-customizer__controls">
+                <div className="layout-customizer__group">
+                  <p className="layout-customizer__label"><span><Type /></span>Cor das letras</p>
                   <div className="grid grid-cols-2 gap-2">
-                    <Button type="button" variant="outline" onClick={() => setClientCardText("black")} className={`h-10 bg-white text-black hover:bg-white hover:text-black ${(themeSettings.clientCardText ?? "black") === "black" ? "ring-2 ring-ring" : ""}`}>Preto</Button>
-                    <Button type="button" variant="outline" onClick={() => setClientCardText("white")} className={`h-10 bg-black text-white hover:bg-black hover:text-white ${themeSettings.clientCardText === "white" ? "ring-2 ring-ring" : ""}`}>Branco</Button>
+                    <Button type="button" variant="outline" onClick={() => setClientCardText("black")} className={`layout-text-choice layout-text-choice--black ${(themeSettings.clientCardText ?? "black") === "black" ? "is-selected" : ""}`}>Preto<span className="layout-customizer__radio"><Check /></span></Button>
+                    <Button type="button" variant="outline" onClick={() => setClientCardText("white")} className={`layout-text-choice layout-text-choice--white ${themeSettings.clientCardText === "white" ? "is-selected" : ""}`}>Branco<span className="layout-customizer__radio"><Check /></span></Button>
                   </div>
                 </div>
 
-                <div>
-                  <p className="mb-2 text-xs font-bold text-foreground">Espessura da borda</p>
+                <div className="layout-customizer__group">
+                  <p className="layout-customizer__label"><span><Square /></span>Espessura da borda</p>
                   <div className="grid grid-cols-3 gap-2">
                     {([['thin', 'Fina'], ['wide', 'Larga'], ['thick', 'Grossa']] as const).map(([value, label]) => (
-                      <Button key={value} type="button" variant="outline" onClick={() => setPanelBorderWidth(value)} className={`h-10 px-2 text-xs ${themeSettings.panelBorderWidth === value || (!themeSettings.panelBorderWidth && value === "wide") ? "ring-2 ring-ring" : ""}`}>{label}</Button>
+                      <Button key={value} type="button" variant="outline" onClick={() => setPanelBorderWidth(value)} className={`layout-width-choice ${themeSettings.panelBorderWidth === value || (!themeSettings.panelBorderWidth && value === "wide") ? "is-selected" : ""}`}>{label}<span className="layout-customizer__radio"><Check /></span></Button>
                     ))}
                   </div>
                 </div>
 
-                <div>
-                  <p className="mb-2 text-xs font-bold text-foreground">Cor da borda</p>
-                  <div className="grid grid-cols-6 gap-2">
-                    {([['theme', 'Tema'], ['white', 'Branca'], ['black', 'Preta'], ['cyan', 'Azul'], ['red', 'Vermelha'], ['gold', 'Dourada']] as const).map(([value, label]) => (
-                      <Button key={value} type="button" variant="outline" size="icon" onClick={() => setPanelBorderColor(value)} className={`layout-border-choice layout-border-choice-${value} aspect-square h-auto w-full rounded-lg p-0 ${themeSettings.panelBorderColor === value || (!themeSettings.panelBorderColor && value === "theme") ? "ring-2 ring-ring ring-offset-2 ring-offset-background" : ""}`} aria-label={`Borda ${label}`} title={label} />
+                <div className="layout-customizer__group">
+                  <p className="layout-customizer__label"><span><Droplets /></span>Cor da borda</p>
+                  <div className="layout-color-row">
+                    {([['red', 'Vermelha'], ['purple', 'Roxa'], ['cyan', 'Azul'], ['gold', 'Dourada'], ['green', 'Verde'], ['pink', 'Rosa'], ['gray', 'Cinza']] as const).map(([value, label]) => (
+                      <Button key={value} type="button" variant="outline" size="icon" onClick={() => setPanelBorderColor(value)} className={`layout-color-choice layout-border-choice-${value} ${themeSettings.panelBorderColor === value ? "is-selected" : ""}`} aria-label={`Borda ${label}`} title={label}><Check /></Button>
                     ))}
                   </div>
                 </div>
 
-                <div>
-                  <p className="mb-2 text-xs font-bold text-foreground">Cor da sombra dos botões</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button type="button" variant="outline" onClick={() => setPanelShadowColor("white")} className={`h-10 bg-white text-black hover:bg-white hover:text-black ${themeSettings.panelShadowColor === "white" ? "ring-2 ring-ring" : ""}`}>Branca</Button>
-                    <Button type="button" variant="outline" onClick={() => setPanelShadowColor("black")} className={`h-10 bg-black text-white hover:bg-black hover:text-white ${(themeSettings.panelShadowColor ?? "black") === "black" ? "ring-2 ring-ring" : ""}`}>Preta</Button>
+                <div className="layout-customizer__group">
+                  <p className="layout-customizer__label"><span><Sparkles /></span>Cor da sombra dos botões</p>
+                  <div className="layout-color-row">
+                    {([['red', 'Vermelha'], ['purple', 'Roxa'], ['blue', 'Azul'], ['gold', 'Dourada'], ['green', 'Verde'], ['pink', 'Rosa'], ['gray', 'Cinza']] as const).map(([value, label]) => (
+                      <Button key={value} type="button" variant="outline" size="icon" onClick={() => setPanelShadowColor(value)} className={`layout-color-choice layout-shadow-choice-${value} ${themeSettings.panelShadowColor === value ? "is-selected" : ""}`} aria-label={`Sombra ${label}`} title={label}><Check /></Button>
+                    ))}
                   </div>
                 </div>
 
-                <div>
-                  <p className="mb-2 text-xs font-bold text-foreground">Posição da sombra</p>
+                <div className="layout-customizer__group">
+                  <p className="layout-customizer__label"><span><Sparkles /></span>Posição da sombra</p>
                   <div className="grid grid-cols-2 gap-2">
-                    <Button type="button" variant="outline" onClick={() => setPanelShadowType("inner")} className={`h-10 ${themeSettings.panelShadowType === "inner" ? "ring-2 ring-ring" : ""}`}>Interna</Button>
-                    <Button type="button" variant="outline" onClick={() => setPanelShadowType("outer")} className={`h-10 ${themeSettings.panelShadowType !== "inner" ? "ring-2 ring-ring" : ""}`}>Externa</Button>
+                    <Button type="button" variant="outline" onClick={() => setPanelShadowType("inner")} className={`layout-width-choice ${themeSettings.panelShadowType === "inner" ? "is-selected" : ""}`}>Interna<span className="layout-customizer__radio"><Check /></span></Button>
+                    <Button type="button" variant="outline" onClick={() => setPanelShadowType("outer")} className={`layout-width-choice ${themeSettings.panelShadowType !== "inner" ? "is-selected" : ""}`}>Externa<span className="layout-customizer__radio"><Check /></span></Button>
                   </div>
                 </div>
               </div>

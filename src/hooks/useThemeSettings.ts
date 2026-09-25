@@ -3,8 +3,8 @@ import { useState, useEffect, useCallback } from "react";
 export type ThemeMode = "dark" | "light";
 export type NeonLayout = "purple" | "blue" | "red" | "gold";
 export type PanelBorderWidth = "thin" | "wide" | "thick";
-export type PanelBorderColor = "theme" | "white" | "black" | "cyan" | "red" | "gold";
-export type PanelShadowColor = "white" | "black";
+export type PanelBorderColor = "theme" | "white" | "black" | "cyan" | "red" | "gold" | "purple" | "green" | "pink" | "gray";
+export type PanelShadowColor = "white" | "black" | "red" | "purple" | "blue" | "gold" | "green" | "pink" | "gray";
 export type PanelShadowType = "inner" | "outer";
 
 interface ThemeSettings {
@@ -101,6 +101,22 @@ const BORDER_COLORS: Record<PanelBorderColor, string> = {
   cyan: "188 100% 50%",
   red: "0 92% 54%",
   gold: "42 92% 58%",
+  purple: "272 90% 52%",
+  green: "145 88% 38%",
+  pink: "329 92% 48%",
+  gray: "0 0% 48%",
+};
+
+const SHADOW_COLORS: Record<PanelShadowColor, string> = {
+  white: "0 0% 100%",
+  black: "0 0% 0%",
+  red: "0 92% 50%",
+  purple: "272 90% 48%",
+  blue: "218 100% 47%",
+  gold: "42 92% 55%",
+  green: "145 88% 36%",
+  pink: "329 92% 46%",
+  gray: "0 0% 42%",
 };
 
 const applyTheme = ({
@@ -247,7 +263,7 @@ const applyTheme = ({
 
   setVar("--layout-default-border", neonLayout === "gold" ? "40 72% 87%" : neonLayout === "red" ? "13 100% 55%" : neonLayout === "blue" ? "184 100% 55%" : "285 100% 68%");
   setVar("--layout-border-color", BORDER_COLORS[panelBorderColor]);
-  setVar("--layout-shadow-color", panelShadowColor === "white" ? "0 0% 100%" : "0 0% 0%");
+  setVar("--layout-shadow-color", SHADOW_COLORS[panelShadowColor]);
   setVar("--layout-text-color", clientCardText === "white" ? "0 0% 100%" : "0 0% 4%");
   setVar("--client-card-foreground", clientCardText === "white" ? "0 0% 100%" : "0 0% 4%");
 };
@@ -274,8 +290,8 @@ const readSettings = (): ThemeSettings => {
         clientCardStyleVersion: CLIENT_CARD_STYLE_VERSION,
         neonLayout: parsed.neonLayout === "blue" || parsed.neonLayout === "red" || parsed.neonLayout === "gold" ? parsed.neonLayout : "purple",
         panelBorderWidth: parsed.panelBorderWidth === "thin" || parsed.panelBorderWidth === "thick" ? parsed.panelBorderWidth : "wide",
-        panelBorderColor: ["theme", "white", "black", "cyan", "red", "gold"].includes(parsed.panelBorderColor ?? "") ? parsed.panelBorderColor : "theme",
-        panelShadowColor: parsed.panelShadowColor === "white" ? "white" : "black",
+        panelBorderColor: ["theme", "white", "black", "cyan", "red", "gold", "purple", "green", "pink", "gray"].includes(parsed.panelBorderColor ?? "") ? parsed.panelBorderColor : "theme",
+        panelShadowColor: ["white", "black", "red", "purple", "blue", "gold", "green", "pink", "gray"].includes(parsed.panelShadowColor ?? "") ? parsed.panelShadowColor : "black",
         panelShadowType: parsed.panelShadowType === "inner" ? "inner" : "outer",
       };
       if (needsActivatedCardUpdate) {
