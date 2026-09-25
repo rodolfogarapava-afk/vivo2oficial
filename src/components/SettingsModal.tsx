@@ -911,7 +911,17 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 <Palette className="h-4 w-4" />
                 Layout do painel
               </h3>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setNeonLayout("purple")}
+                  className={`theme-choice-purple h-20 flex-col gap-1 rounded-lg px-2 ${themeSettings.neonLayout === "purple" || !themeSettings.neonLayout ? "ring-2 ring-ring" : ""}`}
+                  aria-pressed={themeSettings.neonLayout === "purple" || !themeSettings.neonLayout}
+                >
+                  <span className="theme-choice-preview h-6 w-16 max-w-full rounded-md" />
+                  <span className="text-xs font-extrabold uppercase sm:text-sm">Roxo padrão</span>
+                </Button>
                 <Button
                   type="button"
                   variant="outline"
