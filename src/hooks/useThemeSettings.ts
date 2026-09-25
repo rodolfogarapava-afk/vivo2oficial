@@ -144,6 +144,34 @@ const applyTheme = ({ backgroundColor, mode, buttonColor, clientCardPurple = 0, 
     setVar("--input", `${h} ${Math.max(s - 20, 0)}% ${cardL + 5}%`);
     setVar("--ring", `${h} 70% 50%`);
   }
+
+  if (neonLayout === "red") {
+    setVar("--background", "355 82% 5%");
+    setVar("--card", "355 82% 8%");
+    setVar("--primary", "354 92% 45%");
+    setVar("--border", "0 100% 50%");
+    setVar("--ring", "0 100% 56%");
+    setVar("--client-card-bg", "355 76% 17%");
+    setVar("--client-card-border", "13 100% 55%");
+    setVar("--client-card-deep", "357 91% 30%");
+    setVar("--client-card-muted", "28 100% 72%");
+    setVar("--client-card-highlight", "32 100% 52%");
+    setVar("--client-card-shadow", "0 100% 27%");
+    setVar("--client-card-glow", "0 100% 55%");
+  } else {
+    setVar("--background", "221 82% 5%");
+    setVar("--card", "221 82% 8%");
+    setVar("--primary", "214 100% 48%");
+    setVar("--border", "194 100% 46%");
+    setVar("--ring", "194 100% 52%");
+    setVar("--client-card-bg", "216 78% 17%");
+    setVar("--client-card-border", "184 100% 55%");
+    setVar("--client-card-deep", "235 88% 38%");
+    setVar("--client-card-muted", "194 100% 82%");
+    setVar("--client-card-highlight", "190 100% 52%");
+    setVar("--client-card-shadow", "205 100% 30%");
+    setVar("--client-card-glow", "185 100% 55%");
+  }
 };
 
 const readSettings = (): ThemeSettings => {
