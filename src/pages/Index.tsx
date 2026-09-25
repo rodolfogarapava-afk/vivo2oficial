@@ -293,8 +293,8 @@ const Index = () => {
       result = result.filter(client => !paidClientIds.includes(client.id));
     }
 
-    // Linhas livres (nome começando com "LIVRE") sempre no topo da lista
-    result = [...result].sort((a, b) => Number(isFreeLine(b.name)) - Number(isFreeLine(a.name)));
+    // Linhas livres (nome começando com "LIVRE") sempre no final da lista
+    result = [...result].sort((a, b) => Number(isFreeLine(a.name)) - Number(isFreeLine(b.name)));
 
     return result;
   }, [clients, searchQuery, selectedDueDay, hidePaidClients, paidClientIds]);
