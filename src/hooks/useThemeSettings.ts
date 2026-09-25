@@ -2,6 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 
 export type ThemeMode = "dark" | "light";
 export type NeonLayout = "blue" | "red" | "gold";
+export type PanelBorderWidth = "thin" | "wide" | "thick";
+export type PanelBorderColor = "theme" | "white" | "black" | "cyan" | "red" | "gold";
+export type PanelShadowColor = "white" | "black";
+export type PanelShadowType = "inner" | "outer";
 
 interface ThemeSettings {
   backgroundColor: string;
@@ -11,6 +15,10 @@ interface ThemeSettings {
   clientCardText?: "black" | "white";
   clientCardStyleVersion?: number;
   neonLayout?: NeonLayout;
+  panelBorderWidth?: PanelBorderWidth;
+  panelBorderColor?: PanelBorderColor;
+  panelShadowColor?: PanelShadowColor;
+  panelShadowType?: PanelShadowType;
 }
 
 const STORAGE_KEY = "theme-settings";
@@ -86,7 +94,27 @@ const setVar = (name: string, value: string) => {
   document.documentElement.style.setProperty(name, value);
 };
 
-const applyTheme = ({ backgroundColor, mode, buttonColor, clientCardPurple = 0, clientCardText = "black", neonLayout = "blue" }: ThemeSettings) => {
+const BORDER_COLORS: Record<PanelBorderColor, string> = {
+  theme: "var(--layout-default-border)",
+  white: "0 0% 100%",
+  black: "0 0% 0%",
+  cyan: "188 100% 50%",
+  red: "0 92% 54%",
+  gold: "42 92% 58%",
+};
+
+const applyTheme = ({
+  backgroundColor,
+  mode,
+  buttonColor,
+  clientCardPurple = 0,
+  clientCardText = "black",
+  neonLayout = "blue",
+  panelBorderWidth = "wide",
+  panelBorderColor = "theme",
+  panelShadowColor = "black",
+  panelShadowType = "outer",
+}: ThemeSettings) => {
   const { h, s, l } = parseHsl(backgroundColor);
   const root = document.documentElement;
   const cardPurple = Math.min(100, Math.max(0, clientCardPurple));
@@ -95,6 +123,11 @@ const applyTheme = ({ backgroundColor, mode, buttonColor, clientCardPurple = 0, 
   root.classList.toggle("neon-layout-blue", neonLayout === "blue");
   root.classList.toggle("neon-layout-red", neonLayout === "red");
   root.classList.toggle("neon-layout-gold", neonLayout === "gold");
+  root.classList.toggle("panel-border-thin", panelBorderWidth === "thin");
+  root.classList.toggle("panel-border-wide", panelBorderWidth === "wide");
+  root.classList.toggle("panel-border-thick", panelBorderWidth === "thick");
+  root.classList.toggle("panel-shadow-inner", panelShadowType === "inner");
+  root.classList.toggle("panel-shadow-outer", panelShadowType === "outer");
 
   setVar("--client-card-bg", `270 ${Math.round(78 * mix)}% ${Math.round(100 - 62 * mix)}%`);
   setVar("--client-card-foreground", clientCardText === "white" ? "0 0% 100%" : "0 0% 4%");
@@ -197,6 +230,12 @@ const applyTheme = ({ backgroundColor, mode, buttonColor, clientCardPurple = 0, 
     setVar("--client-card-shadow", "205 100% 30%");
     setVar("--client-card-glow", "185 100% 55%");
   }
+
+  setVar("--layout-default-border", neonLayout === "gold" ? "40 72% 87%" : neonLayout === "red" ? "13 100% 55%" : "184 100% 55%");
+  setVar("--layout-border-color", BORDER_COLORS[panelBorderColor]);
+  setVar("--layout-shadow-color", panelShadowColor === "white" ? "0 0% 100%" : "0 0% 0%");
+  setVar("--layout-text-color", clientCardText === "white" ? "0 0% 100%" : "0 0% 4%");
+  setVar("--client-card-foreground", clientCardText === "white" ? "0 0% 100%" : "0 0% 4%");
 };
 
 const readSettings = (): ThemeSettings => {
@@ -220,6 +259,10 @@ const readSettings = (): ThemeSettings => {
         clientCardText: needsActivatedCardUpdate || parsed.clientCardText === "white" ? "white" : "black",
         clientCardStyleVersion: CLIENT_CARD_STYLE_VERSION,
         neonLayout: parsed.neonLayout === "red" || parsed.neonLayout === "gold" ? parsed.neonLayout : "blue",
+        panelBorderWidth: parsed.panelBorderWidth === "thin" || parsed.panelBorderWidth === "thick" ? parsed.panelBorderWidth : "wide",
+        panelBorderColor: ["theme", "white", "black", "cyan", "red", "gold"].includes(parsed.panelBorderColor ?? "") ? parsed.panelBorderColor : "theme",
+        panelShadowColor: parsed.panelShadowColor === "white" ? "white" : "black",
+        panelShadowType: parsed.panelShadowType === "inner" ? "inner" : "outer",
       };
       if (needsActivatedCardUpdate) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
@@ -237,6 +280,10 @@ const readSettings = (): ThemeSettings => {
     clientCardText: "white",
     clientCardStyleVersion: CLIENT_CARD_STYLE_VERSION,
     neonLayout: "blue",
+    panelBorderWidth: "wide",
+    panelBorderColor: "theme",
+    panelShadowColor: "black",
+    panelShadowType: "outer",
   };
 
 };
@@ -300,6 +347,22 @@ export const useThemeSettings = () => {
     window.dispatchEvent(new Event(THEME_UPDATED_EVENT));
   }, []);
 
+  const setPanelBorderWidth = useCallback((panelBorderWidth: PanelBorderWidth) => {
+    saveSettings({ ...readSettings(), panelBorderWidth });
+  }, [saveSettings]);
+
+  const setPanelBorderColor = useCallback((panelBorderColor: PanelBorderColor) => {
+    saveSettings({ ...readSettings(), panelBorderColor });
+  }, [saveSettings]);
+
+  const setPanelShadowColor = useCallback((panelShadowColor: PanelShadowColor) => {
+    saveSettings({ ...readSettings(), panelShadowColor });
+  }, [saveSettings]);
+
+  const setPanelShadowType = useCallback((panelShadowType: PanelShadowType) => {
+    saveSettings({ ...readSettings(), panelShadowType });
+  }, [saveSettings]);
+
   const setMode = useCallback(
     (mode: ThemeMode) => {
       const current = readSettings();
@@ -321,6 +384,10 @@ export const useThemeSettings = () => {
     setClientCardPurple,
     setClientCardText,
     setNeonLayout,
+    setPanelBorderWidth,
+    setPanelBorderColor,
+    setPanelShadowColor,
+    setPanelShadowType,
     colors: settings.mode === "light" ? LIGHT_COLORS : DARK_COLORS,
     darkColors: DARK_COLORS,
     lightColors: LIGHT_COLORS,

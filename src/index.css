@@ -64,6 +64,11 @@
     --neon-deep: 224 88% 12%;
     --neon-surface: 221 82% 8%;
     --neon-soft: 198 100% 84%;
+    --layout-default-border: 184 100% 55%;
+    --layout-border-color: var(--layout-default-border);
+    --layout-shadow-color: 0 0% 0%;
+    --layout-text-color: 0 0% 100%;
+    --layout-border-width: 2px;
   }
 
 
@@ -144,7 +149,18 @@
     background: linear-gradient(180deg, hsl(41 79% 84%), hsl(33 62% 48%));
     box-shadow: inset 0 1px 0 hsl(42 91% 94%), 0 3px 6px hsl(31 43% 28% / 0.42);
   }
+
+  .layout-border-choice-theme { background: hsl(var(--layout-default-border)); }
+  .layout-border-choice-white { background: hsl(0 0% 100%); }
+  .layout-border-choice-black { background: hsl(0 0% 0%); }
+  .layout-border-choice-cyan { background: hsl(188 100% 50%); }
+  .layout-border-choice-red { background: hsl(0 92% 54%); }
+  .layout-border-choice-gold { background: hsl(42 92% 58%); }
 }
+
+.panel-border-thin { --layout-border-width: 1px; }
+.panel-border-wide { --layout-border-width: 2px; }
+.panel-border-thick { --layout-border-width: 4px; }
 
 .neon-layout-blue {
   --background: 221 82% 5%;
@@ -318,6 +334,54 @@
 .neon-layout-red .neon-dashboard [class*="shadow-client-card"],
 .neon-layout-gold .neon-dashboard [class*="shadow-client-card"] {
   box-shadow: inset 0 1px 0 hsl(var(--client-card-foreground) / 0.24), 0 4px 0 hsl(var(--client-card-shadow)), 0 0 16px hsl(var(--client-card-glow) / 0.58);
+}
+
+.neon-dashboard header > div,
+.neon-dashboard header button,
+.neon-dashboard .neon-total-card,
+.neon-dashboard .neon-expense-card,
+.neon-dashboard .neon-profit-card,
+.neon-dashboard .neon-due-card,
+.neon-dashboard [class*="border-client-card-border"] {
+  border-width: var(--layout-border-width) !important;
+  border-color: hsl(var(--layout-border-color)) !important;
+}
+
+.panel-shadow-outer .neon-dashboard header button,
+.panel-shadow-outer .neon-dashboard .neon-total-card,
+.panel-shadow-outer .neon-dashboard .neon-expense-card,
+.panel-shadow-outer .neon-dashboard .neon-profit-card,
+.panel-shadow-outer .neon-dashboard .neon-due-card,
+.panel-shadow-outer .neon-dashboard [class*="shadow-client-card"] {
+  box-shadow: 0 6px 12px hsl(var(--layout-shadow-color) / 0.58) !important;
+}
+
+.panel-shadow-inner .neon-dashboard header button,
+.panel-shadow-inner .neon-dashboard .neon-total-card,
+.panel-shadow-inner .neon-dashboard .neon-expense-card,
+.panel-shadow-inner .neon-dashboard .neon-profit-card,
+.panel-shadow-inner .neon-dashboard .neon-due-card,
+.panel-shadow-inner .neon-dashboard [class*="shadow-client-card"] {
+  box-shadow: inset 0 0 12px hsl(var(--layout-shadow-color) / 0.72) !important;
+}
+
+.neon-dashboard [class*="bg-client-card"] [class*="text-client-card-foreground"],
+.neon-dashboard [class*="bg-client-card"] [class*="text-client-card-muted"] {
+  color: hsl(var(--client-card-foreground)) !important;
+}
+
+.neon-dashboard header button,
+.neon-dashboard header button [class*="text-"],
+.neon-dashboard header button svg,
+.neon-dashboard .neon-total-card,
+.neon-dashboard .neon-total-card [class*="text-"],
+.neon-dashboard .neon-expense-card,
+.neon-dashboard .neon-expense-card [class*="text-"],
+.neon-dashboard .neon-profit-card,
+.neon-dashboard .neon-profit-card [class*="text-"],
+.neon-dashboard .neon-due-card,
+.neon-dashboard .neon-due-card [class*="text-"] {
+  color: hsl(var(--layout-text-color)) !important;
 }
 
 .neon-layout-gold .neon-total-card,
