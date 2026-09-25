@@ -20,3 +20,4 @@
 - [x] Adicionar o layout dourado da referência ao lado das opções azul e vermelho
 - [x] Adicionar controles de cor das letras, borda e sombra ao layout do painel
 - [x] Adicionar o Roxo padrão como opção para restaurar o visual original
+- [x] Reorganizar a área de revendas com o visual dourado da referência
