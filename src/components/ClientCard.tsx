@@ -49,6 +49,38 @@ const formatPhoneDisplay = (phone: string) => {
   return phone;
 };
 
+const BLOCK_NOTICE_TEMPLATE = `*🔒🚫AVISO DE BLOQUEIO🔒🚫*
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+*{nome}*, informamos que seu serviço foi *BLOQUEADO* por falta de pagamento e comunicação 📣 
+
+*🌐Produto VIVO*
+
+*📱Número: {telefone}*
+
+Para reativar, efetue o pagamento:
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+✅Após o pagamento, entre em contato para liberação! 🙏`;
+
+const UNBLOCK_NOTICE_TEMPLATE = `*✅AVISO DE DESBLOQUEIO✅*
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+*{nome}*, informamos que seu serviço foi *DESBLOQUEADO* em até 2h será restabelecido 📣 
+
+*🌐Produto VIVO*
+
+*📱Número: {telefone}*
+
+✅Pagamento efetuado:
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+🔓liberação em até 2h! 🙏`;
+
 export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, isPaid = false, onTogglePayment, dayPaymentSent = false, inPanel = null, supportWhatsapp = null, valueOverride, dense = false }: ClientCardProps) => {
   const showMissingPanelWarning = client.company !== "nexus" && inPanel === false;
   const { settings } = useWhatsAppSettings();
