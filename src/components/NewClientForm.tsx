@@ -221,7 +221,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
               type="button"
               variant="secondary"
               onClick={() => setVirtualChip(false)}
-              className={`h-14 rounded-xl border text-sm font-bold ${!virtualChip ? 'border-primary bg-primary text-primary-foreground' : 'border-primary/50 bg-primary/30 text-foreground/70'}`}
+              className={`h-14 rounded-xl border text-sm font-bold ${virtualChip === false ? 'border-primary bg-primary text-primary-foreground' : 'border-primary/50 bg-primary/30 text-foreground/70'}`}
             >
               <Smartphone className="h-5 w-5" />
               Chip Físico
@@ -230,7 +230,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
               type="button"
               variant="secondary"
               onClick={() => setVirtualChip(true)}
-              className={`h-14 rounded-xl border text-sm font-bold ${virtualChip ? 'border-primary bg-primary text-primary-foreground' : 'border-primary/50 bg-primary/30 text-foreground/70'}`}
+              className={`h-14 rounded-xl border text-sm font-bold ${virtualChip === true ? 'border-primary bg-primary text-primary-foreground' : 'border-primary/50 bg-primary/30 text-foreground/70'}`}
             >
               <Wifi className="h-5 w-5" />
               Chip Virtual
@@ -251,7 +251,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
           <Button
             type="submit"
             disabled={isLoading || !isFormValid}
-            className="flex-1 h-14 bg-primary/60 hover:bg-primary/70 text-foreground/70 font-bold rounded-xl text-base disabled:opacity-50"
+            className={`flex-1 h-14 font-bold rounded-xl text-base disabled:opacity-50 ${isFormValid ? 'bg-green-600 hover:bg-green-500 text-white' : 'bg-primary/60 hover:bg-primary/70 text-foreground/70'}`}
           >
             {isLoading ? "Salvando..." : "Salvar"}
           </Button>
