@@ -463,6 +463,35 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             </div>
           </div>
         )}
+
+        {/* Menu de opções do WhatsApp: mensagem normal, bloqueio e desbloqueio */}
+        {showWhatsAppMenu && (
+          <div
+            className="absolute inset-0 z-10 flex items-center justify-center bg-black/70 rounded-2xl backdrop-blur-sm"
+            onClick={() => setShowWhatsAppMenu(false)}
+          >
+            <div className="flex flex-col items-stretch gap-1.5 px-3" onClick={(e) => e.stopPropagation()}>
+              <button
+                onClick={() => { setShowWhatsAppMenu(false); handleWhatsApp(); }}
+                className="px-4 py-1.5 rounded-lg bg-green-600 text-white text-xs font-bold hover:bg-green-500 transition-colors"
+              >
+                WhatsApp
+              </button>
+              <button
+                onClick={() => sendClientNotice("block")}
+                className="px-4 py-1.5 rounded-lg bg-red-600 text-white text-xs font-bold hover:bg-red-500 transition-colors"
+              >
+                🔒 Bloqueio
+              </button>
+              <button
+                onClick={() => sendClientNotice("unblock")}
+                className="px-4 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-500 transition-colors"
+              >
+                🔓 Desbloqueio
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Block/Unblock Confirmation Dialog */}
