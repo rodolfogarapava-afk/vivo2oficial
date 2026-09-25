@@ -1632,8 +1632,13 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 </Button>
               ))}
 
-              {clients.length === 0 && (
-                <p className="py-8 text-center text-sm text-purple-200">Nenhum cliente cadastrado.</p>
+              {clients.filter((client) => {
+                  const name = client.name.trim().toUpperCase();
+                  if (clientListFilter === "rev") return name.startsWith("REV");
+                  if (clientListFilter === "livre") return name.startsWith("LIVRE");
+                  return true;
+                }).length === 0 && (
+                <p className="py-8 text-center text-sm text-purple-200">Nenhum cliente nesta lista.</p>
               )}
             </div>
           </div>
