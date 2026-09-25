@@ -57,6 +57,13 @@
       "when": 1790278072996,
       "tag": "0007_validate_reseller_signup_identity",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790343850571,
+      "tag": "0008_add_client_block_notice_templates",
+      "breakpoints": true
     }
   ]
 }
