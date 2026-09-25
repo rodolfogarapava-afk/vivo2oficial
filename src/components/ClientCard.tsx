@@ -1,4 +1,4 @@
-import { Phone, Check, Globe2, Smartphone, Wifi } from "lucide-react";
+import { Phone, Check, Smartphone, Wifi } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Client } from "@/hooks/useClients";
 import { useWhatsAppSettings } from "@/hooks/useWhatsAppSettings";
@@ -50,7 +50,6 @@ const formatPhoneDisplay = (phone: string) => {
 };
 
 export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, isPaid = false, onTogglePayment, dayPaymentSent = false, inPanel = null, supportWhatsapp = null, valueOverride, dense = false }: ClientCardProps) => {
-  const showGlobe = client.company !== "nexus" && inPanel !== false;
   const showMissingPanelWarning = client.company !== "nexus" && inPanel === false;
   const { settings } = useWhatsAppSettings();
   const { hasBlockPhone, sendBlockMessage } = useBlockWhatsApp();
@@ -255,7 +254,6 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             <h3 className={`flex-1 font-semibold text-sm whitespace-nowrap overflow-x-auto ${isFree ? 'text-black' : 'text-client-card-foreground'}`}>
               {isFree && <span className="mr-1">✅</span>}
               {showMissingPanelWarning && <span className="mr-1">⚠️</span>}
-              {showGlobe && <Globe2 className="mr-1 inline h-4 w-4 text-client-card-highlight" />}
               {formatClientName(client.name)}
             </h3>
             {(supportWhatsapp || (settings.showClientWhatsApp && (client.whatsapp || client.phone))) && (
@@ -317,7 +315,6 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
               {client.phone.replace(/\D/g, "").length === 0 && <span className="mr-1">⚠️</span>}
               {isFree && <span className="mr-1">✅</span>}
               {showMissingPanelWarning && <span className="mr-1">⚠️</span>}
-              {showGlobe && <Globe2 className="mr-1 inline h-4 w-4 text-client-card-highlight" />}
               {formatClientName(client.name)}
               {client.blocked && <span className="ml-2 text-[10px] font-bold text-red-400 no-underline">(BLOQUEADO)</span>}
               {client.bonus && !client.blocked && <span className="ml-2 text-[10px] font-bold text-yellow-600">★ BÔNUS</span>}
