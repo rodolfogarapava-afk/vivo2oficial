@@ -143,15 +143,49 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
       handleWhatsApp();
       return;
     }
-    // If client is blocked, clicking will unblock and send unblock message
-    // If client is not blocked, clicking will send normal message OR block (show confirmation)
-    if (client.blocked) {
-      // Show confirmation to unblock
-      setShowBlockConfirmDialog(true);
-    } else {
-      // Normal WhatsApp behavior - send billing message
-      handleWhatsApp();
+    // Abre o menu com as opções: WhatsApp, Bloqueio e Desbloqueio
+    setShowWhatsAppMenu(true);
+  };
+
+  // Envia o aviso de bloqueio/desbloqueio para o WhatsApp do cliente
+  const sendClientNotice = (type: "block" | "unblock") => {
+    const destination =
+      (client.whatsapp?.replace(/\D/g, "") || client.phone?.replace(/\D/g, "")) ?? "";
+    if (!destination) {
+      toast({
+        title: "WhatsApp não cadastrado",
+        description: "Edite o cliente e informe o WhatsApp.",
+        variant: "destructive",
+      });
+      return;
     }
+
+    const template = type === "block" ? BLOCK_NOTICE_TEMPLATE : UNBLOCK_NOTICE_TEMPLATE;
+    const message = template
+      .replace(/\{nome\}/g, client.name)
+      .replace(/\{telefone\}/g, formatPhoneDisplay(client.phone));
+
+    const phoneWithCountry = destination.startsWith("55") ? destination : `55${destination}`;
+    const encodedMessage = encodeURIComponent(message);
+    const isAndroid = /android/i.test(navigator.userAgent);
+
+    let whatsappUrl: string;
+    if (isAndroid) {
+      const pkg = settings.useBusiness ? "com.whatsapp.w4b" : "com.whatsapp";
+      whatsappUrl = `intent://send?phone=${phoneWithCountry}&text=${encodedMessage}#Intent;scheme=whatsapp;package=${pkg};end`;
+    } else {
+      whatsappUrl = settings.useBusiness
+        ? `https://api.whatsapp.com/send?phone=${phoneWithCountry}&text=${encodedMessage}`
+        : `https://wa.me/${phoneWithCountry}?text=${encodedMessage}`;
+    }
+    window.open(whatsappUrl, "_blank");
+
+    // Marca/desmarca o cliente como bloqueado no painel
+    if (onBlockClient) {
+      if (type === "block" && !client.blocked) onBlockClient(client.id, true);
+      if (type === "unblock" && client.blocked) onBlockClient(client.id, false);
+    }
+    setShowWhatsAppMenu(false);
   };
 
   const handleConfirmBlock = () => {
