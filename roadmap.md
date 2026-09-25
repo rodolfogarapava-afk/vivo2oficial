@@ -16,3 +16,4 @@
 - [x] Corrigir a ativação da revenda quando os dados completos ficaram apenas na conta
 - [x] Colocar as linhas LIVRE no final da lista de clientes
 - [x] Mostrar na lista da engrenagem os indicadores de WhatsApp, valor do produto e custo da linha
+- [x] Reproduzir o painel neon da referência com escolha de layout azul ou vermelho na engrenagem

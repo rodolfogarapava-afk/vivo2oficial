@@ -510,7 +510,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-background overflow-visible touch-pan-y" {...pullHandlers}>
+    <div className="neon-dashboard min-h-[100dvh] bg-background overflow-visible touch-pan-y" {...pullHandlers}>
       <div
         aria-live="polite"
         className={`fixed left-1/2 top-3 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold text-foreground shadow-lg transition-all duration-200 ${
@@ -667,19 +667,19 @@ const Index = () => {
 
       {/* Financial totals */}
       <div className="mx-3 grid grid-cols-3 gap-2">
-        <div className="min-w-0 rounded-xl border border-purple-700/60 bg-purple-950/40 px-2 py-3 text-center">
+        <div className="neon-total-card min-w-0 rounded-xl border border-purple-700/60 bg-purple-950/40 px-2 py-3 text-center">
           <p className="text-[9px] font-bold uppercase text-purple-300">Total</p>
           <p className="mt-1 truncate text-xs font-extrabold text-white" title={totalGross.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}>
             {totalGross.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           </p>
         </div>
-        <div className="min-w-0 rounded-xl border border-red-700/60 bg-red-950/30 px-2 py-3 text-center">
+        <div className="neon-expense-card min-w-0 rounded-xl border border-red-700/60 bg-red-950/30 px-2 py-3 text-center">
           <p className="text-[9px] font-bold uppercase text-red-300">Gastos</p>
           <p className="mt-1 truncate text-xs font-extrabold text-red-400" title={totalExpenses.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}>
             {totalExpenses.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           </p>
         </div>
-        <div className="min-w-0 rounded-xl border border-green-700/60 bg-green-950/30 px-2 py-3 text-center">
+        <div className="neon-profit-card min-w-0 rounded-xl border border-green-700/60 bg-green-950/30 px-2 py-3 text-center">
           <p className="text-[9px] font-bold uppercase text-green-300">Lucro</p>
           <p className="mt-1 truncate text-xs font-extrabold text-green-400" title={totalProfit.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}>
             {totalProfit.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
@@ -692,7 +692,7 @@ const Index = () => {
         <button
           type="button"
           onClick={() => setShowDueTomorrow(true)}
-          className="flex w-full items-center justify-between rounded-xl border border-purple-700/60 bg-purple-950/40 px-3 py-2 active:scale-[0.99]"
+          className="neon-due-card flex w-full items-center justify-between rounded-xl border border-purple-700/60 bg-purple-950/40 px-3 py-2 active:scale-[0.99]"
           aria-label="Abrir lista de quem vence amanhã"
         >
           <span className="flex items-center gap-2">
