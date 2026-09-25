@@ -55,10 +55,10 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
     onSubmit({
       name: formatClientName(name),
       phone: phone.trim(),
-      whatsapp: whatsapp.trim() || null,
+      whatsapp: whatsapp.trim(),
       value_paid: parseFloat(valuePaid),
       due_day: dueDay,
-      virtual_chip: virtualChip,
+      virtual_chip: virtualChip === true,
       is_resale: false,
       bonus: false,
       already_paid: false,
@@ -72,7 +72,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
     setWhatsapp("");
     setValuePaid("");
     setDueDay(10);
-    setVirtualChip(false);
+    setVirtualChip(null);
     setLineCost(null);
   };
 
@@ -89,7 +89,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
     return digits;
   };
 
-  const isFormValid = name.trim() && phone.trim() && valuePaid && !phoneError;
+  const isFormValid = Boolean(name.trim() && phone.trim() && whatsapp.trim() && valuePaid && virtualChip !== null && !phoneError);
 
   return (
     <div className="rounded-2xl bg-card p-5">
