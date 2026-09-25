@@ -436,6 +436,15 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
           </div>
         )}
 
+        {/* Selo "BLOQUEADO" no meio do cartão (não bloqueia os cliques nos botões) */}
+        {client.blocked && (
+          <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center">
+            <span className="-rotate-6 rounded-md border-2 border-red-500 bg-red-600/25 px-3 py-0.5 text-[13px] font-extrabold uppercase tracking-widest text-red-500 shadow-[0_0_14px_rgba(239,68,68,0.55)] sm:text-[16px]">
+              Bloqueado
+            </span>
+          </div>
+        )}
+
 
         {/* Inline Payment Confirmation Overlay */}
         {showConfirmDialog && (
