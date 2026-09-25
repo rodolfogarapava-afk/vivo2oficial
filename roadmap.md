@@ -18,3 +18,4 @@
 - [x] Mostrar na lista da engrenagem os indicadores de WhatsApp, valor do produto e custo da linha
 - [x] Reproduzir o painel neon da referência com escolha de layout azul ou vermelho na engrenagem
 - [x] Adicionar o layout dourado da referência ao lado das opções azul e vermelho
+- [x] Adicionar controles de cor das letras, borda e sombra ao layout do painel

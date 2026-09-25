@@ -173,7 +173,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
   const { toast } = useToast();
   const { settings: whatsAppSettings, saveSettings: saveWhatsAppSettings } = useWhatsAppSettings();
-  const { settings: themeSettings, saveSettings: saveThemeSettings, setMode: setThemeMode, setButtonColor, setClientCardPurple, setClientCardText, setNeonLayout, colors, buttonColors } = useThemeSettings();
+  const { settings: themeSettings, saveSettings: saveThemeSettings, setMode: setThemeMode, setButtonColor, setClientCardPurple, setClientCardText, setNeonLayout, setPanelBorderWidth, setPanelBorderColor, setPanelShadowColor, setPanelShadowType, colors, buttonColors } = useThemeSettings();
 
   
   const [destinationPhone, setDestinationPhone] = useState("");
@@ -943,6 +943,50 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   <span className="text-xs font-extrabold uppercase sm:text-sm">Dourado</span>
                 </Button>
               </div>
+
+              <div className="mt-4 space-y-4 border-t border-border pt-4">
+                <div>
+                  <p className="mb-2 text-xs font-bold text-foreground">Cor das letras</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button type="button" variant="outline" onClick={() => setClientCardText("black")} className={`h-10 bg-white text-black hover:bg-white hover:text-black ${(themeSettings.clientCardText ?? "black") === "black" ? "ring-2 ring-ring" : ""}`}>Preto</Button>
+                    <Button type="button" variant="outline" onClick={() => setClientCardText("white")} className={`h-10 bg-black text-white hover:bg-black hover:text-white ${themeSettings.clientCardText === "white" ? "ring-2 ring-ring" : ""}`}>Branco</Button>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-xs font-bold text-foreground">Espessura da borda</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([['thin', 'Fina'], ['wide', 'Larga'], ['thick', 'Grossa']] as const).map(([value, label]) => (
+                      <Button key={value} type="button" variant="outline" onClick={() => setPanelBorderWidth(value)} className={`h-10 px-2 text-xs ${themeSettings.panelBorderWidth === value || (!themeSettings.panelBorderWidth && value === "wide") ? "ring-2 ring-ring" : ""}`}>{label}</Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-xs font-bold text-foreground">Cor da borda</p>
+                  <div className="grid grid-cols-6 gap-2">
+                    {([['theme', 'Tema'], ['white', 'Branca'], ['black', 'Preta'], ['cyan', 'Azul'], ['red', 'Vermelha'], ['gold', 'Dourada']] as const).map(([value, label]) => (
+                      <Button key={value} type="button" variant="outline" size="icon" onClick={() => setPanelBorderColor(value)} className={`layout-border-choice layout-border-choice-${value} aspect-square h-auto w-full rounded-lg p-0 ${themeSettings.panelBorderColor === value || (!themeSettings.panelBorderColor && value === "theme") ? "ring-2 ring-ring ring-offset-2 ring-offset-background" : ""}`} aria-label={`Borda ${label}`} title={label} />
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-xs font-bold text-foreground">Cor da sombra dos botões</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button type="button" variant="outline" onClick={() => setPanelShadowColor("white")} className={`h-10 bg-white text-black hover:bg-white hover:text-black ${themeSettings.panelShadowColor === "white" ? "ring-2 ring-ring" : ""}`}>Branca</Button>
+                    <Button type="button" variant="outline" onClick={() => setPanelShadowColor("black")} className={`h-10 bg-black text-white hover:bg-black hover:text-white ${(themeSettings.panelShadowColor ?? "black") === "black" ? "ring-2 ring-ring" : ""}`}>Preta</Button>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-xs font-bold text-foreground">Posição da sombra</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button type="button" variant="outline" onClick={() => setPanelShadowType("inner")} className={`h-10 ${themeSettings.panelShadowType === "inner" ? "ring-2 ring-ring" : ""}`}>Interna</Button>
+                    <Button type="button" variant="outline" onClick={() => setPanelShadowType("outer")} className={`h-10 ${themeSettings.panelShadowType !== "inner" ? "ring-2 ring-ring" : ""}`}>Externa</Button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* ===== ADM: tokens e nomes dos painéis ===== */}
@@ -1279,29 +1323,6 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 </div>
               </div>
 
-              <p className="mb-2 mt-4 text-xs text-white/70">Cor das letras e números</p>
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setClientCardText("black")}
-                  className={`h-11 bg-white text-black hover:bg-white hover:text-black ${
-                    (themeSettings.clientCardText ?? "black") === "black" ? "border-2 border-green-500" : "border-purple-600"
-                  }`}
-                >
-                  Preto
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setClientCardText("white")}
-                  className={`h-11 bg-purple-950 text-white hover:bg-purple-950 hover:text-white ${
-                    themeSettings.clientCardText === "white" ? "border-2 border-green-500" : "border-purple-600"
-                  }`}
-                >
-                  Branco
-                </Button>
-              </div>
             </div>
 
 
