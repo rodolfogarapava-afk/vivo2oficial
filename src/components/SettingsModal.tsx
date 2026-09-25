@@ -1,4 +1,4 @@
-import { useLineCosts } from "@/hooks/useLineCosts";
+import { getClientLineCost, useLineCosts } from "@/hooks/useLineCosts";
 import { ResellerValuesList } from "@/components/ResellerTools";
 import { supabase as sbValues } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Download, FileText, Signal, Copy, Check, MessageCircle, Save, ArrowLeft, Palette, Pencil, Trash2, X, Users, Lock, LockOpen, Unlock, Building2, RefreshCw, CloudDownload, CreditCard, Send, Ban, Search, Star, Store, Eye, EyeOff, Calendar, Upload, Loader2, TrendingUp, KeyRound } from "lucide-react";
+import { Download, FileText, Signal, Copy, Check, MessageCircle, Save, ArrowLeft, Palette, Pencil, Trash2, X, Users, Lock, LockOpen, Unlock, Building2, RefreshCw, CloudDownload, CreditCard, Send, Ban, Search, Star, Store, Eye, EyeOff, Calendar, Upload, Loader2, TrendingUp, KeyRound, Banknote } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { VIVO_PANEL_URL, useVivoPanel, type SyncPlan } from "@/hooks/useVivoPanel";
 import { Switch } from "@/components/ui/switch";
@@ -1494,9 +1494,17 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   className="w-full min-h-12 h-auto justify-start bg-purple-900/70 hover:bg-purple-700 text-white rounded-xl px-3 py-3"
                 >
                   <Pencil className="h-4 w-4 mr-3 shrink-0" />
-                  {Number(client.value_paid) > 0 && (
-                    <Star className="h-4 w-4 mr-2 shrink-0 fill-current text-green-400" aria-label="Valor cadastrado" />
-                  )}
+                  <span className="mr-2 flex w-5 shrink-0 flex-col items-center gap-0.5" aria-label="Dados cadastrados">
+                    {client.whatsapp?.replace(/\D/g, "") ? (
+                      <img src={whatsappIcon} alt="WhatsApp cadastrado" className="h-4 w-4" />
+                    ) : null}
+                    {Number(client.value_paid) > 0 ? (
+                      <Banknote className="h-4 w-4 text-green-400" aria-label="Valor do produto cadastrado" />
+                    ) : null}
+                    {(typeof client.line_cost === "number" || getClientLineCost(client.id) !== undefined) ? (
+                      <Star className="h-4 w-4 fill-current text-yellow-400" aria-label="Valor do custo cadastrado" />
+                    ) : null}
+                  </span>
                   <span className="flex-1 text-left whitespace-normal break-words">{formatClientName(client.name)}</span>
                   {client.phone?.replace(/\D/g, "") ? (
                     <span className="ml-2 shrink-0 text-sm font-bold text-green-300 tabular-nums whitespace-nowrap">
