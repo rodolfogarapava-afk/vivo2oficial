@@ -173,7 +173,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
   const { toast } = useToast();
   const { settings: whatsAppSettings, saveSettings: saveWhatsAppSettings } = useWhatsAppSettings();
-  const { settings: themeSettings, saveSettings: saveThemeSettings, setMode: setThemeMode, setButtonColor, setClientCardPurple, setClientCardText, colors, buttonColors } = useThemeSettings();
+  const { settings: themeSettings, saveSettings: saveThemeSettings, setMode: setThemeMode, setButtonColor, setClientCardPurple, setClientCardText, setNeonLayout, colors, buttonColors } = useThemeSettings();
 
   
   const [destinationPhone, setDestinationPhone] = useState("");
@@ -905,6 +905,35 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
           </DialogHeader>
 
           <div className="space-y-3 sm:space-y-4 mt-3 sm:mt-4 overflow-y-auto max-h-[calc(80vh-80px)] pr-1">
+
+            <div className="rounded-xl border border-border bg-card/70 p-3 sm:p-4">
+              <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
+                <Palette className="h-4 w-4" />
+                Layout do painel
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setNeonLayout("blue")}
+                  className={`theme-choice-blue h-20 flex-col gap-1 rounded-lg ${themeSettings.neonLayout !== "red" ? "ring-2 ring-ring" : ""}`}
+                  aria-pressed={themeSettings.neonLayout !== "red"}
+                >
+                  <span className="theme-choice-preview h-6 w-16 rounded-md" />
+                  <span className="font-extrabold uppercase">Azul</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setNeonLayout("red")}
+                  className={`theme-choice-red h-20 flex-col gap-1 rounded-lg ${themeSettings.neonLayout === "red" ? "ring-2 ring-ring" : ""}`}
+                  aria-pressed={themeSettings.neonLayout === "red"}
+                >
+                  <span className="theme-choice-preview h-6 w-16 rounded-md" />
+                  <span className="font-extrabold uppercase">Vermelho</span>
+                </Button>
+              </div>
+            </div>
 
             {/* ===== ADM: tokens e nomes dos painéis ===== */}
             {isAdmin && (

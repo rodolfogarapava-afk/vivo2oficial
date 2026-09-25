@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 export type ThemeMode = "dark" | "light";
+export type NeonLayout = "blue" | "red";
 
 interface ThemeSettings {
   backgroundColor: string;
@@ -9,6 +10,7 @@ interface ThemeSettings {
   clientCardPurple?: number;
   clientCardText?: "black" | "white";
   clientCardStyleVersion?: number;
+  neonLayout?: NeonLayout;
 }
 
 const STORAGE_KEY = "theme-settings";
@@ -84,11 +86,14 @@ const setVar = (name: string, value: string) => {
   document.documentElement.style.setProperty(name, value);
 };
 
-const applyTheme = ({ backgroundColor, mode, buttonColor, clientCardPurple = 0, clientCardText = "black" }: ThemeSettings) => {
+const applyTheme = ({ backgroundColor, mode, buttonColor, clientCardPurple = 0, clientCardText = "black", neonLayout = "blue" }: ThemeSettings) => {
   const { h, s, l } = parseHsl(backgroundColor);
   const root = document.documentElement;
   const cardPurple = Math.min(100, Math.max(0, clientCardPurple));
   const mix = cardPurple / 100;
+
+  root.classList.toggle("neon-layout-blue", neonLayout === "blue");
+  root.classList.toggle("neon-layout-red", neonLayout === "red");
 
   setVar("--client-card-bg", `270 ${Math.round(78 * mix)}% ${Math.round(100 - 62 * mix)}%`);
   setVar("--client-card-foreground", clientCardText === "white" ? "0 0% 100%" : "0 0% 4%");
@@ -161,6 +166,7 @@ const readSettings = (): ThemeSettings => {
           : Math.min(100, Math.max(0, Number(parsed.clientCardPurple) || 0)),
         clientCardText: needsActivatedCardUpdate || parsed.clientCardText === "white" ? "white" : "black",
         clientCardStyleVersion: CLIENT_CARD_STYLE_VERSION,
+        neonLayout: parsed.neonLayout === "red" ? "red" : "blue",
       };
       if (needsActivatedCardUpdate) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
@@ -177,6 +183,7 @@ const readSettings = (): ThemeSettings => {
     clientCardPurple: 75,
     clientCardText: "white",
     clientCardStyleVersion: CLIENT_CARD_STYLE_VERSION,
+    neonLayout: "blue",
   };
 
 };
@@ -232,6 +239,14 @@ export const useThemeSettings = () => {
     window.dispatchEvent(new Event(THEME_UPDATED_EVENT));
   }, []);
 
+  const setNeonLayout = useCallback((neonLayout: NeonLayout) => {
+    const current = readSettings();
+    const next = { ...current, mode: "dark" as ThemeMode, backgroundColor: DEFAULT_BG, neonLayout };
+    setSettings(next);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    window.dispatchEvent(new Event(THEME_UPDATED_EVENT));
+  }, []);
+
   const setMode = useCallback(
     (mode: ThemeMode) => {
       const current = readSettings();
@@ -252,6 +267,7 @@ export const useThemeSettings = () => {
     setButtonColor,
     setClientCardPurple,
     setClientCardText,
+    setNeonLayout,
     colors: settings.mode === "light" ? LIGHT_COLORS : DARK_COLORS,
     darkColors: DARK_COLORS,
     lightColors: LIGHT_COLORS,
