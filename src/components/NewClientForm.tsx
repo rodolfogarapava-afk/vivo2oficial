@@ -29,7 +29,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
   const [whatsapp, setWhatsapp] = useState("");
   const [valuePaid, setValuePaid] = useState("");
   const [dueDay, setDueDay] = useState<number>(10);
-  const [virtualChip, setVirtualChip] = useState(false);
+  const [virtualChip, setVirtualChip] = useState<boolean | null>(null);
   const [phoneError, setPhoneError] = useState("");
   const [lineCost, setLineCost] = useState<number | null>(null);
   const { list: storedCostList } = useLineCosts();
@@ -50,15 +50,15 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name.trim() || !phone.trim() || !valuePaid || phoneError) return;
+    if (!name.trim() || !phone.trim() || !whatsapp.trim() || !valuePaid || virtualChip === null || phoneError) return;
 
     onSubmit({
       name: formatClientName(name),
       phone: phone.trim(),
-      whatsapp: whatsapp.trim() || null,
+      whatsapp: whatsapp.trim(),
       value_paid: parseFloat(valuePaid),
       due_day: dueDay,
-      virtual_chip: virtualChip,
+      virtual_chip: virtualChip === true,
       is_resale: false,
       bonus: false,
       already_paid: false,
@@ -72,7 +72,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
     setWhatsapp("");
     setValuePaid("");
     setDueDay(10);
-    setVirtualChip(false);
+    setVirtualChip(null);
     setLineCost(null);
   };
 
@@ -89,7 +89,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
     return digits;
   };
 
-  const isFormValid = name.trim() && phone.trim() && valuePaid && !phoneError;
+  const isFormValid = Boolean(name.trim() && phone.trim() && whatsapp.trim() && valuePaid && virtualChip !== null && !phoneError);
 
   return (
     <div className="rounded-2xl bg-card p-5">
@@ -144,10 +144,10 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
           )}
         </div>
 
-        {/* WhatsApp opcional */}
-        {!simple && <div className="space-y-2">
+        {/* WhatsApp */}
+        <div className="space-y-2">
           <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
-             WhatsApp (opcional)
+             WhatsApp
           </label>
           <div className="relative">
             <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -157,9 +157,10 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
               onChange={(e) => setWhatsapp(formatPhone(e.target.value))}
               className="pl-12 h-14 bg-primary/30 border-primary/50 text-foreground placeholder:text-muted-foreground rounded-xl text-base"
               inputMode="tel"
+              required
             />
           </div>
-        </div>}
+        </div>
 
         {/* Valor do Produto */}
         <div className="grid gap-3 grid-cols-1">
@@ -220,7 +221,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
               type="button"
               variant="secondary"
               onClick={() => setVirtualChip(false)}
-              className={`h-14 rounded-xl border text-sm font-bold ${!virtualChip ? 'border-primary bg-primary text-primary-foreground' : 'border-primary/50 bg-primary/30 text-foreground/70'}`}
+              className={`h-14 rounded-xl border text-sm font-bold ${virtualChip === false ? 'border-primary bg-primary text-primary-foreground' : 'border-primary/50 bg-primary/30 text-foreground/70'}`}
             >
               <Smartphone className="h-5 w-5" />
               Chip Físico
@@ -229,7 +230,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
               type="button"
               variant="secondary"
               onClick={() => setVirtualChip(true)}
-              className={`h-14 rounded-xl border text-sm font-bold ${virtualChip ? 'border-primary bg-primary text-primary-foreground' : 'border-primary/50 bg-primary/30 text-foreground/70'}`}
+              className={`h-14 rounded-xl border text-sm font-bold ${virtualChip === true ? 'border-primary bg-primary text-primary-foreground' : 'border-primary/50 bg-primary/30 text-foreground/70'}`}
             >
               <Wifi className="h-5 w-5" />
               Chip Virtual
@@ -250,7 +251,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
           <Button
             type="submit"
             disabled={isLoading || !isFormValid}
-            className="flex-1 h-14 bg-primary/60 hover:bg-primary/70 text-foreground/70 font-bold rounded-xl text-base disabled:opacity-50"
+            className={`flex-1 h-14 font-bold rounded-xl text-base disabled:opacity-50 ${isFormValid ? 'bg-green-600 hover:bg-green-500 text-white' : 'bg-primary/60 hover:bg-primary/70 text-foreground/70'}`}
           >
             {isLoading ? "Salvando..." : "Salvar"}
           </Button>
