@@ -114,6 +114,18 @@
 }
 
 @layer components {
+  .theme-choice-purple {
+    color: hsl(280 100% 88%);
+    border-color: hsl(285 100% 68%);
+    background: hsl(250 55% 8%);
+    box-shadow: inset 0 0 14px hsl(282 100% 62% / 0.16), 0 0 12px hsl(282 100% 62% / 0.4);
+  }
+
+  .theme-choice-purple .theme-choice-preview {
+    background: linear-gradient(180deg, hsl(282 87% 58%), hsl(255 84% 42%));
+    box-shadow: 0 0 12px hsl(282 100% 62% / 0.72);
+  }
+
   .theme-choice-blue {
     color: hsl(194 100% 72%);
     border-color: hsl(194 100% 52%);
@@ -177,6 +189,21 @@
   --client-card-glow: 185 100% 55%;
 }
 
+.neon-layout-purple {
+  --background: 250 55% 6%;
+  --card: 252 45% 11%;
+  --primary: 262 60% 35%;
+  --border: 285 100% 68%;
+  --ring: 282 100% 62%;
+  --client-card-bg: 267 82% 54%;
+  --client-card-border: 285 100% 68%;
+  --client-card-deep: 268 94% 34%;
+  --client-card-muted: 268 100% 88%;
+  --client-card-highlight: 190 100% 52%;
+  --client-card-shadow: 274 100% 30%;
+  --client-card-glow: 282 100% 62%;
+}
+
 .neon-layout-red {
   --background: 355 82% 5%;
   --card: 355 82% 8%;
@@ -218,6 +245,7 @@
   --client-card-glow: 42 91% 88%;
 }
 
+.neon-layout-purple body,
 .neon-layout-blue body,
 .neon-layout-red body,
 .neon-layout-gold body {
@@ -225,6 +253,7 @@
   background-image: radial-gradient(ellipse at top, hsl(var(--client-card-glow) / 0.09), transparent 52%);
 }
 
+.neon-layout-purple header > div,
 .neon-layout-blue header > div,
 .neon-layout-red header > div,
 .neon-layout-gold header > div {
@@ -233,24 +262,28 @@
   box-shadow: inset 0 0 18px hsl(var(--client-card-glow) / 0.12), 0 0 16px hsl(var(--client-card-glow) / 0.38);
 }
 
+.neon-layout-purple header [class*="border-purple"],
 .neon-layout-blue header [class*="border-purple"],
 .neon-layout-red header [class*="border-purple"],
 .neon-layout-gold header [class*="border-purple"] {
   border-color: hsl(var(--client-card-border) / 0.72) !important;
 }
 
+.neon-layout-purple header [class*="bg-purple"],
 .neon-layout-blue header [class*="bg-purple"],
 .neon-layout-red header [class*="bg-purple"],
 .neon-layout-gold header [class*="bg-purple"] {
   background-color: hsl(var(--client-card-deep) / 0.28) !important;
 }
 
+.neon-layout-purple header [class*="text-purple"],
 .neon-layout-blue header [class*="text-purple"],
 .neon-layout-red header [class*="text-purple"],
 .neon-layout-gold header [class*="text-purple"] {
   color: hsl(var(--client-card-muted)) !important;
 }
 
+.neon-layout-purple header button,
 .neon-layout-blue header button,
 .neon-layout-red header button,
 .neon-layout-gold header button {
@@ -260,6 +293,15 @@
 .neon-layout-blue header > div > div:first-child > button:nth-child(2) {
   background: linear-gradient(180deg, hsl(187 100% 57%), hsl(214 100% 47%)) !important;
   border-color: hsl(185 100% 70%) !important;
+}
+
+.neon-layout-purple header > div > div:first-child > button:nth-child(2) {
+  background: linear-gradient(180deg, hsl(282 87% 58%), hsl(255 84% 42%)) !important;
+  border-color: hsl(285 100% 68%) !important;
+}
+
+.neon-layout-purple header > div > div:first-child > button:last-child {
+  background: linear-gradient(180deg, hsl(282 87% 58%), hsl(255 84% 42%)) !important;
 }
 
 .neon-layout-red header > div > div:first-child > button:nth-child(2) {
@@ -291,15 +333,18 @@
   background: linear-gradient(180deg, hsl(34 57% 47%), hsl(31 68% 31%)) !important;
 }
 
+.neon-layout-purple main,
 .neon-layout-blue main,
 .neon-layout-red main,
 .neon-layout-gold main {
   color: hsl(var(--foreground));
 }
 
+.neon-layout-purple .neon-total-card,
 .neon-layout-blue .neon-total-card,
 .neon-layout-red .neon-total-card,
 .neon-layout-gold .neon-total-card,
+.neon-layout-purple .neon-due-card,
 .neon-layout-blue .neon-due-card,
 .neon-layout-red .neon-due-card,
 .neon-layout-gold .neon-due-card {
@@ -308,12 +353,14 @@
   box-shadow: inset 0 0 15px hsl(var(--client-card-glow) / 0.12), 0 0 12px hsl(var(--client-card-glow) / 0.42);
 }
 
+.neon-layout-purple .neon-total-card p:first-child,
 .neon-layout-blue .neon-total-card p:first-child,
 .neon-layout-red .neon-total-card p:first-child,
 .neon-layout-gold .neon-total-card p:first-child {
   color: hsl(var(--client-card-muted));
 }
 
+.neon-layout-purple .neon-expense-card,
 .neon-layout-blue .neon-expense-card,
 .neon-layout-red .neon-expense-card,
 .neon-layout-gold .neon-expense-card {
@@ -322,6 +369,7 @@
   box-shadow: inset 0 0 15px hsl(350 100% 52% / 0.12), 0 0 12px hsl(350 100% 52% / 0.38);
 }
 
+.neon-layout-purple .neon-profit-card,
 .neon-layout-blue .neon-profit-card,
 .neon-layout-red .neon-profit-card,
 .neon-layout-gold .neon-profit-card {
@@ -330,6 +378,7 @@
   box-shadow: inset 0 0 15px hsl(166 100% 44% / 0.12), 0 0 12px hsl(166 100% 44% / 0.38);
 }
 
+.neon-layout-purple .neon-dashboard [class*="shadow-client-card"],
 .neon-layout-blue .neon-dashboard [class*="shadow-client-card"],
 .neon-layout-red .neon-dashboard [class*="shadow-client-card"],
 .neon-layout-gold .neon-dashboard [class*="shadow-client-card"] {
