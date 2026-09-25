@@ -168,6 +168,14 @@ async function fetchAllLines(jar: Record<string, string>, includeRaw = false) {
   return { groups: groups.map((g) => ({ id: g.id, name: g.name, totalLines: g.totalLines })), lines: all }
 }
 
+const isPlaceholderName = (value?: string | null) => {
+  const n = String(value ?? '').trim().toLowerCase()
+  return !n || n.startsWith('livre') || /^\d+$/.test(n)
+}
+// Never overwrite a name typed in the app; only fill empty/LIVRE names with a real name from the Gestor
+const shouldReplaceName = (current?: string | null, next?: string | null) =>
+  isPlaceholderName(current) && !isPlaceholderName(next)
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
@@ -303,9 +311,9 @@ Deno.serve(async (req) => {
               const nextName = displayName(line.name)
               const changes: Record<string, unknown> = {
                 user_id: target.userId,
-                name: nextName,
                 blocked: line.blocked,
               }
+              if (shouldReplaceName(previousOwner.name, nextName)) changes.name = nextName
               if (quota > 0) changes.data_gb = quota
               if (usage) changes.data_used_gb = usage.usedGb
 
@@ -355,7 +363,7 @@ Deno.serve(async (req) => {
 
           const nextName = displayName(line.name)
           const changes: Record<string, unknown> = {}
-          if (current.name !== nextName) changes.name = nextName
+          if (current.name !== nextName && shouldReplaceName(current.name, nextName)) changes.name = nextName
           if (Boolean(current.blocked) !== line.blocked) changes.blocked = line.blocked
           if (quota > 0 && Number(current.data_gb ?? 0) !== quota) changes.data_gb = quota
           if (usage && Number((current as Record<string, unknown>).data_used_gb ?? 0) !== usage.usedGb) changes.data_used_gb = usage.usedGb
