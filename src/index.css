@@ -132,6 +132,18 @@
     background: linear-gradient(180deg, hsl(42 100% 57%), hsl(9 100% 48%));
     box-shadow: 0 0 12px hsl(0 100% 52% / 0.72);
   }
+
+  .theme-choice-gold {
+    color: hsl(28 46% 14%);
+    border-color: hsl(40 72% 87%);
+    background: hsl(37 64% 73%);
+    box-shadow: inset 0 1px 0 hsl(42 91% 92%), 0 4px 8px hsl(31 43% 28% / 0.38);
+  }
+
+  .theme-choice-gold .theme-choice-preview {
+    background: linear-gradient(180deg, hsl(41 79% 84%), hsl(33 62% 48%));
+    box-shadow: inset 0 1px 0 hsl(42 91% 94%), 0 3px 6px hsl(31 43% 28% / 0.42);
+  }
 }
 
 .neon-layout-blue {
@@ -164,36 +176,68 @@
   --client-card-glow: 0 100% 55%;
 }
 
+.neon-layout-gold {
+  --background: 36 48% 69%;
+  --foreground: 28 46% 10%;
+  --card: 37 64% 73%;
+  --card-foreground: 28 46% 10%;
+  --popover: 37 64% 76%;
+  --popover-foreground: 28 46% 10%;
+  --primary: 34 72% 35%;
+  --primary-foreground: 40 66% 94%;
+  --secondary: 38 54% 68%;
+  --secondary-foreground: 28 46% 10%;
+  --muted: 38 43% 63%;
+  --muted-foreground: 30 39% 25%;
+  --border: 38 68% 84%;
+  --input: 38 55% 75%;
+  --ring: 34 72% 35%;
+  --client-card-bg: 37 64% 73%;
+  --client-card-foreground: 28 46% 10%;
+  --client-card-border: 40 72% 87%;
+  --client-card-deep: 32 64% 31%;
+  --client-card-muted: 30 36% 34%;
+  --client-card-highlight: 36 89% 61%;
+  --client-card-shadow: 31 43% 45%;
+  --client-card-glow: 42 91% 88%;
+}
+
 .neon-layout-blue body,
-.neon-layout-red body {
+.neon-layout-red body,
+.neon-layout-gold body {
   background-color: hsl(var(--background));
   background-image: radial-gradient(ellipse at top, hsl(var(--client-card-glow) / 0.09), transparent 52%);
 }
 
 .neon-layout-blue header > div,
-.neon-layout-red header > div {
+.neon-layout-red header > div,
+.neon-layout-gold header > div {
   border-color: hsl(var(--client-card-border));
   background: hsl(var(--card) / 0.92);
   box-shadow: inset 0 0 18px hsl(var(--client-card-glow) / 0.12), 0 0 16px hsl(var(--client-card-glow) / 0.38);
 }
 
 .neon-layout-blue header [class*="border-purple"],
-.neon-layout-red header [class*="border-purple"] {
+.neon-layout-red header [class*="border-purple"],
+.neon-layout-gold header [class*="border-purple"] {
   border-color: hsl(var(--client-card-border) / 0.72) !important;
 }
 
 .neon-layout-blue header [class*="bg-purple"],
-.neon-layout-red header [class*="bg-purple"] {
+.neon-layout-red header [class*="bg-purple"],
+.neon-layout-gold header [class*="bg-purple"] {
   background-color: hsl(var(--client-card-deep) / 0.28) !important;
 }
 
 .neon-layout-blue header [class*="text-purple"],
-.neon-layout-red header [class*="text-purple"] {
+.neon-layout-red header [class*="text-purple"],
+.neon-layout-gold header [class*="text-purple"] {
   color: hsl(var(--client-card-muted)) !important;
 }
 
 .neon-layout-blue header button,
-.neon-layout-red header button {
+.neon-layout-red header button,
+.neon-layout-gold header button {
   box-shadow: inset 0 0 12px hsl(var(--client-card-glow) / 0.08), 0 0 9px hsl(var(--client-card-glow) / 0.28);
 }
 
@@ -216,42 +260,78 @@
   border-color: hsl(45 100% 62%) !important;
 }
 
+.neon-layout-gold header > div > div:first-child > button,
+.neon-layout-gold header > div > div:nth-child(2) > button,
+.neon-layout-gold header > div > div:last-child {
+  color: hsl(var(--foreground)) !important;
+  border-color: hsl(var(--client-card-border)) !important;
+  background: linear-gradient(180deg, hsl(39 72% 79%), hsl(36 57% 68%)) !important;
+  box-shadow: inset 0 2px 0 hsl(42 91% 92% / 0.84), 0 5px 9px hsl(var(--client-card-shadow) / 0.52) !important;
+}
+
+.neon-layout-gold header > div > div:first-child > button:nth-child(2) {
+  color: hsl(40 66% 94%) !important;
+  border-color: hsl(41 76% 85%) !important;
+  background: linear-gradient(180deg, hsl(34 57% 47%), hsl(31 68% 31%)) !important;
+}
+
 .neon-layout-blue main,
-.neon-layout-red main {
+.neon-layout-red main,
+.neon-layout-gold main {
   color: hsl(var(--foreground));
 }
 
 .neon-layout-blue .neon-total-card,
 .neon-layout-red .neon-total-card,
+.neon-layout-gold .neon-total-card,
 .neon-layout-blue .neon-due-card,
-.neon-layout-red .neon-due-card {
+.neon-layout-red .neon-due-card,
+.neon-layout-gold .neon-due-card {
   border-color: hsl(var(--client-card-border)) !important;
   background: hsl(var(--card) / 0.94) !important;
   box-shadow: inset 0 0 15px hsl(var(--client-card-glow) / 0.12), 0 0 12px hsl(var(--client-card-glow) / 0.42);
 }
 
 .neon-layout-blue .neon-total-card p:first-child,
-.neon-layout-red .neon-total-card p:first-child {
+.neon-layout-red .neon-total-card p:first-child,
+.neon-layout-gold .neon-total-card p:first-child {
   color: hsl(var(--client-card-muted));
 }
 
 .neon-layout-blue .neon-expense-card,
-.neon-layout-red .neon-expense-card {
+.neon-layout-red .neon-expense-card,
+.neon-layout-gold .neon-expense-card {
   border-color: hsl(350 100% 52%) !important;
   background: hsl(350 86% 10% / 0.92) !important;
   box-shadow: inset 0 0 15px hsl(350 100% 52% / 0.12), 0 0 12px hsl(350 100% 52% / 0.38);
 }
 
 .neon-layout-blue .neon-profit-card,
-.neon-layout-red .neon-profit-card {
+.neon-layout-red .neon-profit-card,
+.neon-layout-gold .neon-profit-card {
   border-color: hsl(166 100% 44%) !important;
   background: hsl(174 82% 9% / 0.92) !important;
   box-shadow: inset 0 0 15px hsl(166 100% 44% / 0.12), 0 0 12px hsl(166 100% 44% / 0.38);
 }
 
 .neon-layout-blue .neon-dashboard [class*="shadow-client-card"],
-.neon-layout-red .neon-dashboard [class*="shadow-client-card"] {
+.neon-layout-red .neon-dashboard [class*="shadow-client-card"],
+.neon-layout-gold .neon-dashboard [class*="shadow-client-card"] {
   box-shadow: inset 0 1px 0 hsl(var(--client-card-foreground) / 0.24), 0 4px 0 hsl(var(--client-card-shadow)), 0 0 16px hsl(var(--client-card-glow) / 0.58);
+}
+
+.neon-layout-gold .neon-total-card,
+.neon-layout-gold .neon-due-card {
+  color: hsl(var(--foreground));
+  box-shadow: inset 0 2px 0 hsl(var(--client-card-glow) / 0.86), 0 5px 9px hsl(var(--client-card-shadow) / 0.48);
+}
+
+.neon-layout-gold .neon-due-card [class*="text-white"] {
+  color: hsl(var(--foreground)) !important;
+}
+
+.neon-layout-gold .neon-dashboard [class*="shadow-client-card"] {
+  box-shadow: inset 0 2px 0 hsl(var(--client-card-glow) / 0.9), 0 6px 10px hsl(var(--client-card-shadow) / 0.52);
 }
 
 @layer base {

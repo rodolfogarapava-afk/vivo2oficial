@@ -911,13 +911,13 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 <Palette className="h-4 w-4" />
                 Layout do painel
               </h3>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setNeonLayout("blue")}
-                  className={`theme-choice-blue h-20 flex-col gap-1 rounded-lg ${themeSettings.neonLayout !== "red" ? "ring-2 ring-ring" : ""}`}
-                  aria-pressed={themeSettings.neonLayout !== "red"}
+                  className={`theme-choice-blue h-20 flex-col gap-1 rounded-lg px-2 ${themeSettings.neonLayout === "blue" ? "ring-2 ring-ring" : ""}`}
+                  aria-pressed={themeSettings.neonLayout === "blue"}
                 >
                   <span className="theme-choice-preview h-6 w-16 rounded-md" />
                   <span className="font-extrabold uppercase">Azul</span>
@@ -926,11 +926,21 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   type="button"
                   variant="outline"
                   onClick={() => setNeonLayout("red")}
-                  className={`theme-choice-red h-20 flex-col gap-1 rounded-lg ${themeSettings.neonLayout === "red" ? "ring-2 ring-ring" : ""}`}
+                  className={`theme-choice-red h-20 flex-col gap-1 rounded-lg px-2 ${themeSettings.neonLayout === "red" ? "ring-2 ring-ring" : ""}`}
                   aria-pressed={themeSettings.neonLayout === "red"}
                 >
                   <span className="theme-choice-preview h-6 w-16 rounded-md" />
                   <span className="font-extrabold uppercase">Vermelho</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setNeonLayout("gold")}
+                  className={`theme-choice-gold h-20 flex-col gap-1 rounded-lg px-2 ${themeSettings.neonLayout === "gold" ? "ring-2 ring-ring" : ""}`}
+                  aria-pressed={themeSettings.neonLayout === "gold"}
+                >
+                  <span className="theme-choice-preview h-6 w-16 max-w-full rounded-md" />
+                  <span className="text-xs font-extrabold uppercase sm:text-sm">Dourado</span>
                 </Button>
               </div>
             </div>
