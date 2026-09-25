@@ -122,7 +122,7 @@ export const PartnerPanelModal = ({
   };
 
   const ordered = useMemo(
-    () => [...clients].sort((a, b) => Number(isFreeLine(b.name)) - Number(isFreeLine(a.name))),
+    () => [...clients].sort((a, b) => Number(isFreeLine(a.name)) - Number(isFreeLine(b.name))),
     [clients],
   );
 

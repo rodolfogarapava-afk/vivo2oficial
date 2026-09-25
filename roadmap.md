@@ -14,3 +14,4 @@
 - [x] Mostrar o nome completo do cliente no topo do cartão
 - [x] Alinhar dados do cartão na vertical, com valor sob a ordem e consumo dividido na parte inferior
 - [x] Corrigir a ativação da revenda quando os dados completos ficaram apenas na conta
+- [x] Colocar as linhas LIVRE no final da lista de clientes
