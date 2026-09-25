@@ -22,3 +22,4 @@
 - [x] Adicionar o Roxo padrão como opção para restaurar o visual original
 - [x] Reorganizar a área de revendas com o visual dourado da referência
 - [x] Igualar a área de personalização ao cartão dourado da referência
+- [x] Usar a logo Revenda Raio Telecom na instalação pelo celular
