@@ -29,7 +29,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
   const [whatsapp, setWhatsapp] = useState("");
   const [valuePaid, setValuePaid] = useState("");
   const [dueDay, setDueDay] = useState<number>(10);
-  const [virtualChip, setVirtualChip] = useState(false);
+  const [virtualChip, setVirtualChip] = useState<boolean | null>(null);
   const [phoneError, setPhoneError] = useState("");
   const [lineCost, setLineCost] = useState<number | null>(null);
   const { list: storedCostList } = useLineCosts();
@@ -50,7 +50,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name.trim() || !phone.trim() || !valuePaid || phoneError) return;
+    if (!name.trim() || !phone.trim() || !whatsapp.trim() || !valuePaid || virtualChip === null || phoneError) return;
 
     onSubmit({
       name: formatClientName(name),
