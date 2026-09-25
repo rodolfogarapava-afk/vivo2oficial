@@ -1,4 +1,4 @@
-import { Phone, Check, Smartphone, Wifi } from "lucide-react";
+import { Phone, Check, Smartphone, Wifi, MessageCircle, Lock, LockOpen } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Client } from "@/hooks/useClients";
 import { useWhatsAppSettings } from "@/hooks/useWhatsAppSettings";
@@ -6,6 +6,7 @@ import { useBlockWhatsApp } from "@/hooks/useBlockWhatsApp";
 import { isFreeLine } from "@/hooks/useFreeLineColor";
 import { formatClientName } from "@/lib/formatName";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 import whatsappIcon from "@/assets/whatsapp-icon.png";
 import {
   AlertDialog,
@@ -49,37 +50,6 @@ const formatPhoneDisplay = (phone: string) => {
   return phone;
 };
 
-const BLOCK_NOTICE_TEMPLATE = `*🔒🚫AVISO DE BLOQUEIO🔒🚫*
-
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-
-*{nome}*, informamos que seu serviço foi *BLOQUEADO* por falta de pagamento e comunicação 📣 
-
-*🌐Produto VIVO*
-
-*📱Número: {telefone}*
-
-Para reativar, efetue o pagamento:
-
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-
-✅Após o pagamento, entre em contato para liberação! 🙏`;
-
-const UNBLOCK_NOTICE_TEMPLATE = `*✅AVISO DE DESBLOQUEIO✅*
-
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-
-*{nome}*, informamos que seu serviço foi *DESBLOQUEADO* em até 2h será restabelecido 📣 
-
-*🌐Produto VIVO*
-
-*📱Número: {telefone}*
-
-✅Pagamento efetuado:
-
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-
-🔓liberação em até 2h! 🙏`;
 
 export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, isPaid = false, onTogglePayment, dayPaymentSent = false, inPanel = null, supportWhatsapp = null, valueOverride, dense = false }: ClientCardProps) => {
   const showMissingPanelWarning = client.company !== "nexus" && inPanel === false;
@@ -160,7 +130,7 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
       return;
     }
 
-    const template = type === "block" ? BLOCK_NOTICE_TEMPLATE : UNBLOCK_NOTICE_TEMPLATE;
+    const template = type === "block" ? settings.blockNoticeTemplate : settings.unblockNoticeTemplate;
     const message = template
       .replace(/\{nome\}/g, client.name)
       .replace(/\{telefone\}/g, formatPhoneDisplay(client.phone));
@@ -479,25 +449,32 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
             className="absolute inset-0 z-10 flex items-center justify-center bg-black/70 rounded-2xl backdrop-blur-sm"
             onClick={() => setShowWhatsAppMenu(false)}
           >
-            <div className="flex flex-col items-stretch gap-1.5 px-3" onClick={(e) => e.stopPropagation()}>
-              <button
+            <div className="grid w-[min(94%,340px)] grid-cols-3 gap-1.5 px-1" onClick={(e) => e.stopPropagation()}>
+              <Button
+                type="button"
                 onClick={() => { setShowWhatsAppMenu(false); handleWhatsApp(); }}
-                className="px-4 py-1.5 rounded-lg bg-green-600 text-white text-xs font-bold hover:bg-green-500 transition-colors"
+                className="h-11 min-w-0 flex-col gap-0.5 rounded-lg bg-accent px-1 text-[10px] font-bold text-accent-foreground shadow-client-action"
               >
+                <MessageCircle className="h-4 w-4" />
                 WhatsApp
-              </button>
-              <button
+              </Button>
+              <Button
+                type="button"
                 onClick={() => sendClientNotice("block")}
-                className="px-4 py-1.5 rounded-lg bg-red-600 text-white text-xs font-bold hover:bg-red-500 transition-colors"
+                variant="destructive"
+                className="h-11 min-w-0 flex-col gap-0.5 rounded-lg px-1 text-[10px] font-bold"
               >
-                🔒 Bloqueio
-              </button>
-              <button
+                <Lock className="h-4 w-4" />
+                Bloqueio
+              </Button>
+              <Button
+                type="button"
                 onClick={() => sendClientNotice("unblock")}
-                className="px-4 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-500 transition-colors"
+                className="h-11 min-w-0 flex-col gap-0.5 rounded-lg bg-primary px-1 text-[10px] font-bold text-primary-foreground"
               >
-                🔓 Desbloqueio
-              </button>
+                <LockOpen className="h-4 w-4" />
+                Desbloqueio
+              </Button>
             </div>
           </div>
         )}

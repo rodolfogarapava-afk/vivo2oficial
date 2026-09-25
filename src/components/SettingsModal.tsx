@@ -17,6 +17,8 @@ import { createPortal } from "react-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useWhatsAppSettings } from "@/hooks/useWhatsAppSettings";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
+import { DEFAULT_BLOCK_NOTICE, DEFAULT_UNBLOCK_NOTICE } from "@/hooks/useWhatsAppSettings";
+import { z } from "zod";
 
 import whatsappIcon from "@/assets/whatsapp-icon.png";
 import { useFixedExpense } from "@/hooks/useFixedExpense";
@@ -59,6 +61,7 @@ const formatCurrency = (value: number) => {
 
 const PAYMENT_STORAGE_KEY = "payment-whatsapp-settings";
 const BLOCK_STORAGE_KEY = "block-whatsapp-settings";
+const noticeTemplateSchema = z.string().trim().min(1, "A mensagem não pode ficar vazia.").max(4000, "A mensagem deve ter no máximo 4.000 caracteres.");
 
 interface PaymentSettings {
   paymentPhone: string;
@@ -181,6 +184,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [useBusiness, setUseBusiness] = useState(true);
   const [showClientWhatsApp, setShowClientWhatsApp] = useState(false);
   const [clientMessageTemplate, setClientMessageTemplate] = useState("");
+  const [blockNoticeTemplate, setBlockNoticeTemplate] = useState(DEFAULT_BLOCK_NOTICE);
+  const [unblockNoticeTemplate, setUnblockNoticeTemplate] = useState(DEFAULT_UNBLOCK_NOTICE);
   const [isMessageLocked, setIsMessageLocked] = useState(true);
   const [isPhoneLocked, setIsPhoneLocked] = useState(true);
   
@@ -259,6 +264,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [isUnblockMessageLocked, setIsUnblockMessageLocked] = useState(true);
   const [isCancelMessageLocked, setIsCancelMessageLocked] = useState(true);
   const [isClientMessageLocked, setIsClientMessageLocked] = useState(true);
+  const [isBlockNoticeLocked, setIsBlockNoticeLocked] = useState(true);
+  const [isUnblockNoticeLocked, setIsUnblockNoticeLocked] = useState(true);
 
   useEffect(() => {
     if (open) {
@@ -267,6 +274,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       setUseBusiness(whatsAppSettings.useBusiness);
       setShowClientWhatsApp(whatsAppSettings.showClientWhatsApp);
       setClientMessageTemplate(whatsAppSettings.clientMessageTemplate);
+      setBlockNoticeTemplate(whatsAppSettings.blockNoticeTemplate);
+      setUnblockNoticeTemplate(whatsAppSettings.unblockNoticeTemplate);
       
       // Load payment settings
       const paymentSettings = getPaymentSettings();
@@ -308,12 +317,24 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
 
 
   const handleSaveWhatsApp = () => {
+    const blockResult = noticeTemplateSchema.safeParse(blockNoticeTemplate);
+    const unblockResult = noticeTemplateSchema.safeParse(unblockNoticeTemplate);
+    if (!blockResult.success || !unblockResult.success) {
+      toast({
+        title: "Revise as mensagens",
+        description: blockResult.error?.issues[0]?.message ?? unblockResult.error?.issues[0]?.message,
+        variant: "destructive",
+      });
+      return;
+    }
     saveWhatsAppSettings({
       destinationPhone,
       messageTemplate,
       useBusiness,
       showClientWhatsApp,
       clientMessageTemplate,
+      blockNoticeTemplate: blockResult.data,
+      unblockNoticeTemplate: unblockResult.data,
     });
     toast({
       title: "Configurações salvas!",
@@ -1364,6 +1385,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                       useBusiness,
                       showClientWhatsApp: checked,
                       clientMessageTemplate,
+                      blockNoticeTemplate,
+                      unblockNoticeTemplate,
                     });
                     toast({ title: checked ? "Logo ligada" : "Logo desligada", description: checked ? "O ícone do WhatsApp aparece no cartão." : "O ícone do WhatsApp não aparece no cartão." });
                   }}
@@ -1390,6 +1413,8 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                           useBusiness: option.value,
                           showClientWhatsApp,
                           clientMessageTemplate,
+                          blockNoticeTemplate,
+                          unblockNoticeTemplate,
                         });
                         toast({ title: "Pronto", description: `As mensagens vão abrir no ${option.label}.` });
                       }}
@@ -1427,6 +1452,59 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 />
                 <p className="text-[10px] text-purple-200">Use {"{nome}"}, {"{telefone}"}, {"{valor}"}, {"{data}"} e {"{hora}"}.</p>
               </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5 rounded-xl bg-purple-800/60 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="flex items-center gap-1 text-xs font-bold text-white">
+                      <Lock className="h-3.5 w-3.5" /> Mensagem de bloqueio
+                    </label>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="outline"
+                      onClick={() => setIsBlockNoticeLocked((prev) => !prev)}
+                      className="h-8 w-8 border-purple-500 bg-purple-900/60 text-white"
+                      aria-label={isBlockNoticeLocked ? "Editar mensagem de bloqueio" : "Bloquear edição"}
+                    >
+                      {isBlockNoticeLocked ? <Lock className="h-3.5 w-3.5" /> : <LockOpen className="h-3.5 w-3.5" />}
+                    </Button>
+                  </div>
+                  <Textarea
+                    value={blockNoticeTemplate}
+                    onChange={(event) => setBlockNoticeTemplate(event.target.value.slice(0, 4000))}
+                    readOnly={isBlockNoticeLocked}
+                    rows={9}
+                    maxLength={4000}
+                    className="border-purple-600 bg-purple-950/50 text-xs text-white placeholder:text-purple-300"
+                  />
+                </div>
+                <div className="space-y-1.5 rounded-xl bg-purple-800/60 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="flex items-center gap-1 text-xs font-bold text-white">
+                      <LockOpen className="h-3.5 w-3.5" /> Mensagem de desbloqueio
+                    </label>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="outline"
+                      onClick={() => setIsUnblockNoticeLocked((prev) => !prev)}
+                      className="h-8 w-8 border-purple-500 bg-purple-900/60 text-white"
+                      aria-label={isUnblockNoticeLocked ? "Editar mensagem de desbloqueio" : "Bloquear edição"}
+                    >
+                      {isUnblockNoticeLocked ? <Lock className="h-3.5 w-3.5" /> : <LockOpen className="h-3.5 w-3.5" />}
+                    </Button>
+                  </div>
+                  <Textarea
+                    value={unblockNoticeTemplate}
+                    onChange={(event) => setUnblockNoticeTemplate(event.target.value.slice(0, 4000))}
+                    readOnly={isUnblockNoticeLocked}
+                    rows={9}
+                    maxLength={4000}
+                    className="border-purple-600 bg-purple-950/50 text-xs text-white placeholder:text-purple-300"
+                  />
+                </div>
+              </div>
+              <p className="text-[10px] text-purple-200">Use {"{nome}"} e {"{telefone}"}; os dados do cliente entram automaticamente.</p>
               <Button onClick={handleSaveWhatsApp} className="w-full h-10 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm">
                 Salvar WhatsApp
               </Button>
