@@ -1,4 +1,4 @@
-import { Phone, Check, Smartphone, Wifi, MessageCircle, Lock, LockOpen } from "lucide-react";
+import { Phone, Check, Smartphone, Wifi, Lock, LockOpen } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Client } from "@/hooks/useClients";
 import { useWhatsAppSettings } from "@/hooks/useWhatsAppSettings";
@@ -6,7 +6,6 @@ import { useBlockWhatsApp } from "@/hooks/useBlockWhatsApp";
 import { isFreeLine } from "@/hooks/useFreeLineColor";
 import { formatClientName } from "@/lib/formatName";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
 import whatsappIcon from "@/assets/whatsapp-icon.png";
 import {
   AlertDialog,
