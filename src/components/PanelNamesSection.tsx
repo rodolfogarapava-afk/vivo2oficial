@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Ban, Copy, KeyRound, Trash2, Unlock, Loader2, MessageCircle, Plus, RefreshCw, Save, Store } from "lucide-react";
+import { Ban, ChevronRight, CircleDollarSign, Copy, KeyRound, Trash2, Unlock, Loader2, MessageCircle, Plus, RefreshCw, Save, Signal, Smartphone, Store } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePanelNames } from "@/hooks/usePanelNames";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 interface PanelNamesSectionProps {
   userId?: string;
@@ -25,6 +26,7 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
   const [resellerDrafts, setResellerDrafts] = useState<Record<string, string>>({});
   const [expenseDrafts, setExpenseDrafts] = useState<Record<string, string>>({});
   const [costDrafts, setCostDrafts] = useState<Record<string, string>>({});
+  const [expandedCosts, setExpandedCosts] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     setMine(myLabel ?? "RAIO TELECOM");
@@ -206,215 +208,131 @@ export const PanelNamesSection = ({ userId, showMyPanel = true }: PanelNamesSect
   };
 
   return (
-    <div className="space-y-3 rounded-xl border border-border bg-secondary/40 p-3">
-      <div className="flex items-center gap-2">
-        <Store className="h-4 w-4 text-cyan-400" />
-        <h3 className="text-sm font-extrabold uppercase tracking-wider text-foreground">Painéis / Revenda</h3>
+    <section className="reseller-manager space-y-3">
+      <div className="reseller-manager__heading">
+        <span className="reseller-manager__marker" />
+        <Store className="h-5 w-5" />
+        <h3 className="text-sm font-extrabold uppercase">Revendas</h3>
+        <span className="reseller-manager__count">{others.length || 0}</span>
       </div>
 
-      <div className="space-y-2 rounded-lg border border-cyan-500/40 bg-card p-2">
-        <p className="text-[11px] font-bold uppercase text-muted-foreground">Nova revenda</p>
+      <div className="reseller-manager__new space-y-2">
+        <p className="text-[11px] font-extrabold uppercase">Nova revenda</p>
         <div className="flex gap-2">
-          <input
-            value={newReseller}
-            onChange={(event) => setNewReseller(event.target.value)}
-            placeholder="Nome da revenda"
-            maxLength={40}
-            className="h-11 min-w-0 flex-1 rounded-lg border border-border bg-background px-3 text-sm text-foreground"
-          />
-          <button
-            type="button"
-            onClick={() => void createReseller()}
-            disabled={creating}
-            className="flex h-11 w-11 items-center justify-center rounded-lg bg-cyan-600 text-white disabled:opacity-60"
-            aria-label="Adicionar revenda"
-          >
-            {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-5 w-5" />}
-          </button>
+          <input value={newReseller} onChange={(event) => setNewReseller(event.target.value)} placeholder="Nome da revenda" maxLength={40} className="reseller-manager__input min-w-0 flex-1" />
+          <Button type="button" onClick={() => void createReseller()} disabled={creating} size="icon" className="reseller-manager__save reseller-manager__save--gold" aria-label="Adicionar revenda">
+            {creating ? <Loader2 className="animate-spin" /> : <Plus />}
+          </Button>
         </div>
         {resellerToken && (
-          <button
-            type="button"
-            onClick={() => void copyToken()}
-            className="flex w-full items-center justify-between rounded-lg bg-secondary p-3 text-foreground"
-          >
-            <span className="min-w-0 truncate text-left text-xs font-bold">{resellerLink}</span>
-            <Copy className="h-4 w-4" />
-          </button>
+          <Button type="button" variant="ghost" onClick={() => void copyToken()} className="reseller-manager__token w-full justify-between">
+            <span className="min-w-0 truncate text-left text-xs font-bold">{resellerLink}</span><Copy />
+          </Button>
         )}
-        {resellerToken && <p className="text-center text-[11px] font-bold tracking-wider text-muted-foreground">Token: {resellerToken}</p>}
-        <p className="text-[11px] text-muted-foreground">Copie o link e envie para a revenda fazer o cadastro completo.</p>
+        {resellerToken && <p className="text-center text-[11px] font-bold">Token: {resellerToken}</p>}
       </div>
 
-      {showMyPanel && <div className="space-y-1">
-        <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Meu painel</label>
-        <div className="flex gap-2">
-          <input
-            value={mine}
-            onChange={(e) => setMine(e.target.value)}
-            maxLength={40}
-            className="h-11 flex-1 rounded-xl border border-border bg-card px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-purple-500"
-          />
-          <button
-            type="button"
-            onClick={() => userId && save(userId, mine)}
-            disabled={!userId || saving === userId}
-            className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-b from-purple-600 to-purple-800 text-white disabled:opacity-60"
-          >
-            {saving === userId ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          </button>
-        </div>
-      </div>}
-
-      {loading && others.length === 0 ? (
-        <div className="flex justify-center py-2">
-          <Loader2 className="h-4 w-4 animate-spin text-foreground/60" />
-        </div>
-      ) : others.length === 0 ? (
-        <p className="text-[11px] text-muted-foreground">
-          Nenhuma revenda ligada ainda. Quando alguém criar o painel de revenda, o nome aparece aqui para você definir.
-        </p>
-      ) : (
-        <div className="space-y-2">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Revendas</p>
-          {others.map((panel, index) => (
-            <div key={panel.userId} className="space-y-2 rounded-xl border border-border bg-card p-2">
-              <div className="flex items-center gap-2">
-                <span className="w-7 shrink-0 text-center text-xs font-extrabold text-cyan-400">{index + 1}ª</span>
-                {panel.blocked && <span className="shrink-0 rounded bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-destructive-foreground">BLOQUEADA</span>}
-                <input
-                  value={drafts[panel.userId] ?? panel.label}
-                  onChange={(e) => setDrafts((prev) => ({ ...prev, [panel.userId]: e.target.value }))}
-                  maxLength={40}
-                  className="h-11 flex-1 rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-cyan-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => save(panel.userId, drafts[panel.userId] ?? panel.label)}
-                  disabled={saving === panel.userId}
-                  className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-b from-cyan-500 to-cyan-700 text-white disabled:opacity-60"
-                >
-                  {saving === panel.userId ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                </button>
-              </div>
-              <div className="flex items-center gap-2 pl-9">
-                <MessageCircle className="h-4 w-4 shrink-0 text-green-500" />
-                <input
-                  value={supportDrafts[panel.userId] ?? ""}
-                  onChange={(event) => setSupportDrafts((prev) => ({ ...prev, [panel.userId]: event.target.value }))}
-                  placeholder="Seu WhatsApp para suporte"
-                  inputMode="tel"
-                  className="h-11 min-w-0 flex-1 rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-green-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => void saveSupport(panel.userId)}
-                  disabled={saving === `support-${panel.userId}`}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-600 text-white disabled:opacity-60"
-                  aria-label="Salvar WhatsApp de suporte"
-                >
-                  {saving === `support-${panel.userId}` ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                </button>
-              </div>
-              <div className="flex items-center gap-2 pl-9">
-                <MessageCircle className="h-4 w-4 shrink-0 text-purple-400" />
-                <input
-                  value={resellerDrafts[panel.userId] ?? ""}
-                  onChange={(event) => setResellerDrafts((prev) => ({ ...prev, [panel.userId]: event.target.value }))}
-                  placeholder="WhatsApp da revenda (cobrança)"
-                  inputMode="tel"
-                  className="h-11 min-w-0 flex-1 rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-purple-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => void saveResellerNumber(panel.userId)}
-                  disabled={saving === `reseller-${panel.userId}`}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-600 text-white disabled:opacity-60"
-                  aria-label="Salvar WhatsApp da revenda"
-                >
-                  {saving === `reseller-${panel.userId}` ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                </button>
-              </div>
-              <div className="grid grid-cols-2 gap-2 pl-9">
-                <input
-                  value={expenseDrafts[panel.userId] ?? "0"}
-                  onChange={(event) => setExpenseDrafts((prev) => ({ ...prev, [panel.userId]: event.target.value }))}
-                  placeholder="Custo padrão: 0"
-                  inputMode="decimal"
-                  className="h-11 min-w-0 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
-                />
-                <input
-                  value={costDrafts[panel.userId] ?? ""}
-                  onChange={(event) => setCostDrafts((prev) => ({ ...prev, [panel.userId]: event.target.value }))}
-                  placeholder="Novo custo"
-                  inputMode="decimal"
-                  className="h-11 min-w-0 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
-                />
-              </div>
-              <div className="flex items-center gap-2 pl-9">
-                <div className="flex min-w-0 flex-1 flex-wrap gap-1">
-                  {panel.lineCosts.map((cost) => (
-                    <button key={cost} type="button" onClick={() => void savePanelCosts(panel.userId, panel.fixedExpense, panel.lineCosts.filter((item) => item !== cost))} className="rounded-lg border border-border bg-secondary px-2 py-1 text-xs text-foreground">
-                      R$ {cost.toFixed(2).replace(".", ",")} ×
-                    </button>
-                  ))}
-                </div>
-                <button type="button" onClick={() => void saveCosts(panel.userId, panel.lineCosts)} disabled={saving === `cost-${panel.userId}`} className="flex h-10 items-center gap-1 rounded-lg bg-green-600 px-3 text-xs font-bold text-white disabled:opacity-60">
-                  {saving === `cost-${panel.userId}` ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Custos
-                </button>
-              </div>
-              <div className="grid grid-cols-2 gap-2 pl-9">
-                <button
-                  type="button"
-                  onClick={() => void toggleBlock(panel.userId, panel.label, !panel.blocked)}
-                  disabled={saving === `block-${panel.userId}`}
-                  className="flex h-11 items-center justify-center gap-2 rounded-xl border border-orange-500/50 bg-orange-500/10 text-xs font-extrabold uppercase text-orange-400 disabled:opacity-60"
-                >
-                  {saving === `block-${panel.userId}` ? <Loader2 className="h-4 w-4 animate-spin" /> : panel.blocked ? <Unlock className="h-4 w-4" /> : <Ban className="h-4 w-4" />}
-                  {panel.blocked ? "Desbloquear" : "Bloquear"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void removeReseller(panel.userId, panel.label)}
-                  disabled={saving === `delete-${panel.userId}`}
-                  className="flex h-11 items-center justify-center gap-2 rounded-xl border border-destructive/60 bg-destructive/10 text-xs font-extrabold uppercase text-destructive disabled:opacity-60"
-                >
-                  {saving === `delete-${panel.userId}` ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                  Excluir
-                </button>
-              </div>
-              <div className="space-y-2 pl-9">
-                <button
-                  type="button"
-                  onClick={() => void renewResellerToken(panel.userId, drafts[panel.userId] ?? panel.label)}
-                  disabled={renewing === panel.userId}
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-yellow-500/50 bg-yellow-500/10 text-xs font-extrabold uppercase text-yellow-400 disabled:opacity-60"
-                >
-                  {renewing === panel.userId ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                  Atualizar token
-                </button>
-                {renewedTokens[panel.userId] && (
-                  <button
-                    type="button"
-                    onClick={() => void copyRenewedToken(renewedTokens[panel.userId])}
-                    className="flex h-11 w-full items-center justify-between rounded-xl bg-secondary px-3 text-foreground"
-                  >
-                    <span className="flex min-w-0 items-center gap-2 font-bold tracking-wider">
-                      <KeyRound className="h-4 w-4 shrink-0 text-yellow-400" />
-                      <span className="truncate">{renewedTokens[panel.userId]}</span>
-                    </span>
-                    <Copy className="h-4 w-4 shrink-0" />
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
+      {showMyPanel && (
+        <div className="space-y-1.5">
+          <p className="text-[11px] font-extrabold uppercase">Meu painel</p>
+          <div className="flex gap-2">
+            <div className="reseller-manager__field-icon"><Smartphone /></div>
+            <input value={mine} onChange={(event) => setMine(event.target.value)} maxLength={40} className="reseller-manager__input min-w-0 flex-1" />
+            <Button type="button" onClick={() => userId && save(userId, mine)} disabled={!userId || saving === userId} size="icon" className="reseller-manager__save reseller-manager__save--gold" aria-label="Salvar meu painel">
+              {saving === userId ? <Loader2 className="animate-spin" /> : <Save />}
+            </Button>
+          </div>
         </div>
       )}
 
-      <p className="text-[11px] leading-snug text-muted-foreground">
-        O botão azul do topo abre suas revendas. Dentro de cada painel, use os botões superiores para trocar de revenda.
-      </p>
-    </div>
+      {loading && others.length === 0 ? (
+        <div className="flex justify-center py-5"><Loader2 className="h-5 w-5 animate-spin" /></div>
+      ) : others.length === 0 ? (
+        <p className="reseller-manager__empty">Nenhuma revenda ligada ainda.</p>
+      ) : (
+        <div className="space-y-3">
+          {others.map((panel, index) => {
+            const costsOpen = expandedCosts[panel.userId] ?? false;
+            return (
+              <article key={panel.userId} className="reseller-manager__card space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="reseller-manager__index">{index + 1}ª</span>
+                    <strong className="truncate text-xs uppercase">{panel.label}</strong>
+                  </div>
+                  {panel.blocked && <span className="reseller-manager__blocked">Bloqueada</span>}
+                </div>
+
+                <div className="flex gap-2">
+                  <div className="reseller-manager__field-icon reseller-manager__field-icon--gold"><Smartphone /></div>
+                  <input value={drafts[panel.userId] ?? panel.label} onChange={(event) => setDrafts((current) => ({ ...current, [panel.userId]: event.target.value }))} maxLength={40} className="reseller-manager__input min-w-0 flex-1" aria-label={`Nome da revenda ${panel.label}`} />
+                  <Button type="button" onClick={() => void save(panel.userId, drafts[panel.userId] ?? panel.label)} disabled={saving === panel.userId} size="icon" className="reseller-manager__save reseller-manager__save--gold" aria-label="Salvar nome da revenda">
+                    {saving === panel.userId ? <Loader2 className="animate-spin" /> : <Save />}
+                  </Button>
+                </div>
+
+                <div className="flex gap-2">
+                  <div className="reseller-manager__field-icon reseller-manager__field-icon--support"><MessageCircle /></div>
+                  <input value={supportDrafts[panel.userId] ?? ""} onChange={(event) => setSupportDrafts((current) => ({ ...current, [panel.userId]: event.target.value }))} placeholder="Seu WhatsApp para suporte" inputMode="tel" className="reseller-manager__input min-w-0 flex-1" />
+                  <Button type="button" onClick={() => void saveSupport(panel.userId)} disabled={saving === `support-${panel.userId}`} size="icon" className="reseller-manager__save reseller-manager__save--support" aria-label="Salvar WhatsApp de suporte">
+                    {saving === `support-${panel.userId}` ? <Loader2 className="animate-spin" /> : <Save />}
+                  </Button>
+                </div>
+
+                <div className="flex gap-2">
+                  <div className="reseller-manager__field-icon reseller-manager__field-icon--reseller"><MessageCircle /></div>
+                  <input value={resellerDrafts[panel.userId] ?? ""} onChange={(event) => setResellerDrafts((current) => ({ ...current, [panel.userId]: event.target.value }))} placeholder="WhatsApp da revenda" inputMode="tel" className="reseller-manager__input min-w-0 flex-1" />
+                  <Button type="button" onClick={() => void saveResellerNumber(panel.userId)} disabled={saving === `reseller-${panel.userId}`} size="icon" className="reseller-manager__save reseller-manager__save--reseller" aria-label="Salvar WhatsApp da revenda">
+                    {saving === `reseller-${panel.userId}` ? <Loader2 className="animate-spin" /> : <Save />}
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="reseller-manager__number-field"><CircleDollarSign /><input value={expenseDrafts[panel.userId] ?? "0"} onChange={(event) => setExpenseDrafts((current) => ({ ...current, [panel.userId]: event.target.value }))} placeholder="Custo padrão" inputMode="decimal" aria-label="Custo padrão" /></label>
+                  <label className="reseller-manager__number-field"><Signal /><input value={costDrafts[panel.userId] ?? ""} onChange={(event) => setCostDrafts((current) => ({ ...current, [panel.userId]: event.target.value }))} placeholder="Novo custo" inputMode="decimal" aria-label="Novo custo" /></label>
+                </div>
+
+                <Button type="button" onClick={() => setExpandedCosts((current) => ({ ...current, [panel.userId]: !costsOpen }))} className="reseller-manager__costs w-full justify-between">
+                  <Save /><span>Custos</span><ChevronRight className={costsOpen ? "rotate-90 transition-transform" : "transition-transform"} />
+                </Button>
+                {costsOpen && (
+                  <div className="reseller-manager__cost-list">
+                    <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
+                      {panel.lineCosts.length === 0 && <span className="text-[11px] opacity-70">Nenhum custo adicionado</span>}
+                      {panel.lineCosts.map((cost) => (
+                        <Button key={cost} type="button" variant="outline" size="sm" onClick={() => void savePanelCosts(panel.userId, panel.fixedExpense, panel.lineCosts.filter((item) => item !== cost))} className="h-7 px-2 text-[10px]">R$ {cost.toFixed(2).replace(".", ",")} ×</Button>
+                      ))}
+                    </div>
+                    <Button type="button" onClick={() => void saveCosts(panel.userId, panel.lineCosts)} disabled={saving === `cost-${panel.userId}`} size="sm" className="reseller-manager__save-cost">
+                      {saving === `cost-${panel.userId}` ? <Loader2 className="animate-spin" /> : <Plus />} Adicionar
+                    </Button>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-2">
+                  <Button type="button" onClick={() => void toggleBlock(panel.userId, panel.label, !panel.blocked)} disabled={saving === `block-${panel.userId}`} className="reseller-manager__block">
+                    {saving === `block-${panel.userId}` ? <Loader2 className="animate-spin" /> : panel.blocked ? <Unlock /> : <Ban />}{panel.blocked ? "Desbloquear" : "Bloquear"}
+                  </Button>
+                  <Button type="button" onClick={() => void removeReseller(panel.userId, panel.label)} disabled={saving === `delete-${panel.userId}`} className="reseller-manager__delete">
+                    {saving === `delete-${panel.userId}` ? <Loader2 className="animate-spin" /> : <Trash2 />}Excluir
+                  </Button>
+                </div>
+
+                <Button type="button" onClick={() => void renewResellerToken(panel.userId, drafts[panel.userId] ?? panel.label)} disabled={renewing === panel.userId} className="reseller-manager__renew w-full">
+                  {renewing === panel.userId ? <Loader2 className="animate-spin" /> : <RefreshCw />}Atualizar token<ChevronRight className="ml-auto" />
+                </Button>
+                {renewedTokens[panel.userId] && (
+                  <Button type="button" variant="ghost" onClick={() => void copyRenewedToken(renewedTokens[panel.userId])} className="reseller-manager__token w-full justify-between">
+                    <span className="flex min-w-0 items-center gap-2"><KeyRound /><span className="truncate">{renewedTokens[panel.userId]}</span></span><Copy />
+                  </Button>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      )}
+
+      <p className="reseller-manager__tip">O botão Revenda do topo abre seus painéis. Dentro de cada painel, use os botões superiores para trocar de revenda.</p>
+    </section>
   );
 };
