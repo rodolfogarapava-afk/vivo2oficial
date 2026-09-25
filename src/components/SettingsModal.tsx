@@ -211,6 +211,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [showClientList, setShowClientList] = useState(false);
+  const [clientListFilter, setClientListFilter] = useState<"all" | "rev" | "livre">("all");
   const [showValuesList, setShowValuesList] = useState(false);
   const [showPanelList, setShowPanelList] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
@@ -1559,8 +1560,50 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
               </Button>
               <h3 className="text-lg font-bold text-white">Lista de clientes</h3>
             </div>
+            <div className="flex gap-2 mb-3">
+              <button
+                type="button"
+                onClick={() => setClientListFilter("all")}
+                className={`flex-1 h-9 rounded-xl text-xs font-bold transition-colors ${
+                  clientListFilter === "all"
+                    ? "bg-white text-purple-900"
+                    : "bg-purple-900/70 text-white hover:bg-purple-700"
+                }`}
+              >
+                Todos
+              </button>
+              <button
+                type="button"
+                onClick={() => setClientListFilter("rev")}
+                className={`flex-1 h-9 rounded-xl text-xs font-bold transition-colors ${
+                  clientListFilter === "rev"
+                    ? "bg-white text-purple-900"
+                    : "bg-purple-900/70 text-white hover:bg-purple-700"
+                }`}
+              >
+                Revenda (REV)
+              </button>
+              <button
+                type="button"
+                onClick={() => setClientListFilter("livre")}
+                className={`flex-1 h-9 rounded-xl text-xs font-bold transition-colors ${
+                  clientListFilter === "livre"
+                    ? "bg-white text-purple-900"
+                    : "bg-purple-900/70 text-white hover:bg-purple-700"
+                }`}
+              >
+                Livre
+              </button>
+            </div>
             <div className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain pr-1 pb-4 touch-pan-y">
-              {clients.map((client) => (
+              {clients
+                .filter((client) => {
+                  const name = client.name.trim().toUpperCase();
+                  if (clientListFilter === "rev") return name.startsWith("REV");
+                  if (clientListFilter === "livre") return name.startsWith("LIVRE");
+                  return true;
+                })
+                .map((client) => (
                 <Button
                   key={client.id}
                   type="button"
@@ -1589,8 +1632,13 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 </Button>
               ))}
 
-              {clients.length === 0 && (
-                <p className="py-8 text-center text-sm text-purple-200">Nenhum cliente cadastrado.</p>
+              {clients.filter((client) => {
+                  const name = client.name.trim().toUpperCase();
+                  if (clientListFilter === "rev") return name.startsWith("REV");
+                  if (clientListFilter === "livre") return name.startsWith("LIVRE");
+                  return true;
+                }).length === 0 && (
+                <p className="py-8 text-center text-sm text-purple-200">Nenhum cliente nesta lista.</p>
               )}
             </div>
           </div>
