@@ -23,3 +23,5 @@
 - [x] Reorganizar a área de revendas com o visual dourado da referência
 - [x] Igualar a área de personalização ao cartão dourado da referência
 - [x] Usar a logo Revenda Raio Telecom na instalação pelo celular
+- [x] Salvar na conta as mensagens personalizadas de bloqueio e desbloqueio
+- [x] Organizar WhatsApp, bloqueio e desbloqueio lado a lado no cartão

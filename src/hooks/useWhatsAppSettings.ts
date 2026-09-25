@@ -7,6 +7,8 @@ interface WhatsAppSettings {
   useBusiness: boolean;
   showClientWhatsApp: boolean;
   clientMessageTemplate: string;
+  blockNoticeTemplate: string;
+  unblockNoticeTemplate: string;
 }
 
 const DEFAULT_MESSAGE = `🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
@@ -71,6 +73,38 @@ const DEFAULT_CLIENT_MESSAGE = `*👷{nome}!*
 
 *✅Preferência gera preferência✅*`;
 
+export const DEFAULT_BLOCK_NOTICE = `*🔒🚫AVISO DE BLOQUEIO🔒🚫*
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+*{nome}*, informamos que seu serviço foi *BLOQUEADO* por falta de pagamento e comunicação 📣
+
+*🌐Produto VIVO*
+
+*📱Número: {telefone}*
+
+Para reativar, efetue o pagamento:
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+✅Após o pagamento, entre em contato para liberação! 🙏`;
+
+export const DEFAULT_UNBLOCK_NOTICE = `*✅AVISO DE DESBLOQUEIO✅*
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+*{nome}*, informamos que seu serviço foi *DESBLOQUEADO* em até 2h será restabelecido 📣
+
+*🌐Produto VIVO*
+
+*📱Número: {telefone}*
+
+✅Pagamento efetuado:
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+🔓liberação em até 2h! 🙏`;
+
 const withDefaults = (settings: Partial<WhatsAppSettings>): WhatsAppSettings => ({
   destinationPhone: settings.destinationPhone ?? "",
   messageTemplate: settings.messageTemplate ?? DEFAULT_MESSAGE,
@@ -80,6 +114,8 @@ const withDefaults = (settings: Partial<WhatsAppSettings>): WhatsAppSettings => 
     settings.clientMessageTemplate && !LEGACY_CLIENT_MESSAGES.includes(settings.clientMessageTemplate)
       ? settings.clientMessageTemplate
       : DEFAULT_CLIENT_MESSAGE,
+  blockNoticeTemplate: settings.blockNoticeTemplate?.trim() || DEFAULT_BLOCK_NOTICE,
+  unblockNoticeTemplate: settings.unblockNoticeTemplate?.trim() || DEFAULT_UNBLOCK_NOTICE,
 });
 
 // Reads what is saved on this device
@@ -96,7 +132,12 @@ const readStoredSettings = (): WhatsAppSettings => {
 // Creates the account record when it is missing, or updates the saved values
 const saveProfileToCloud = async (
   userId: string,
-  values: { showClientWhatsApp: boolean; clientMessageTemplate: string }
+  values: {
+    showClientWhatsApp: boolean;
+    clientMessageTemplate: string;
+    blockNoticeTemplate: string;
+    unblockNoticeTemplate: string;
+  }
 ) => {
   try {
     const { error } = await supabase
@@ -106,6 +147,8 @@ const saveProfileToCloud = async (
           user_id: userId,
           whatsapp_show_card: values.showClientWhatsApp,
           whatsapp_client_message: values.clientMessageTemplate,
+          whatsapp_block_notice: values.blockNoticeTemplate,
+          whatsapp_unblock_notice: values.unblockNoticeTemplate,
         },
         { onConflict: "user_id" }
       );
@@ -121,6 +164,8 @@ const SETTINGS_UPDATED_EVENT = "whatsapp-settings-updated";
 type CloudClientSettings = {
   showClientWhatsApp: boolean;
   clientMessageTemplate: string;
+  blockNoticeTemplate: string;
+  unblockNoticeTemplate: string;
 };
 
 let cloudSettingsPromise: Promise<CloudClientSettings | null> | null = null;
@@ -137,7 +182,7 @@ const loadCloudSettings = () => {
 
     const { data } = await supabase
       .from("profiles")
-      .select("whatsapp_show_card, whatsapp_client_message")
+      .select("whatsapp_show_card, whatsapp_client_message, whatsapp_block_notice, whatsapp_unblock_notice")
       .eq("user_id", userId)
       .maybeSingle();
 
@@ -146,10 +191,14 @@ const loadCloudSettings = () => {
       await saveProfileToCloud(userId, {
         showClientWhatsApp: stored.showClientWhatsApp,
         clientMessageTemplate: stored.clientMessageTemplate,
+        blockNoticeTemplate: stored.blockNoticeTemplate,
+        unblockNoticeTemplate: stored.unblockNoticeTemplate,
       });
       return {
         showClientWhatsApp: stored.showClientWhatsApp,
         clientMessageTemplate: stored.clientMessageTemplate,
+        blockNoticeTemplate: stored.blockNoticeTemplate,
+        unblockNoticeTemplate: stored.unblockNoticeTemplate,
       };
     }
 
@@ -160,6 +209,8 @@ const loadCloudSettings = () => {
           ? stored.showClientWhatsApp
           : data.whatsapp_show_card,
       clientMessageTemplate: data.whatsapp_client_message ?? stored.clientMessageTemplate,
+      blockNoticeTemplate: data.whatsapp_block_notice ?? stored.blockNoticeTemplate,
+      unblockNoticeTemplate: data.whatsapp_unblock_notice ?? stored.unblockNoticeTemplate,
     };
   })().catch((error) => {
     cloudSettingsPromise = null;
@@ -194,6 +245,8 @@ export const useWhatsAppSettings = () => {
             ...prev,
             showClientWhatsApp: data.showClientWhatsApp,
             clientMessageTemplate: data.clientMessageTemplate,
+            blockNoticeTemplate: data.blockNoticeTemplate,
+            unblockNoticeTemplate: data.unblockNoticeTemplate,
           });
           localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
           return merged;
@@ -240,6 +293,8 @@ export const useWhatsAppSettings = () => {
         await saveProfileToCloud(userId, {
           showClientWhatsApp: newSettings.showClientWhatsApp,
           clientMessageTemplate: newSettings.clientMessageTemplate,
+          blockNoticeTemplate: newSettings.blockNoticeTemplate,
+          unblockNoticeTemplate: newSettings.unblockNoticeTemplate,
         });
       } catch {}
     })();

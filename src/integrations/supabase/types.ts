@@ -249,8 +249,10 @@ export type Database = {
           updated_at: string
           user_id: string
           whatsapp: string | null
+          whatsapp_block_notice: string | null
           whatsapp_client_message: string | null
           whatsapp_show_card: boolean | null
+          whatsapp_unblock_notice: string | null
         }
         Insert: {
           access_expires_at?: string | null
@@ -267,8 +269,10 @@ export type Database = {
           updated_at?: string
           user_id: string
           whatsapp?: string | null
+          whatsapp_block_notice?: string | null
           whatsapp_client_message?: string | null
           whatsapp_show_card?: boolean | null
+          whatsapp_unblock_notice?: string | null
         }
         Update: {
           access_expires_at?: string | null
@@ -285,8 +289,10 @@ export type Database = {
           updated_at?: string
           user_id?: string
           whatsapp?: string | null
+          whatsapp_block_notice?: string | null
           whatsapp_client_message?: string | null
           whatsapp_show_card?: boolean | null
+          whatsapp_unblock_notice?: string | null
         }
         Relationships: []
       }
