@@ -327,7 +327,7 @@ export const useClients = (userId?: string) => {
   const activeClients = clients.filter(c => !c.name.toUpperCase().includes("CANCELADO"));
   const billableClients = activeClients.filter(c => !c.bonus);
   const totalGross = billableClients.reduce((sum, client) => sum + Number(client.value_paid), 0);
-  const totalProfit = billableClients.reduce((sum, client) => sum + (Number(client.value_paid) - (client.line_cost ?? clientCost(client.id, FIXED_EXPENSE))), 0);
+  const totalProfit = billableClients.reduce((sum, client) => sum + (Number(client.value_paid) - (client.line_cost ?? FIXED_EXPENSE)), 0);
 
   return {
     clients,
