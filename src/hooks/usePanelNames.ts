@@ -104,6 +104,17 @@ export const usePanelNames = (userId?: string) => {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    const refresh = () => void load();
+    const onVisible = () => { if (document.visibilityState === "visible") refresh(); };
+    window.addEventListener("panel-names-updated", refresh);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("panel-names-updated", refresh);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [load]);
+
   const saveLabel = useCallback(
     async (targetUserId: string, label: string) => {
       const clean = label.trim().slice(0, 40);
@@ -151,6 +162,7 @@ export const usePanelNames = (userId?: string) => {
       );
       if (error) throw error;
       await load();
+      window.dispatchEvent(new Event("panel-names-updated"));
     },
     [allNames, load],
   );
