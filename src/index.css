@@ -335,6 +335,32 @@
 .layout-open-button { border-color: hsl(var(--border)); background: hsl(var(--card)); color: hsl(var(--foreground)); box-shadow: inset 2px 2px 6px hsl(var(--layout-shadow-color) / 0.35), inset -2px -2px 6px hsl(var(--foreground) / 0.12); }
 .layout-open-button:hover { background: hsl(var(--secondary)); }
 
+/* Keep dynamically named swatches outside Tailwind's purged component layer. */
+.layout-color-choice { width: 100%; aspect-ratio: 1; min-width: 0; border-radius: 999px; border: 2px solid hsl(var(--client-card-border)); padding: 0; }
+.layout-border-choice-red, .layout-shadow-choice-red { background: hsl(0 92% 54%) !important; }
+.layout-border-choice-purple, .layout-shadow-choice-purple { background: hsl(272 90% 52%) !important; }
+.layout-border-choice-cyan, .layout-shadow-choice-blue { background: hsl(218 100% 47%) !important; }
+.layout-border-choice-gold, .layout-shadow-choice-gold { background: hsl(42 92% 55%) !important; }
+.layout-border-choice-green, .layout-shadow-choice-green { background: hsl(145 88% 38%) !important; }
+.layout-border-choice-pink, .layout-shadow-choice-pink { background: hsl(329 92% 48%) !important; }
+.layout-border-choice-gray, .layout-shadow-choice-gray { background: hsl(0 0% 48%) !important; }
+.layout-shadow-choice-white { background: hsl(0 0% 100%) !important; }
+.layout-shadow-choice-black { background: hsl(0 0% 0%) !important; }
+.layout-button-colors { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.5rem; }
+.layout-button-color { width: 100%; min-width: 0; height: 2.5rem; border: 2px solid hsl(var(--border)); border-radius: 9px; color: hsl(var(--foreground)); padding: 0; }
+.layout-button-color:not(.is-selected) svg { display: none; }
+.layout-button-color.is-selected { border-color: hsl(var(--ring)); box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring)); }
+.layout-button-color-padrão { background: hsl(var(--primary)) !important; }
+.layout-button-color-verde { background: hsl(145 65% 38%) !important; }
+.layout-button-color-azul { background: hsl(215 80% 48%) !important; }
+.layout-button-color-roxo { background: hsl(265 70% 50%) !important; }
+.layout-button-color-rosa { background: hsl(330 70% 50%) !important; }
+.layout-button-color-vermelho { background: hsl(0 70% 48%) !important; }
+.layout-button-color-laranja { background: hsl(25 85% 48%) !important; }
+.layout-button-color-ciano { background: hsl(190 80% 42%) !important; }
+.layout-button-color-âmbar { background: hsl(42 90% 48%) !important; }
+.layout-button-color-grafite { background: hsl(220 12% 30%) !important; }
+
 .panel-border-thin { --layout-border-width: 1px; }
 .panel-border-wide { --layout-border-width: 2px; }
 .panel-border-thick { --layout-border-width: 4px; }
