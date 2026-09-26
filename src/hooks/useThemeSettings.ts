@@ -354,6 +354,7 @@ const readSettings = (): ThemeSettings => {
         backgroundColor = DEFAULT_BG;
       }
       const needsActivatedCardUpdate = parsed.clientCardStyleVersion !== CLIENT_CARD_STYLE_VERSION;
+      const lightLayout = ["white", "cream", "purple3d"].includes(parsed.neonLayout ?? "");
       const settings: ThemeSettings = {
         backgroundColor,
         mode,
