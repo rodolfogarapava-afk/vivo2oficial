@@ -1,0 +1,2 @@
+Manual Vivo reconciliation checks current principal and linked reseller phone ownership before adding a line, and rechecks on apply; this prevents duplicate clients and preserves reseller ownership.
+Per-client line cost is persisted in clients.line_cost; totals use that value before the panel default so expense and profit remain consistent across devices.
