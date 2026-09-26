@@ -27,3 +27,5 @@
 - [x] Organizar WhatsApp, bloqueio e desbloqueio lado a lado no cartão
 - [x] Botão preto de revenda também no painel principal (nomes REV)
 - [x] Três novos layouts 3D macio no botão da engrenagem: Branco, Creme e Roxo 3D
+- [x] Editar e salvar custo da linha por cliente para atualizar gastos e lucro
+- [x] Conferir linhas de revenda antes de adicionar números no painel principal

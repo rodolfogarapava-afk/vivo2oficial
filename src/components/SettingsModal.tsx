@@ -33,7 +33,7 @@ interface SettingsModalProps {
   clients: Client[];
   fixedExpense: number;
   onDeleteClient: (id: string) => void;
-  onEditClient: (id: string, data: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; bonus: boolean; is_resale: boolean; company: string; account: number | null; data_gb?: number; data_used_gb?: number }) => void;
+  onEditClient: (id: string, data: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; bonus: boolean; is_resale: boolean; company: string; account: number | null; data_gb?: number; data_used_gb?: number; line_cost?: number | null }) => void;
   onBlockClient: (id: string, blocked: boolean) => void;
   onRefresh?: () => void;
   totalsByDay: Record<number, number>;
@@ -224,6 +224,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [editPhone, setEditPhone] = useState("");
   const [editWhatsapp, setEditWhatsapp] = useState("");
   const [editValue, setEditValue] = useState("");
+  const [editLineCost, setEditLineCost] = useState("");
   const [editDueDay, setEditDueDay] = useState<number>(10);
   const [editIsResale, setEditIsResale] = useState<boolean>(false);
   const [editDataGb, setEditDataGb] = useState<string>("0");
@@ -544,8 +545,12 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
 
   const handleCheckPanel = async () => {
     const panelLines = await vivo.fetchLines();
-    if (!panelLines || panelLines.length === 0) return;
-    setSyncPlan(vivo.buildPlan(panelLines, clients));
+    if (!panelLines || panelLines.length === 0 || !userId) return;
+    try {
+      setSyncPlan(await vivo.checkPlan(panelLines, userId));
+    } catch {
+      toast({ title: "Não foi possível conferir os painéis", description: "Tente novamente.", variant: "destructive" });
+    }
   };
 
   const handleOpenPanelList = async () => {
@@ -572,7 +577,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
     const { data } = await supabase.auth.getUser();
     const uid = data.user?.id;
     if (!uid) return;
-    const ok = await vivo.applyPlan(syncPlan, uid);
+    const ok = await vivo.applyPlan(syncPlan, uid, vivo.lines ?? []);
     if (ok) {
       setSyncPlan(null);
       onRefresh?.();
@@ -589,6 +594,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       setEditPhone(client.phone);
       setEditWhatsapp(client.whatsapp ?? "");
       setEditValue(String(client.value_paid));
+      setEditLineCost(String(client.line_cost ?? getClientLineCost(client.id) ?? fixedExpense));
       setEditDueDay(client.due_day || 10);
       setEditIsResale(Boolean(client.is_resale));
       setEditDataGb(String(client.data_gb ?? 0));
@@ -597,13 +603,15 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   };
 
   const handleSaveEdit = () => {
-    if (!editingClient || !editName.trim() || !editPhone.trim() || !editValue) return;
+    const parsedCost = Number(editLineCost.replace(",", "."));
+    if (!editingClient || !editName.trim() || !editPhone.trim() || !editValue || !Number.isFinite(parsedCost) || parsedCost < 0) return;
     
     onEditClient(editingClient.id, {
       name: formatClientName(editName),
       phone: editPhone.trim(),
       whatsapp: editWhatsapp.trim() || null,
       value_paid: parseFloat(editValue),
+      line_cost: parsedCost,
       due_day: editDueDay,
       bonus: Boolean(editingClient.bonus),
       is_resale: editIsResale,
@@ -1806,6 +1814,19 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
               placeholder="Valor"
               className="w-full h-10 sm:h-12 bg-purple-900/50 border border-purple-600 text-white rounded-xl text-sm px-3 outline-none focus:ring-2 focus:ring-purple-400"
             />
+            <div>
+              <Label htmlFor="edit-line-cost" className="mb-2 block text-xs text-white/70">Custo da linha</Label>
+              <Input
+                id="edit-line-cost"
+                type="number"
+                inputMode="decimal"
+                min="0"
+                step="0.01"
+                value={editLineCost}
+                onChange={(e) => setEditLineCost(e.target.value)}
+                className="h-10 sm:h-12 bg-purple-900/50 border-purple-600 text-white rounded-xl"
+              />
+            </div>
             <div>
               <p className="text-xs text-white/70 mb-2">Giga da linha</p>
               <div className="flex gap-2">
