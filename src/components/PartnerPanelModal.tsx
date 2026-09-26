@@ -196,7 +196,7 @@ export const PartnerPanelModal = ({
         args: Record<string, unknown>,
       ) => Promise<{ data: Client | null; error: { message: string } | null }>)('add_panel_client', {
         p_panel_user: partnerUserId,
-        p_name: client.name.toUpperCase().startsWith("REV") ? client.name : `REV ${client.name}`,
+        p_name: /^(REV|LIVRE)/i.test(client.name) ? client.name : `REV ${client.name}`,
         p_phone: client.phone,
         p_value: client.value_paid,
         p_due_day: client.due_day,
@@ -400,6 +400,7 @@ export const PartnerPanelModal = ({
             fixedExpense={panelFixedExpense}
             availableLineCosts={lineCosts}
             existingPhones={clients.map((c) => c.phone)}
+            simple
           />
         )}
         {loading && clients.length === 0 ? (
