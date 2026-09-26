@@ -320,6 +320,15 @@
   .layout-button-color:not(.is-selected) svg { display: none; }
   .layout-button-color.is-selected { border-color: hsl(var(--ring)); box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring)); }
   .layout-button-color:first-child { background: hsl(var(--primary)); }
+  .layout-button-color-verde { background: hsl(145 65% 38%); }
+  .layout-button-color-azul { background: hsl(215 80% 48%); }
+  .layout-button-color-roxo { background: hsl(265 70% 50%); }
+  .layout-button-color-rosa { background: hsl(330 70% 50%); }
+  .layout-button-color-vermelho { background: hsl(0 70% 48%); }
+  .layout-button-color-laranja { background: hsl(25 85% 48%); }
+  .layout-button-color-ciano { background: hsl(190 80% 42%); }
+  .layout-button-color-âmbar { background: hsl(42 90% 48%); }
+  .layout-button-color-grafite { background: hsl(220 12% 30%); }
 }
 
 .settings-dialog { color: hsl(var(--foreground)); }

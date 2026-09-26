@@ -1043,7 +1043,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   <p className="layout-customizer__label"><span><Palette /></span>Cor dos botões</p>
                   <div className="layout-button-colors">
                     {buttonColors.map(({ name, hsl }) => (
-                      <Button key={name} type="button" variant="outline" onClick={() => setButtonColor(hsl)} className={`layout-button-color ${themeSettings.buttonColor === hsl ? "is-selected" : ""}`} aria-label={`Botões ${name}`} title={name} style={hsl ? { backgroundColor: `hsl(${hsl})` } : undefined}>
+                      <Button key={name} type="button" variant="outline" onClick={() => setButtonColor(hsl)} className={`layout-button-color layout-button-color-${name.toLowerCase()} ${themeSettings.buttonColor === hsl ? "is-selected" : ""}`} aria-label={`Botões ${name}`} title={name}>
                         {hsl ? <Check className="h-4 w-4" /> : <span className="text-xs font-bold">Padrão</span>}
                       </Button>
                     ))}
