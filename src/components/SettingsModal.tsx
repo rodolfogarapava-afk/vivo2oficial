@@ -242,10 +242,19 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
     try {
       const raw = localStorage.getItem("line_costs_list");
       const list = raw ? (JSON.parse(raw) as number[]) : [];
-      void supabase
-        .from("panel_names")
-        .upsert({ user_id: userId, label: "PAINEL PRINCIPAL", line_costs: list }, { onConflict: "user_id" })
-        .then(() => {});
+      void (async () => {
+        const { data: existing } = await supabase
+          .from("panel_names")
+          .select("label")
+          .eq("user_id", userId)
+          .maybeSingle();
+        await supabase
+          .from("panel_names")
+          .upsert(
+            { user_id: userId, label: existing?.label ?? "PAINEL PRINCIPAL", line_costs: list },
+            { onConflict: "user_id" },
+          );
+      })();
     } catch {
       // ignora
     }
