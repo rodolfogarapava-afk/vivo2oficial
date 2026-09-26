@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Download, FileText, Signal, Copy, Check, MessageCircle, Save, ArrowLeft, Palette, Pencil, Trash2, X, Users, Lock, LockOpen, Unlock, Building2, RefreshCw, CloudDownload, CreditCard, Send, Ban, Search, Star, Store, Eye, EyeOff, Calendar, Upload, Loader2, TrendingUp, KeyRound, Banknote, Type, Square, Droplets, Sparkles } from "lucide-react";
+import { Download, FileText, Signal, Copy, Check, MessageCircle, Save, ArrowLeft, ChevronDown, Palette, Pencil, Trash2, X, Users, Lock, LockOpen, Unlock, Building2, RefreshCw, CloudDownload, CreditCard, Send, Ban, Search, Star, Store, Eye, EyeOff, Calendar, Upload, Loader2, TrendingUp, KeyRound, Banknote, Type, Square, Droplets, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { VIVO_PANEL_URL, useVivoPanel, type SyncPlan } from "@/hooks/useVivoPanel";
 import { Switch } from "@/components/ui/switch";
@@ -231,6 +231,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   const [editDataUsedGb, setEditDataUsedGb] = useState<string>("0");
   const [syncPlan, setSyncPlan] = useState<SyncPlan | null>(null);
   const [adminSection, setAdminSection] = useState<"tokens" | "resellers" | null>(null);
+  const [showLayout, setShowLayout] = useState(false);
 
 
   // Fixed expense settings
@@ -270,6 +271,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
 
   useEffect(() => {
     if (open) {
+      setShowLayout(false);
       setDestinationPhone(whatsAppSettings.destinationPhone);
       setMessageTemplate(whatsAppSettings.messageTemplate);
       setUseBusiness(whatsAppSettings.useBusiness);
@@ -920,7 +922,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
         onChange={handleImportFile}
       />
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="bg-purple-800 border-none rounded-2xl w-[90vw] max-w-md max-h-[80vh] overflow-hidden p-3 sm:p-6">
+        <DialogContent className="settings-dialog bg-card border-border rounded-2xl w-[90vw] max-w-md max-h-[80vh] overflow-hidden p-3 sm:p-6">
           <DialogHeader className="flex flex-row items-center gap-3">
             <button
               onClick={() => onOpenChange(false)}
@@ -936,7 +938,11 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
 
           <div className="space-y-3 sm:space-y-4 mt-3 sm:mt-4 overflow-y-auto max-h-[calc(80vh-80px)] pr-1">
 
-            <div className="layout-customizer">
+            <Button type="button" variant="outline" className="layout-open-button w-full h-12 justify-between" onClick={() => setShowLayout((value) => !value)} aria-expanded={showLayout} aria-controls="layout-options">
+              <span className="flex items-center gap-2"><Palette className="h-5 w-5" /> Layout</span>
+              <ChevronDown className={`h-5 w-5 transition-transform ${showLayout ? "rotate-180" : ""}`} />
+            </Button>
+            {showLayout && <div id="layout-options" className="layout-customizer">
               <h3 className="layout-customizer__title">
                 <span className="layout-customizer__title-icon"><Palette /></span>
                 Layout do painel
@@ -1034,6 +1040,16 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
 
               <div className="layout-customizer__controls">
                 <div className="layout-customizer__group">
+                  <p className="layout-customizer__label"><span><Palette /></span>Cor dos botões</p>
+                  <div className="layout-button-colors">
+                    {buttonColors.map(({ name, hsl }) => (
+                      <Button key={name} type="button" variant="outline" onClick={() => setButtonColor(hsl)} className={`layout-button-color ${themeSettings.buttonColor === hsl ? "is-selected" : ""}`} aria-label={`Botões ${name}`} title={name} style={hsl ? { backgroundColor: `hsl(${hsl})` } : undefined}>
+                        {hsl ? <Check className="h-4 w-4" /> : <span className="text-xs font-bold">Padrão</span>}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                <div className="layout-customizer__group">
                   <p className="layout-customizer__label"><span><Type /></span>Cor das letras</p>
                   <div className="grid grid-cols-2 gap-2">
                     <Button type="button" variant="outline" onClick={() => setClientCardText("black")} className={`layout-text-choice layout-text-choice--black ${(themeSettings.clientCardText ?? "black") === "black" ? "is-selected" : ""}`}>Preto<span className="layout-customizer__radio"><Check /></span></Button>
@@ -1062,7 +1078,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 <div className="layout-customizer__group">
                   <p className="layout-customizer__label"><span><Sparkles /></span>Cor da sombra dos botões</p>
                   <div className="layout-color-row">
-                    {([['red', 'Vermelha'], ['purple', 'Roxa'], ['blue', 'Azul'], ['gold', 'Dourada'], ['green', 'Verde'], ['pink', 'Rosa'], ['gray', 'Cinza']] as const).map(([value, label]) => (
+                    {([['white', 'Branca'], ['black', 'Preta'], ['red', 'Vermelha'], ['purple', 'Roxa'], ['blue', 'Azul'], ['gold', 'Dourada'], ['green', 'Verde'], ['pink', 'Rosa'], ['gray', 'Cinza']] as const).map(([value, label]) => (
                       <Button key={value} type="button" variant="outline" size="icon" onClick={() => setPanelShadowColor(value)} className={`layout-color-choice layout-shadow-choice-${value} ${themeSettings.panelShadowColor === value ? "is-selected" : ""}`} aria-label={`Sombra ${label}`} title={label}><Check /></Button>
                     ))}
                   </div>
@@ -1076,7 +1092,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   </div>
                 </div>
               </div>
-            </div>
+            </div>}
 
             {/* ===== ADM: tokens e nomes dos painéis ===== */}
             {isAdmin && (

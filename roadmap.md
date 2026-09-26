@@ -31,3 +31,4 @@
 - [x] Conferir linhas de revenda antes de adicionar números no painel principal
 - [x] Separar cobrança do administrador e valor de venda da revenda, com custo refletido nos dois painéis
 - [x] Adicionar Layout Raio à engrenagem com fundo roxo escuro, cartões e botões mais claros
+- [ ] Recolher opções de layout na engrenagem e aplicar visual macio com sombras e cores de botões funcionais

@@ -129,7 +129,7 @@ const applyTheme = ({
   panelBorderWidth = "wide",
   panelBorderColor = "theme",
   panelShadowColor = "black",
-  panelShadowType = "outer",
+  panelShadowType = "inner",
 }: ThemeSettings) => {
   const { h, s, l } = parseHsl(backgroundColor);
   const root = document.documentElement;
@@ -413,7 +413,7 @@ const readSettings = (): ThemeSettings => {
     panelBorderWidth: "wide",
     panelBorderColor: "theme",
     panelShadowColor: "black",
-    panelShadowType: "outer",
+       panelShadowType: "inner",
   };
 
 };
@@ -478,6 +478,7 @@ export const useThemeSettings = () => {
       backgroundColor: DEFAULT_BG,
       neonLayout,
       clientCardText: lightLayout ? ("black" as const) : neonLayout === "raio" ? ("white" as const) : current.clientCardText,
+       panelShadowType: neonLayout === "raio" ? ("inner" as const) : current.panelShadowType,
     };
     setSettings(next);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
