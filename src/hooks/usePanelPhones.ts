@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 const CACHE_KEY = "vivo-panel-phones";
 let sharedRefreshPromise: Promise<{
   phones: string[];
+  names: Record<string, string>;
   sync: unknown;
 } | null> | null = null;
 
