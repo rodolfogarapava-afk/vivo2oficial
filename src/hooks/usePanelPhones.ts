@@ -21,6 +21,21 @@ const readCache = (): Set<string> | null => {
   }
 };
 
+/** Returns the client name the Gestor has for a phone, from the last sync cache. */
+export const getCachedPanelName = (phone: string): string | null => {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    const names = data.names as Record<string, string> | undefined;
+    if (!names) return null;
+    const name = names[digits(phone)];
+    return typeof name === "string" && name.trim() ? name : null;
+  } catch {
+    return null;
+  }
+};
+
 /**
  * Phone numbers (digits only) of lines present in the Vivo Gestão panel.
  * Returns null while unknown (never fetched) — callers should treat null as "show everything".
@@ -44,16 +59,22 @@ export const usePanelPhones = () => {
           const phones = [...new Set((data.lines as { phone?: string }[])
             .map((line) => digits(line.phone || ""))
             .filter((phone) => phone.length >= 10))];
-          return { phones, sync: data.sync ?? null };
+          const names: Record<string, string> = {};
+          for (const line of data.lines as { phone?: string; name?: string }[]) {
+            const phone = digits(line.phone || "");
+            const name = (line.name || "").trim();
+            if (phone.length >= 10 && name) names[phone] = name;
+          }
+          return { phones, names, sync: data.sync ?? null };
         })().finally(() => {
           sharedRefreshPromise = null;
         });
       }
       const result = await sharedRefreshPromise;
       if (!result) return false;
-      const { phones, sync } = result;
+      const { phones, names, sync } = result;
       if (phones.length === 0) return false;
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ phones, ts: Date.now() }));
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ phones, names, ts: Date.now() }));
       setPanelPhones(new Set(phones));
       window.dispatchEvent(new CustomEvent("vivo-panel-synced", { detail: sync }));
       return true;
