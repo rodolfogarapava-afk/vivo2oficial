@@ -1300,6 +1300,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                     if (!newCostInput || Number.isNaN(v) || v < 0) return;
                     addCost(v);
                     setNewCostInput("");
+                    setTimeout(syncCostsToCloud, 50);
                   }}
                   className="h-10 bg-green-600 hover:bg-green-700 text-white rounded-xl px-4"
                 >
@@ -1312,7 +1313,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                     <button
                       key={c}
                       type="button"
-                      onClick={() => removeCost(c)}
+                      onClick={() => { removeCost(c); setTimeout(syncCostsToCloud, 50); }}
                       className="px-3 h-8 rounded-lg bg-purple-950/60 border border-purple-700 text-white text-xs font-bold"
                       title="Remover"
                     >
