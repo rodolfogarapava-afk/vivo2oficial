@@ -1,3 +1,4 @@
 Manual Vivo reconciliation checks current principal and linked reseller phone ownership before adding a line, and rechecks on apply; this prevents duplicate clients and preserves reseller ownership.
 Per-client line cost is persisted in clients.line_cost; totals use that value before the panel default so expense and profit remain consistent across devices.
 For linked resellers, clients.line_cost is the administrator-controlled wholesale charge while clients.value_paid is the reseller-controlled sale price; keeping them distinct preserves each side's totals and prevents accidental price overwrites.
+The Layout Raio theme is a selectable, persistent variant of the existing dashboard theme system rather than a separate screen; this keeps every existing panel action unchanged.

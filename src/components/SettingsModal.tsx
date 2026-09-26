@@ -1019,6 +1019,17 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   <span>Roxo 3D</span>
                   <span className="layout-customizer__radio"><Check /></span>
                 </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setNeonLayout("raio")}
+                  className={`layout-theme-choice theme-choice-raio ${themeSettings.neonLayout === "raio" ? "is-selected" : ""}`}
+                  aria-pressed={themeSettings.neonLayout === "raio"}
+                >
+                  <span className="theme-choice-preview" />
+                  <span>Layout Raio</span>
+                  <span className="layout-customizer__radio"><Check /></span>
+                </Button>
               </div>
 
               <div className="layout-customizer__controls">
