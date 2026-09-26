@@ -315,6 +315,15 @@ Deno.serve(async (req) => {
           const quota = usage?.quotaGb || quotaFromRaw(line.raw)
           if (!current) {
             const previousOwner = knownPhoneOwners.get(phone)
+            const partnerIds = new Set((links ?? []).map((l) => l.partner_user_id))
+            if (previousOwner && partnerIds.has(previousOwner.user_id) && !partnerIds.has(target.userId)) {
+              // Cliente já salvo numa revenda: nunca tirar de lá; só atualiza consumo/bloqueio.
+              const keep: Record<string, unknown> = { blocked: line.blocked }
+              if (quota > 0) keep.data_gb = quota
+              if (usage) keep.data_used_gb = usage.usedGb
+              await backend.from('clients').update(keep).eq('id', previousOwner.id)
+              continue
+            }
             if (previousOwner) {
               const nextName = revName(line.name, target.userId !== appUser.id)
               const changes: Record<string, unknown> = {
