@@ -191,7 +191,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
         </div>
 
         {/* Custo da linha */}
-        <div className="space-y-2">
+        {!simple && <div className="space-y-2">
           <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
             Custo da linha
           </label>
@@ -217,7 +217,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
           {costList.length === 0 && (
             <p className="text-[11px] text-muted-foreground">Adicione outros valores na engrenagem → Custo da Linha.</p>
           )}
-        </div>
+        </div>}
 
 
         {/* Tipo de chip */}
