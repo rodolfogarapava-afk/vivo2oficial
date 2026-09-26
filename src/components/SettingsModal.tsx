@@ -978,6 +978,39 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   <span>Dourado</span>
                   <span className="layout-customizer__radio"><Check /></span>
                 </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setNeonLayout("white")}
+                  className={`layout-theme-choice theme-choice-white ${themeSettings.neonLayout === "white" ? "is-selected" : ""}`}
+                  aria-pressed={themeSettings.neonLayout === "white"}
+                >
+                  <span className="theme-choice-preview" />
+                  <span>Branco</span>
+                  <span className="layout-customizer__radio"><Check /></span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setNeonLayout("cream")}
+                  className={`layout-theme-choice theme-choice-cream ${themeSettings.neonLayout === "cream" ? "is-selected" : ""}`}
+                  aria-pressed={themeSettings.neonLayout === "cream"}
+                >
+                  <span className="theme-choice-preview" />
+                  <span>Creme</span>
+                  <span className="layout-customizer__radio"><Check /></span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setNeonLayout("purple3d")}
+                  className={`layout-theme-choice theme-choice-purple3d ${themeSettings.neonLayout === "purple3d" ? "is-selected" : ""}`}
+                  aria-pressed={themeSettings.neonLayout === "purple3d"}
+                >
+                  <span className="theme-choice-preview" />
+                  <span>Roxo 3D</span>
+                  <span className="layout-customizer__radio"><Check /></span>
+                </Button>
               </div>
 
               <div className="layout-customizer__controls">

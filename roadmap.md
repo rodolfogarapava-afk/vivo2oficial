@@ -25,3 +25,5 @@
 - [x] Usar a logo Revenda Raio Telecom na instalação pelo celular
 - [x] Salvar na conta as mensagens personalizadas de bloqueio e desbloqueio
 - [x] Organizar WhatsApp, bloqueio e desbloqueio lado a lado no cartão
+- [x] Botão preto de revenda também no painel principal (nomes REV)
+- [x] Três novos layouts 3D macio no botão da engrenagem: Branco, Creme e Roxo 3D

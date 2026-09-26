@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 export type ThemeMode = "dark" | "light";
-export type NeonLayout = "purple" | "blue" | "red" | "gold";
+export type NeonLayout = "purple" | "blue" | "red" | "gold" | "white" | "cream" | "purple3d";
 export type PanelBorderWidth = "thin" | "wide" | "thick";
 export type PanelBorderColor = "theme" | "white" | "black" | "cyan" | "red" | "gold" | "purple" | "green" | "pink" | "gray";
 export type PanelShadowColor = "white" | "black" | "red" | "purple" | "blue" | "gold" | "green" | "pink" | "gray";
@@ -139,6 +139,9 @@ const applyTheme = ({
   root.classList.toggle("neon-layout-blue", neonLayout === "blue");
   root.classList.toggle("neon-layout-red", neonLayout === "red");
   root.classList.toggle("neon-layout-gold", neonLayout === "gold");
+  root.classList.toggle("neon-layout-white", neonLayout === "white");
+  root.classList.toggle("neon-layout-cream", neonLayout === "cream");
+  root.classList.toggle("neon-layout-purple3d", neonLayout === "purple3d");
   root.classList.toggle("neon-layout-purple", neonLayout === "purple");
   root.classList.toggle("panel-border-thin", panelBorderWidth === "thin");
   root.classList.toggle("panel-border-wide", panelBorderWidth === "wide");
@@ -220,6 +223,78 @@ const applyTheme = ({
     setVar("--client-card-highlight", "36 89% 61%");
     setVar("--client-card-shadow", "31 43% 45%");
     setVar("--client-card-glow", "42 91% 88%");
+  } else if (neonLayout === "white") {
+    setVar("--background", "40 35% 95%");
+    setVar("--foreground", "28 45% 12%");
+    setVar("--card", "45 55% 97%");
+    setVar("--card-foreground", "28 45% 12%");
+    setVar("--popover", "45 55% 97%");
+    setVar("--popover-foreground", "28 45% 12%");
+    setVar("--primary", "30 65% 38%");
+    setVar("--primary-foreground", "45 85% 97%");
+    setVar("--secondary", "42 40% 90%");
+    setVar("--secondary-foreground", "28 45% 12%");
+    setVar("--muted", "42 35% 90%");
+    setVar("--muted-foreground", "30 30% 35%");
+    setVar("--border", "42 45% 84%");
+    setVar("--input", "42 40% 90%");
+    setVar("--ring", "30 65% 40%");
+    setVar("--client-card-bg", "45 60% 96%");
+    setVar("--client-card-foreground", "28 46% 10%");
+    setVar("--client-card-border", "42 55% 85%");
+    setVar("--client-card-deep", "30 55% 55%");
+    setVar("--client-card-muted", "28 38% 34%");
+    setVar("--client-card-highlight", "30 72% 55%");
+    setVar("--client-card-shadow", "32 40% 60%");
+    setVar("--client-card-glow", "48 95% 98%");
+  } else if (neonLayout === "cream") {
+    setVar("--background", "38 55% 89%");
+    setVar("--foreground", "28 46% 10%");
+    setVar("--card", "42 62% 93%");
+    setVar("--card-foreground", "28 46% 10%");
+    setVar("--popover", "42 62% 94%");
+    setVar("--popover-foreground", "28 46% 10%");
+    setVar("--primary", "30 65% 34%");
+    setVar("--primary-foreground", "45 85% 96%");
+    setVar("--secondary", "40 50% 87%");
+    setVar("--secondary-foreground", "28 46% 10%");
+    setVar("--muted", "40 45% 86%");
+    setVar("--muted-foreground", "30 38% 28%");
+    setVar("--border", "40 58% 82%");
+    setVar("--input", "40 52% 87%");
+    setVar("--ring", "30 65% 36%");
+    setVar("--client-card-bg", "42 62% 93%");
+    setVar("--client-card-foreground", "28 46% 10%");
+    setVar("--client-card-border", "40 62% 83%");
+    setVar("--client-card-deep", "30 62% 45%");
+    setVar("--client-card-muted", "28 42% 30%");
+    setVar("--client-card-highlight", "30 68% 52%");
+    setVar("--client-card-shadow", "30 48% 52%");
+    setVar("--client-card-glow", "46 90% 96%");
+  } else if (neonLayout === "purple3d") {
+    setVar("--background", "262 50% 89%");
+    setVar("--foreground", "262 45% 15%");
+    setVar("--card", "264 55% 93%");
+    setVar("--card-foreground", "262 45% 15%");
+    setVar("--popover", "264 55% 94%");
+    setVar("--popover-foreground", "262 45% 15%");
+    setVar("--primary", "264 55% 40%");
+    setVar("--primary-foreground", "266 90% 96%");
+    setVar("--secondary", "264 45% 90%");
+    setVar("--secondary-foreground", "262 45% 15%");
+    setVar("--muted", "264 40% 89%");
+    setVar("--muted-foreground", "262 30% 34%");
+    setVar("--border", "265 48% 82%");
+    setVar("--input", "264 45% 89%");
+    setVar("--ring", "264 55% 42%");
+    setVar("--client-card-bg", "264 55% 93%");
+    setVar("--client-card-foreground", "262 45% 14%");
+    setVar("--client-card-border", "265 48% 82%");
+    setVar("--client-card-deep", "265 55% 52%");
+    setVar("--client-card-muted", "262 35% 34%");
+    setVar("--client-card-highlight", "266 78% 62%");
+    setVar("--client-card-shadow", "264 42% 58%");
+    setVar("--client-card-glow", "268 92% 95%");
   } else if (neonLayout === "red") {
     setVar("--background", "355 82% 5%");
     setVar("--card", "355 82% 8%");
@@ -261,7 +336,7 @@ const applyTheme = ({
     setVar("--client-card-glow", "282 100% 62%");
   }
 
-  setVar("--layout-default-border", neonLayout === "gold" ? "40 72% 87%" : neonLayout === "red" ? "13 100% 55%" : neonLayout === "blue" ? "184 100% 55%" : "285 100% 68%");
+  setVar("--layout-default-border", neonLayout === "gold" ? "40 72% 87%" : neonLayout === "red" ? "13 100% 55%" : neonLayout === "blue" ? "184 100% 55%" : neonLayout === "white" ? "42 55% 85%" : neonLayout === "cream" ? "40 62% 83%" : neonLayout === "purple3d" ? "265 48% 82%" : "285 100% 68%");
   setVar("--layout-border-color", BORDER_COLORS[panelBorderColor]);
   setVar("--layout-shadow-color", SHADOW_COLORS[panelShadowColor]);
   setVar("--layout-text-color", clientCardText === "white" ? "0 0% 100%" : "0 0% 4%");
@@ -279,6 +354,7 @@ const readSettings = (): ThemeSettings => {
         backgroundColor = DEFAULT_BG;
       }
       const needsActivatedCardUpdate = parsed.clientCardStyleVersion !== CLIENT_CARD_STYLE_VERSION;
+      const lightLayout = ["white", "cream", "purple3d"].includes(parsed.neonLayout ?? "");
       const settings: ThemeSettings = {
         backgroundColor,
         mode,
@@ -286,9 +362,9 @@ const readSettings = (): ThemeSettings => {
         clientCardPurple: needsActivatedCardUpdate
           ? 75
           : Math.min(100, Math.max(0, Number(parsed.clientCardPurple) || 0)),
-        clientCardText: needsActivatedCardUpdate || parsed.clientCardText === "white" ? "white" : "black",
+        clientCardText: needsActivatedCardUpdate || parsed.clientCardText === "white" ? (lightLayout ? "black" : "white") : "black",
         clientCardStyleVersion: CLIENT_CARD_STYLE_VERSION,
-        neonLayout: parsed.neonLayout === "blue" || parsed.neonLayout === "red" || parsed.neonLayout === "gold" ? parsed.neonLayout : "purple",
+        neonLayout: ["blue", "red", "gold", "white", "cream", "purple3d"].includes(parsed.neonLayout ?? "") ? parsed.neonLayout as NeonLayout : "purple",
         panelBorderWidth: parsed.panelBorderWidth === "thin" || parsed.panelBorderWidth === "thick" ? parsed.panelBorderWidth : "wide",
         panelBorderColor: ["theme", "white", "black", "cyan", "red", "gold", "purple", "green", "pink", "gray"].includes(parsed.panelBorderColor ?? "") ? parsed.panelBorderColor : "theme",
         panelShadowColor: ["white", "black", "red", "purple", "blue", "gold", "green", "pink", "gray"].includes(parsed.panelShadowColor ?? "") ? parsed.panelShadowColor : "black",
@@ -371,7 +447,14 @@ export const useThemeSettings = () => {
 
   const setNeonLayout = useCallback((neonLayout: NeonLayout) => {
     const current = readSettings();
-    const next = { ...current, mode: "dark" as ThemeMode, backgroundColor: DEFAULT_BG, neonLayout };
+    const lightLayout = ["white", "cream", "purple3d"].includes(neonLayout);
+    const next = {
+      ...current,
+      mode: "dark" as ThemeMode,
+      backgroundColor: DEFAULT_BG,
+      neonLayout,
+      clientCardText: lightLayout ? ("black" as const) : current.clientCardText,
+    };
     setSettings(next);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     window.dispatchEvent(new Event(THEME_UPDATED_EVENT));
