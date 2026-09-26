@@ -305,7 +305,7 @@
   .layout-text-choice--black { color: hsl(0 0% 5%); background: hsl(0 0% 97%); }
   .layout-text-choice--white { color: hsl(0 0% 100%); background: hsl(262 55% 12%); }
   .layout-text-choice.is-selected, .layout-width-choice.is-selected { border-color: hsl(var(--client-card-highlight)); box-shadow: inset 0 1px 0 hsl(var(--client-card-glow) / 0.4), 0 0 10px hsl(var(--client-card-highlight) / 0.7); }
-  .layout-color-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.42rem; }
+  .layout-color-row { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 0.3rem; }
   .layout-color-choice { position: relative; width: 100%; height: auto; aspect-ratio: 1; border: 2px solid hsl(var(--client-card-border) / 0.9); border-radius: 999px; padding: 0; box-shadow: inset 0 1px 1px hsl(0 0% 100% / 0.46), 0 3px 7px hsl(var(--client-card-shadow) / 0.55); }
   .layout-color-choice svg { display: none; width: 1rem; height: 1rem; color: hsl(0 0% 100%); stroke-width: 4; filter: drop-shadow(0 1px 1px hsl(0 0% 0% / 0.8)); }
   .layout-color-choice.is-selected { border-color: hsl(0 0% 100%); box-shadow: 0 0 0 2px hsl(var(--client-card-highlight)), 0 0 11px currentColor; }
@@ -875,7 +875,9 @@
 .custom-buttons .neon-dashboard header button,
 .custom-buttons .neon-dashboard header > div > div:first-child > button:nth-child(2),
 .custom-buttons .neon-dashboard button[class*="bg-purple"],
-.custom-buttons [role="dialog"] button[class*="bg-purple"] { background: hsl(var(--btn)) !important; }
+.custom-buttons [role="dialog"] button[class*="bg-purple"],
+.custom-buttons .neon-dashboard button[class*="bg-green"],
+.custom-buttons [role="dialog"] button[class*="bg-green"] { background: hsl(var(--btn)) !important; }
 .panel-shadow-outer .neon-dashboard header button,
 .panel-shadow-outer .neon-dashboard .neon-total-card,
 .panel-shadow-outer .neon-dashboard .neon-expense-card,

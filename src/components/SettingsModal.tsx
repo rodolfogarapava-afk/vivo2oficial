@@ -1336,7 +1336,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
             </div>
 
             {/* ===== Tema ===== */}
-            <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
+            {showLayout && <div className="bg-purple-900/50 rounded-xl p-3 sm:p-4">
               <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                 <Palette className="h-4 w-4" />
                 Tema e Cores
@@ -1383,28 +1383,6 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 ))}
               </div>
 
-              <p className="text-xs text-white/70 mt-4 mb-2">Cor dos botões</p>
-              <div className="grid grid-cols-5 gap-2">
-                {buttonColors.map((color) => (
-                  <button
-                    key={color.name}
-                    onClick={() => {
-                      setButtonColor(color.hsl);
-                      toast({ title: "Cor dos botões alterada!", description: color.name });
-                    }}
-                    className={`w-full aspect-square rounded-xl border-2 flex items-center justify-center transition-all ${
-                      (themeSettings.buttonColor || "") === color.hsl
-                        ? 'border-white scale-110'
-                        : 'border-transparent hover:border-white/50'
-                    }`}
-                    style={color.hsl ? { backgroundColor: `hsl(${color.hsl})` } : undefined}
-                    title={color.name}
-                  >
-                    {!color.hsl && <span className="text-[9px] font-bold text-white">Padrão</span>}
-                  </button>
-                ))}
-              </div>
-
               <div className="mt-4 rounded-xl border border-purple-700 bg-purple-950/40 p-3">
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <div>
@@ -1429,7 +1407,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 </div>
               </div>
 
-            </div>
+            </div>}
 
 
             {/* ===== WhatsApp ===== */}
