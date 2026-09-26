@@ -261,7 +261,8 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
   // Linha livre: nome cadastrado começando com "LIVRE" -> bordas verdes grossas, ✅ e sempre no topo.
   const isFree = !client.blocked && isFreeLine(client.name);
   // Estilo de revenda: botão do número preto com número branco e contorno preto no WhatsApp.
-  const resaleStyle = dense || isResale;
+  // Aplica no painel da revenda (dense), nos clientes marcados como revenda e nos nomes REV do painel principal.
+  const resaleStyle = dense || isResale || client.name.trim().toUpperCase().startsWith('REV');
 
   // Barra de consumo de giga (franquia anotada no app)
   const totalGb = Number(client.data_gb ?? 0);
