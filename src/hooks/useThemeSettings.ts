@@ -361,7 +361,9 @@ const readSettings = (): ThemeSettings => {
         clientCardPurple: needsActivatedCardUpdate
           ? 75
           : Math.min(100, Math.max(0, Number(parsed.clientCardPurple) || 0)),
-        clientCardText: needsActivatedCardUpdate || parsed.clientCardText === "white" ? "white" : "black",
+        const lightLayout = ["white", "cream", "purple3d"].includes(parsed.neonLayout ?? "");
+        const lightLayout = ["white", "cream", "purple3d"].includes(parsed.neonLayout ?? "");
+        clientCardText: needsActivatedCardUpdate || parsed.clientCardText === "white" ? (lightLayout ? "black" : "white") : "black",
         clientCardStyleVersion: CLIENT_CARD_STYLE_VERSION,
         neonLayout: ["blue", "red", "gold", "white", "cream", "purple3d"].includes(parsed.neonLayout ?? "") ? parsed.neonLayout as NeonLayout : "purple",
         panelBorderWidth: parsed.panelBorderWidth === "thin" || parsed.panelBorderWidth === "thick" ? parsed.panelBorderWidth : "wide",
