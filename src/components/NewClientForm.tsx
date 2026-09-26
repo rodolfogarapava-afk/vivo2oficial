@@ -51,10 +51,12 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name.trim() || !phone.trim() || !whatsapp.trim() || !valuePaid || virtualChip === null || phoneError) return;
+    // Na revenda o nome é opcional: o app puxa do Gestor pelo telefone
+    const finalName = name.trim() || (simple ? (getCachedPanelName(phone) ?? "LIVRE") : "");
+    if (!finalName || !phone.trim() || !whatsapp.trim() || !valuePaid || virtualChip === null || phoneError) return;
 
     onSubmit({
-      name: formatClientName(name),
+      name: formatClientName(finalName),
       phone: phone.trim(),
       whatsapp: whatsapp.trim(),
       value_paid: parseFloat(valuePaid),
@@ -90,7 +92,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
     return digits;
   };
 
-  const isFormValid = Boolean(name.trim() && phone.trim() && whatsapp.trim() && valuePaid && virtualChip !== null && !phoneError);
+  const isFormValid = Boolean((simple || name.trim()) && phone.trim() && whatsapp.trim() && valuePaid && virtualChip !== null && !phoneError);
 
   return (
     <div className="rounded-2xl bg-card p-5">
@@ -98,16 +100,16 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
         {/* Nome */}
         <div className="space-y-2">
           <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
-            Nome
+            Nome{simple ? " (opcional — puxa do Gestor)" : ""}
           </label>
           <div className="relative">
             <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-              placeholder="Digite o nome"
+              placeholder={simple ? "Deixe vazio para puxar do Gestor" : "Digite o nome"}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="pl-12 h-14 bg-primary/30 border-primary/50 text-foreground placeholder:text-muted-foreground rounded-xl text-base"
-              required
+              required={!simple}
             />
           </div>
         </div>
