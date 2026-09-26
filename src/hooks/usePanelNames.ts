@@ -162,7 +162,6 @@ export const usePanelNames = (userId?: string) => {
       );
       if (error) throw error;
       await load();
-      window.dispatchEvent(new Event("panel-names-updated"));
     },
     [allNames, load],
   );
@@ -182,6 +181,7 @@ export const usePanelNames = (userId?: string) => {
       );
       if (error) throw error;
       await load();
+      window.dispatchEvent(new Event("panel-names-updated"));
     },
     [allNames, load],
   );
