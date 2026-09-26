@@ -235,6 +235,30 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   // Fixed expense settings
   const { fixedExpense: currentFixedExpense, setFixedExpense } = useFixedExpense();
   const { list: costList, addCost, removeCost } = useLineCosts();
+
+  // Salva a lista de custos também na nuvem, para a revenda ver os mesmos valores
+  const syncCostsToCloud = useCallback(() => {
+    if (!userId) return;
+    try {
+      const raw = localStorage.getItem("line_costs_list");
+      const list = raw ? (JSON.parse(raw) as number[]) : [];
+      void (async () => {
+        const { data: existing } = await supabase
+          .from("panel_names")
+          .select("label")
+          .eq("user_id", userId)
+          .maybeSingle();
+        await supabase
+          .from("panel_names")
+          .upsert(
+            { user_id: userId, label: existing?.label ?? "PAINEL PRINCIPAL", line_costs: list },
+            { onConflict: "user_id" },
+          );
+      })();
+    } catch {
+      // ignora
+    }
+  }, [userId]);
   const [newCostInput, setNewCostInput] = useState("");
   const [expenseInput, setExpenseInput] = useState<string>(String(currentFixedExpense));
   useEffect(() => {
@@ -1276,6 +1300,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                     if (!newCostInput || Number.isNaN(v) || v < 0) return;
                     addCost(v);
                     setNewCostInput("");
+                    setTimeout(syncCostsToCloud, 50);
                   }}
                   className="h-10 bg-green-600 hover:bg-green-700 text-white rounded-xl px-4"
                 >
@@ -1288,7 +1313,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                     <button
                       key={c}
                       type="button"
-                      onClick={() => removeCost(c)}
+                      onClick={() => { removeCost(c); setTimeout(syncCostsToCloud, 50); }}
                       className="px-3 h-8 rounded-lg bg-purple-950/60 border border-purple-700 text-white text-xs font-bold"
                       title="Remover"
                     >
