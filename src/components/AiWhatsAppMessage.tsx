@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { Bot, Loader2, MessageCircle, Send, X } from "lucide-react";
+import { Bot, Loader2, Lock, MessageCircle, RotateCcw, Save, Send, Unlock, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useWhatsAppSettings } from "@/hooks/useWhatsAppSettings";
+import { buildClientMessage, formatCurrency, formatPhoneDisplay } from "@/lib/whatsappMessage";
 import type { Client } from "@/hooks/useClients";
 
 interface AiWhatsAppMessageProps {
@@ -21,7 +23,11 @@ export const AiWhatsAppMessage = ({ client, reseller, onClose, onSent }: AiWhats
   const [offer, setOffer] = useState(client.data_gb ? `${client.data_gb} GB` : "");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isMessageLocked, setIsMessageLocked] = useState(true);
   const { toast } = useToast();
+  const { settings, saveSettings } = useWhatsAppSettings();
+
+  const defaultMessage = () => buildClientMessage(settings.clientMessageTemplate, client);
 
   useEffect(() => {
     setClientName(client.name);
@@ -29,6 +35,7 @@ export const AiWhatsAppMessage = ({ client, reseller, onClose, onSent }: AiWhats
     setChip(client.virtual_chip ? "Chip Virtual" : "Chip Físico");
     setOffer(client.data_gb ? `${client.data_gb} GB` : "");
     setMessage("");
+    setIsMessageLocked(true);
   }, [client]);
 
   const generate = async () => {
@@ -48,6 +55,7 @@ export const AiWhatsAppMessage = ({ client, reseller, onClose, onSent }: AiWhats
       }
       if (!data?.message) throw new Error(data?.error || "A mensagem voltou vazia.");
       setMessage(data.message);
+      setIsMessageLocked(false);
     } catch (error) {
       toast({
         title: "Não foi possível gerar",
@@ -57,6 +65,39 @@ export const AiWhatsAppMessage = ({ client, reseller, onClose, onSent }: AiWhats
     } finally {
       setLoading(false);
     }
+  };
+
+  // Abre a mensagem padrão do painel já preenchida com os dados do cliente, pronta para editar
+  const openDefaultMessage = () => {
+    setMessage(defaultMessage());
+    setIsMessageLocked(false);
+  };
+
+  const restoreDefault = () => {
+    setMessage(defaultMessage());
+    toast({ title: "Mensagem padrão restaurada", description: "O texto voltou ao padrão salvo do painel." });
+  };
+
+  // Converte os dados do cliente de volta em variáveis, para a mensagem valer para todos
+  const toTemplate = (text: string) => {
+    const now = new Date();
+    const escapeRe = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const pairs: Array<[string, string]> = [
+      [clientName.trim(), "{nome}"],
+      [formatPhoneDisplay(phone), "{telefone}"],
+      [phone, "{telefone}"],
+      [formatCurrency(Number(client.value_paid ?? 0)), "{valor}"],
+      [now.toLocaleDateString("pt-BR"), "{data}"],
+      [now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), "{hora}"],
+    ];
+    return pairs.reduce((acc, [from, to]) => (from ? acc.replace(new RegExp(escapeRe(from), "g"), to) : acc), text);
+  };
+
+  const saveAsDefault = () => {
+    if (!message.trim()) return;
+    saveSettings({ ...settings, clientMessageTemplate: toTemplate(message) });
+    setIsMessageLocked(true);
+    toast({ title: "Mensagem salva como padrão", description: "Ela será usada nos próximos envios deste painel." });
   };
 
   const send = () => {
@@ -88,9 +129,60 @@ export const AiWhatsAppMessage = ({ client, reseller, onClose, onSent }: AiWhats
           {loading ? "Criando mensagem..." : "Gerar mensagem"}
         </Button>
 
+        <Button type="button" variant="secondary" onClick={openDefaultMessage} className="h-11 w-full rounded-xl">
+          <MessageCircle className="h-4 w-4" />
+          Editar mensagem que vai para o WhatsApp
+        </Button>
+
         {message && (
           <div className="space-y-2 border-t border-border pt-3">
-            <Textarea value={message} onChange={(event) => setMessage(event.target.value)} className="min-h-44" />
+            <div className="flex items-center gap-1.5">
+              <p className="min-w-0 flex-1 text-sm font-medium text-muted-foreground">Mensagem que vai para o WhatsApp</p>
+              <Button
+                type="button"
+                size="icon"
+                variant="secondary"
+                onClick={restoreDefault}
+                title="Restaurar mensagem padrão"
+                className="h-8 w-8"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+              <Button
+                type="button"
+                size="icon"
+                variant="secondary"
+                onClick={saveAsDefault}
+                title="Salvar como mensagem padrão"
+                className="h-8 w-8"
+              >
+                <Save className="h-4 w-4" />
+              </Button>
+              <Button
+                type="button"
+                size="icon"
+                variant={isMessageLocked ? "secondary" : "default"}
+                onClick={() => setIsMessageLocked((value) => !value)}
+                title={isMessageLocked ? "Editar mensagem" : "Travar mensagem"}
+                className="h-8 w-8"
+              >
+                {isMessageLocked ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
+              </Button>
+            </div>
+
+            {isMessageLocked ? (
+              <div className="max-h-56 overflow-y-auto whitespace-pre-wrap rounded-lg border border-border bg-secondary/40 p-3 text-sm text-foreground">
+                {message}
+              </div>
+            ) : (
+              <Textarea
+                value={message}
+                onChange={(event) => setMessage(event.target.value)}
+                className="min-h-44"
+                autoFocus
+              />
+            )}
+
             <Button type="button" onClick={send} className="h-11 w-full rounded-xl bg-green-600 text-primary-foreground hover:bg-green-700">
               <Send className="h-4 w-4" />
               Enviar no WhatsApp
