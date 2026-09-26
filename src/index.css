@@ -255,6 +255,16 @@
     box-shadow: inset 0 1px 0 hsl(268 92% 96%), 0 2px 5px hsl(264 42% 58% / 0.45);
   }
 
+  .theme-choice-raio {
+    color: hsl(var(--raio-text));
+    border-color: hsl(var(--raio-border));
+    background: hsl(var(--raio-background));
+  }
+
+  .theme-choice-raio .theme-choice-preview {
+    background: linear-gradient(90deg, hsl(var(--raio-card)), hsl(var(--raio-button)));
+  }
+
   .layout-border-choice-theme { background: hsl(var(--layout-default-border)); }
   .layout-border-choice-white { background: hsl(0 0% 100%); }
   .layout-border-choice-black { background: hsl(0 0% 0%); }
@@ -771,6 +781,65 @@
 .neon-layout-cream .layout-customizer,
 .neon-layout-purple3d .layout-customizer {
   color: hsl(var(--foreground)) !important;
+}
+
+/* Layout Raio: fundo roxo uniforme, superfícies mais claras e sem brilho neon. */
+:root {
+  --raio-background: 271 57% 29%;
+  --raio-card: 270 64% 38%;
+  --raio-button: 274 81% 51%;
+  --raio-border: 274 62% 55%;
+  --raio-text: 0 0% 100%;
+}
+
+.neon-layout-raio body {
+  background: hsl(var(--background));
+}
+
+.neon-layout-raio .neon-dashboard header > div {
+  border-color: hsl(var(--border) / 0.6);
+  background: hsl(var(--background));
+  box-shadow: none;
+}
+
+.neon-layout-raio .neon-dashboard header [class*="bg-purple"] {
+  background: hsl(var(--card) / 0.85);
+}
+
+.neon-layout-raio .neon-dashboard header [class*="text-purple"] {
+  color: hsl(var(--muted-foreground));
+}
+
+.neon-layout-raio .neon-dashboard header button {
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--border) / 0.8);
+  background: hsl(var(--card));
+  box-shadow: none !important;
+}
+
+.neon-layout-raio .neon-dashboard header > div > div:first-child > button:nth-child(2) {
+  background: hsl(var(--primary));
+  border-color: hsl(var(--ring));
+}
+
+.neon-layout-raio .neon-dashboard .neon-total-card,
+.neon-layout-raio .neon-dashboard .neon-expense-card,
+.neon-layout-raio .neon-dashboard .neon-profit-card,
+.neon-layout-raio .neon-dashboard .neon-due-card {
+  border-color: hsl(var(--border) / 0.75) !important;
+  background: hsl(var(--card)) !important;
+  box-shadow: none !important;
+}
+
+.neon-layout-raio .neon-dashboard .neon-total-card p,
+.neon-layout-raio .neon-dashboard .neon-expense-card p,
+.neon-layout-raio .neon-dashboard .neon-profit-card p,
+.neon-layout-raio .neon-dashboard .neon-due-card span {
+  color: hsl(var(--foreground));
+}
+
+.neon-layout-raio .neon-dashboard [class*="shadow-client-card"] {
+  box-shadow: none !important;
 }
 
 @layer base {

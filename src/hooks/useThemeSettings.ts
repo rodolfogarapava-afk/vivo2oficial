@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 export type ThemeMode = "dark" | "light";
-export type NeonLayout = "purple" | "blue" | "red" | "gold" | "white" | "cream" | "purple3d";
+export type NeonLayout = "purple" | "blue" | "red" | "gold" | "white" | "cream" | "purple3d" | "raio";
 export type PanelBorderWidth = "thin" | "wide" | "thick";
 export type PanelBorderColor = "theme" | "white" | "black" | "cyan" | "red" | "gold" | "purple" | "green" | "pink" | "gray";
 export type PanelShadowColor = "white" | "black" | "red" | "purple" | "blue" | "gold" | "green" | "pink" | "gray";
@@ -142,6 +142,7 @@ const applyTheme = ({
   root.classList.toggle("neon-layout-white", neonLayout === "white");
   root.classList.toggle("neon-layout-cream", neonLayout === "cream");
   root.classList.toggle("neon-layout-purple3d", neonLayout === "purple3d");
+  root.classList.toggle("neon-layout-raio", neonLayout === "raio");
   root.classList.toggle("neon-layout-purple", neonLayout === "purple");
   root.classList.toggle("panel-border-thin", panelBorderWidth === "thin");
   root.classList.toggle("panel-border-wide", panelBorderWidth === "wide");
@@ -295,6 +296,29 @@ const applyTheme = ({
     setVar("--client-card-highlight", "266 78% 62%");
     setVar("--client-card-shadow", "264 42% 58%");
     setVar("--client-card-glow", "268 92% 95%");
+  } else if (neonLayout === "raio") {
+    setVar("--background", "271 57% 29%");
+    setVar("--foreground", "0 0% 100%");
+    setVar("--card", "270 63% 35%");
+    setVar("--card-foreground", "0 0% 100%");
+    setVar("--popover", "270 63% 35%");
+    setVar("--popover-foreground", "0 0% 100%");
+    setVar("--primary", "274 81% 51%");
+    setVar("--primary-foreground", "0 0% 100%");
+    setVar("--secondary", "270 62% 37%");
+    setVar("--secondary-foreground", "0 0% 100%");
+    setVar("--muted", "270 46% 39%");
+    setVar("--muted-foreground", "271 42% 88%");
+    setVar("--border", "274 57% 53%");
+    setVar("--input", "271 58% 40%");
+    setVar("--ring", "275 85% 67%");
+    setVar("--client-card-bg", "270 64% 38%");
+    setVar("--client-card-border", "274 62% 55%");
+    setVar("--client-card-deep", "271 59% 28%");
+    setVar("--client-card-muted", "271 39% 88%");
+    setVar("--client-card-highlight", "277 88% 66%");
+    setVar("--client-card-shadow", "273 60% 25%");
+    setVar("--client-card-glow", "274 76% 66%");
   } else if (neonLayout === "red") {
     setVar("--background", "355 82% 5%");
     setVar("--card", "355 82% 8%");
@@ -336,7 +360,7 @@ const applyTheme = ({
     setVar("--client-card-glow", "282 100% 62%");
   }
 
-  setVar("--layout-default-border", neonLayout === "gold" ? "40 72% 87%" : neonLayout === "red" ? "13 100% 55%" : neonLayout === "blue" ? "184 100% 55%" : neonLayout === "white" ? "42 55% 85%" : neonLayout === "cream" ? "40 62% 83%" : neonLayout === "purple3d" ? "265 48% 82%" : "285 100% 68%");
+  setVar("--layout-default-border", neonLayout === "gold" ? "40 72% 87%" : neonLayout === "red" ? "13 100% 55%" : neonLayout === "blue" ? "184 100% 55%" : neonLayout === "white" ? "42 55% 85%" : neonLayout === "cream" ? "40 62% 83%" : neonLayout === "purple3d" ? "265 48% 82%" : neonLayout === "raio" ? "274 62% 55%" : "285 100% 68%");
   setVar("--layout-border-color", BORDER_COLORS[panelBorderColor]);
   setVar("--layout-shadow-color", SHADOW_COLORS[panelShadowColor]);
   setVar("--layout-text-color", clientCardText === "white" ? "0 0% 100%" : "0 0% 4%");
@@ -364,7 +388,7 @@ const readSettings = (): ThemeSettings => {
           : Math.min(100, Math.max(0, Number(parsed.clientCardPurple) || 0)),
         clientCardText: needsActivatedCardUpdate || parsed.clientCardText === "white" ? (lightLayout ? "black" : "white") : "black",
         clientCardStyleVersion: CLIENT_CARD_STYLE_VERSION,
-        neonLayout: ["blue", "red", "gold", "white", "cream", "purple3d"].includes(parsed.neonLayout ?? "") ? parsed.neonLayout as NeonLayout : "purple",
+        neonLayout: ["blue", "red", "gold", "white", "cream", "purple3d", "raio"].includes(parsed.neonLayout ?? "") ? parsed.neonLayout as NeonLayout : "purple",
         panelBorderWidth: parsed.panelBorderWidth === "thin" || parsed.panelBorderWidth === "thick" ? parsed.panelBorderWidth : "wide",
         panelBorderColor: ["theme", "white", "black", "cyan", "red", "gold", "purple", "green", "pink", "gray"].includes(parsed.panelBorderColor ?? "") ? parsed.panelBorderColor : "theme",
         panelShadowColor: ["white", "black", "red", "purple", "blue", "gold", "green", "pink", "gray"].includes(parsed.panelShadowColor ?? "") ? parsed.panelShadowColor : "black",
@@ -453,7 +477,7 @@ export const useThemeSettings = () => {
       mode: "dark" as ThemeMode,
       backgroundColor: DEFAULT_BG,
       neonLayout,
-      clientCardText: lightLayout ? ("black" as const) : current.clientCardText,
+      clientCardText: lightLayout ? ("black" as const) : neonLayout === "raio" ? ("white" as const) : current.clientCardText,
     };
     setSettings(next);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));

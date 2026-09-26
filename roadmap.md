@@ -30,3 +30,4 @@
 - [x] Editar e salvar custo da linha por cliente para atualizar gastos e lucro
 - [x] Conferir linhas de revenda antes de adicionar números no painel principal
 - [x] Separar cobrança do administrador e valor de venda da revenda, com custo refletido nos dois painéis
+- [x] Adicionar Layout Raio à engrenagem com fundo roxo escuro, cartões e botões mais claros
