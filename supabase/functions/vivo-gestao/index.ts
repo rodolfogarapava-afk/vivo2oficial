@@ -169,7 +169,7 @@ async function fetchAllLines(jar: Record<string, string>, includeRaw = false) {
 }
 
 const isPlaceholderName = (value?: string | null) => {
-  const n = String(value ?? '').trim().toLowerCase()
+  const n = String(value ?? '').trim().toLowerCase().replace(/^rev\s+/i, '')
   return !n || n.startsWith('livre') || /^\d+$/.test(n)
 }
 // Never overwrite a name typed in the app; only fill empty/LIVRE names with a real name from the Gestor
