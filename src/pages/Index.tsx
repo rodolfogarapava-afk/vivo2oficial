@@ -1,4 +1,4 @@
-import { clientCost, setClientLineCost, useLineCosts } from "@/hooks/useLineCosts";
+import { clientCost, useLineCosts } from "@/hooks/useLineCosts";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Settings, Loader2, LogOut, Search, X, Lock, Unlock, Ban, Save, Mail, UserPlus, Eye, EyeOff, Signal, RefreshCw, CalendarClock } from "lucide-react";

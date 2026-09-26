@@ -573,11 +573,11 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   };
 
   const handleApplyPanel = async () => {
-    if (!syncPlan) return;
+    if (!syncPlan || !vivo.lines) return;
     const { data } = await supabase.auth.getUser();
     const uid = data.user?.id;
     if (!uid) return;
-    const ok = await vivo.applyPlan(syncPlan, uid, vivo.lines ?? []);
+    const ok = await vivo.applyPlan(uid, vivo.lines);
     if (ok) {
       setSyncPlan(null);
       onRefresh?.();
@@ -1170,6 +1170,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                   <p>Novas linhas para adicionar: <strong className="text-white">{syncPlan.toAdd.length}</strong></p>
                   <p>Nomes para atualizar: <strong className="text-white">{syncPlan.toUpdate.length}</strong></p>
                   <p>Iguais: <strong className="text-white">{syncPlan.unchanged}</strong></p>
+                  <p>Já na revenda: <strong className="text-white">{syncPlan.inReseller}</strong></p>
                   <p>No app e não no painel: <strong className="text-white">{syncPlan.notInPanel.length}</strong></p>
                   {syncPlan.toAdd.length > 0 && (
                     <div className="max-h-32 overflow-y-auto rounded-lg bg-purple-950/60 p-2">
@@ -1196,7 +1197,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                       Aplicar no aplicativo
                     </Button>
                   ) : (
-                    <p className="font-bold text-green-400">Tudo igual ao painel!</p>
+                    <p className="font-bold text-green-400">Nenhuma linha nova para adicionar.</p>
                   )}
                 </div>
               )}

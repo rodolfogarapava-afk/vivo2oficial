@@ -17,6 +17,7 @@ export interface SyncPlan {
   toAdd: PanelLine[];
   toUpdate: Array<{ id: string; from: string; to: string; phone: string; blocked: boolean }>;
   unchanged: number;
+  inReseller: number;
   notInPanel: Array<{ name: string; phone: string }>;
 }
 
@@ -78,6 +79,7 @@ export const useVivoPanel = () => {
     const toAdd: PanelLine[] = [];
     const toUpdate: SyncPlan["toUpdate"] = [];
     let unchanged = 0;
+    let inReseller = 0;
 
     for (const line of panelLines) {
       const phone = digits(line.phone);
@@ -86,7 +88,7 @@ export const useVivoPanel = () => {
       const existing = byPhone.get(phone);
       const name = panelName(line);
       if (resellerPhones.has(phone)) {
-        unchanged += 1;
+        inReseller += 1;
       } else if (!existing) {
         toAdd.push({ ...line, phone, name });
       } else if (isPlaceholder(existing.name) && !isPlaceholder(name) && existing.name.trim().toUpperCase() !== name.toUpperCase()) {
@@ -100,7 +102,7 @@ export const useVivoPanel = () => {
       .filter((c) => !panelPhones.has(digits(c.phone)))
       .map((c) => ({ name: c.name, phone: c.phone }));
 
-    return { toAdd, toUpdate, unchanged, notInPanel };
+    return { toAdd, toUpdate, unchanged, inReseller, notInPanel };
   };
 
   const getResellerPhones = async (userId: string): Promise<Set<string>> => {
@@ -123,7 +125,7 @@ export const useVivoPanel = () => {
     return buildPlan(panelLines, clients ?? [], await getResellerPhones(userId));
   };
 
-  const applyPlan = async (plan: SyncPlan, userId: string, panelLines: PanelLine[]) => {
+  const applyPlan = async (userId: string, panelLines: PanelLine[]) => {
     setIsApplying(true);
     try {
       // The automatic sync or a reseller may have saved a number since the preview was shown.
