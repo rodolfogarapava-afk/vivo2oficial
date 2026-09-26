@@ -191,7 +191,7 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
         </div>
 
         {/* Custo da linha */}
-        {!simple && <div className="space-y-2">
+        <div className="space-y-2">
           <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
             Custo da linha
           </label>
