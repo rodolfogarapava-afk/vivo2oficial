@@ -124,7 +124,7 @@ export const useMonthlyReport = (
         (a, b) => a.dueDay - b.dueDay || a.name.localeCompare(b.name, "pt-BR")
       );
 
-    const expenses = billable.length * fixedExpense;
+    const expenses = billable.reduce((sum, client) => sum + Number(client.line_cost ?? fixedExpense), 0);
     const history: HistoryPoint[] = monthsWindow(monthKey).map((key) => ({
       key,
       label: shortMonthLabel(key),

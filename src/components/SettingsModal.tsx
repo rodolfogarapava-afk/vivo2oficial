@@ -594,7 +594,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       setEditPhone(client.phone);
       setEditWhatsapp(client.whatsapp ?? "");
       setEditValue(String(client.value_paid));
-      setEditLineCost(String(client.line_cost ?? getClientLineCost(client.id) ?? fixedExpense));
+      setEditLineCost(String(client.line_cost ?? (isAdmin ? getClientLineCost(client.id) : undefined) ?? fixedExpense));
       setEditDueDay(client.due_day || 10);
       setEditIsResale(Boolean(client.is_resale));
       setEditDataGb(String(client.data_gb ?? 0));
@@ -611,7 +611,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
       phone: editPhone.trim(),
       whatsapp: editWhatsapp.trim() || null,
       value_paid: parseFloat(editValue),
-      line_cost: parsedCost,
+      ...isAdmin ? { line_cost: parsedCost } : {},
       due_day: editDueDay,
       bonus: Boolean(editingClient.bonus),
       is_resale: editIsResale,
@@ -1812,10 +1812,10 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
               type="number"
               value={editValue}
               onChange={(e) => setEditValue(e.target.value)}
-              placeholder="Valor"
+              placeholder="Valor de venda"
               className="w-full h-10 sm:h-12 bg-purple-900/50 border border-purple-600 text-white rounded-xl text-sm px-3 outline-none focus:ring-2 focus:ring-purple-400"
             />
-            <div>
+            {isAdmin && <div>
               <Label htmlFor="edit-line-cost" className="mb-2 block text-xs text-white/70">Custo da linha</Label>
               <Input
                 id="edit-line-cost"
@@ -1827,7 +1827,7 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
                 onChange={(e) => setEditLineCost(e.target.value)}
                 className="h-10 sm:h-12 bg-purple-900/50 border-purple-600 text-white rounded-xl"
               />
-            </div>
+            </div>}
             <div>
               <p className="text-xs text-white/70 mb-2">Giga da linha</p>
               <div className="flex gap-2">

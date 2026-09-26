@@ -125,13 +125,12 @@ const Index = () => {
     toggleVirtualChip,
     toggleBlockClient,
     totalGross, 
-    totalProfit, 
     fixedExpense,
     refetch
   } = useClients(user?.id);
 
   const { isAdmin, isBlocked, reload: reloadAccess } = useAccessControl(user?.id);
-  const { mySupportWhatsapp, otherPanelLabel, others: linkedPanels } = usePanelNames(user?.id);
+  const { mySupportWhatsapp, otherPanelLabel, others: linkedPanels, allNames } = usePanelNames(user?.id);
   const selectedPartner = linkedPanels.find((panel) => panel.userId === selectedPartnerId) ?? linkedPanels[0];
   const otherPanelUserId = selectedPartner?.userId;
   const selectedPartnerLabel = selectedPartner?.label ?? otherPanelLabel;
@@ -252,7 +251,10 @@ const Index = () => {
   const { visibleDays } = useVisibleDueDays();
   const activeClients = useMemo(() => clients.filter(c => !c.name.toUpperCase().includes("CANCELADO")), [clients]);
   const billableClients = useMemo(() => activeClients.filter(c => !c.bonus), [activeClients]);
-  const totalExpenses = billableClients.reduce((sum, c) => sum + (c.line_cost ?? clientCost(c.id, fixedExpense)), 0);
+  const resellerDefaultCost = Number(allNames.find((panel) => panel.user_id === user?.id)?.fixed_expense ?? 0);
+  const effectiveCost = isAdmin ? fixedExpense : resellerDefaultCost;
+  const totalExpenses = billableClients.reduce((sum, c) => sum + Number(c.line_cost ?? (isAdmin ? clientCost(c.id, effectiveCost) : effectiveCost)), 0);
+  const totalProfit = totalGross - totalExpenses;
 
   // Stats per visible due day (excluding cancelled; bonus excluded from expenses)
   const dayStats = useMemo(
@@ -867,7 +869,7 @@ const Index = () => {
             onSubmit={handleAddClient}
             onCancel={() => setShowForm(false)}
             isLoading={addClient.isPending}
-            fixedExpense={fixedExpense}
+            fixedExpense={effectiveCost}
             simple={!isAdmin}
             existingPhones={clients.map(c => c.phone)}
           />
@@ -914,7 +916,7 @@ const Index = () => {
         open={showSettings}
         onOpenChange={setShowSettings}
         clients={clients}
-        fixedExpense={fixedExpense}
+        fixedExpense={effectiveCost}
         onDeleteClient={(id) => deleteClient.mutate(id)}
         onEditClient={(id, data) => updateClient.mutate({ id, ...data })}
         onBlockClient={(id, blocked) => toggleBlockClient.mutate({ id, blocked })}
@@ -942,7 +944,7 @@ const Index = () => {
           open
           onClose={() => setShowReport(false)}
           clients={clients}
-          fixedExpense={fixedExpense}
+            fixedExpense={effectiveCost}
           userId={user?.id}
         />
       )}

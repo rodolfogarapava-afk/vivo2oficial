@@ -198,7 +198,7 @@ export const PartnerPanelModal = ({
         p_panel_user: partnerUserId,
         p_name: /^(REV|LIVRE)/i.test(client.name) ? client.name : `REV ${client.name}`,
         p_phone: client.phone,
-        p_value: client.value_paid,
+        p_value: 0,
         p_due_day: client.due_day,
         p_virtual_chip: client.virtual_chip,
         p_is_resale: client.is_resale,
@@ -206,7 +206,7 @@ export const PartnerPanelModal = ({
         p_company: client.company,
         p_account: client.account,
         p_whatsapp: client.whatsapp,
-        p_line_cost: client.line_cost ?? null,
+        p_line_cost: client.value_paid,
       });
       if (rpcError) throw new Error(rpcError.message);
       if (!created) throw new Error("O cliente não foi salvo.");
@@ -229,14 +229,15 @@ export const PartnerPanelModal = ({
     setEditName(client.name);
     setEditPhone(client.phone);
     setEditWhatsapp(client.whatsapp ?? "");
-    setEditValue(String(client.value_paid ?? 0));
+    setEditValue(String(client.line_cost ?? panelFixedExpense));
     setEditDataGb(String(client.data_gb ?? 0));
     setEditDataUsedGb(String(client.data_used_gb ?? 0));
     setEditingClient(client);
   };
 
   const saveEdit = async () => {
-    if (!partnerUserId || !editingClient || !editName.trim() || !editPhone.trim() || editValue === "") return;
+    const wholesale = Number(editValue.replace(',', '.'));
+    if (!partnerUserId || !editingClient || !editName.trim() || !editPhone.trim() || editValue === "" || !Number.isFinite(wholesale) || wholesale < 0) return;
     setSaving(true);
     try {
       const { error: rpcError } = await (supabase.rpc as unknown as (
@@ -247,10 +248,11 @@ export const PartnerPanelModal = ({
         p_client_id: editingClient.id,
         p_name: formatClientName(editName),
         p_phone: editPhone.trim(),
-        p_value: Number(editValue.replace(',', '.')) || 0,
+        p_value: editingClient.value_paid,
         p_whatsapp: editWhatsapp.trim() || null,
         p_data_gb: Number(editDataGb.replace(',', '.')) || 0,
         p_data_used_gb: Number(editDataUsedGb.replace(',', '.')) || 0,
+        p_line_cost: wholesale,
       });
       if (rpcError) throw new Error(rpcError.message);
       setEditingClient(null);
@@ -366,7 +368,7 @@ export const PartnerPanelModal = ({
       </div>
 
       {showValues && partnerUserId && (
-        <ResellerValuesList panelUserId={partnerUserId} clients={ordered} onBack={() => setShowValues(false)} onDone={() => void load()} />
+        <ResellerValuesList panelUserId={partnerUserId} clients={ordered} onBack={() => setShowValues(false)} onDone={() => void load()} wholesale fixedExpense={panelFixedExpense} />
       )}
       {showHistory && partnerUserId && (
         <ResellerHistory panelUserId={partnerUserId} clients={ordered} paidIds={paidIds} onTogglePaid={(c) => void togglePaid(c)} onBack={() => setShowHistory(false)} />
@@ -476,7 +478,9 @@ export const PartnerPanelModal = ({
             <Input value={editName} onChange={(event) => setEditName(event.target.value)} placeholder="Nome" />
             <Input value={editPhone} onChange={(event) => setEditPhone(event.target.value)} placeholder="Telefone" inputMode="tel" />
             <Input value={editWhatsapp} onChange={(event) => setEditWhatsapp(event.target.value)} placeholder="WhatsApp (opcional)" inputMode="tel" />
-            <Input value={editValue} onChange={(event) => setEditValue(event.target.value)} placeholder="Valor" inputMode="decimal" />
+             <label className="block text-xs font-semibold text-muted-foreground">Valor da linha para a revenda
+               <Input value={editValue} onChange={(event) => setEditValue(event.target.value)} placeholder="Custo da linha" inputMode="decimal" className="mt-1" />
+             </label>
             <div className="grid grid-cols-2 gap-2">
               <Input value={editDataGb} onChange={(event) => setEditDataGb(event.target.value)} placeholder="Giga total" inputMode="decimal" />
               <Input value={editDataUsedGb} onChange={(event) => setEditDataUsedGb(event.target.value)} placeholder="Giga usado" inputMode="decimal" />
