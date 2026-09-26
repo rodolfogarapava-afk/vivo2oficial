@@ -869,7 +869,7 @@ const Index = () => {
             onSubmit={handleAddClient}
             onCancel={() => setShowForm(false)}
             isLoading={addClient.isPending}
-            fixedExpense={fixedExpense}
+            fixedExpense={effectiveCost}
             simple={!isAdmin}
             existingPhones={clients.map(c => c.phone)}
           />

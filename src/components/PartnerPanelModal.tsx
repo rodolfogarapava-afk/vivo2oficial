@@ -206,7 +206,7 @@ export const PartnerPanelModal = ({
         p_company: client.company,
         p_account: client.account,
         p_whatsapp: client.whatsapp,
-        p_line_cost: client.line_cost ?? panelFixedExpense,
+        p_line_cost: client.value_paid,
       });
       if (rpcError) throw new Error(rpcError.message);
       if (!created) throw new Error("O cliente não foi salvo.");
