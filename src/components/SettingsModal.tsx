@@ -235,6 +235,21 @@ export const SettingsModal = ({ open, onOpenChange, clients, fixedExpense, onDel
   // Fixed expense settings
   const { fixedExpense: currentFixedExpense, setFixedExpense } = useFixedExpense();
   const { list: costList, addCost, removeCost } = useLineCosts();
+
+  // Salva a lista de custos também na nuvem, para a revenda ver os mesmos valores
+  const syncCostsToCloud = useCallback(() => {
+    if (!userId) return;
+    try {
+      const raw = localStorage.getItem("line_costs_list");
+      const list = raw ? (JSON.parse(raw) as number[]) : [];
+      void supabase
+        .from("panel_names")
+        .upsert({ user_id: userId, label: "PAINEL PRINCIPAL", line_costs: list }, { onConflict: "user_id" })
+        .then(() => {});
+    } catch {
+      // ignora
+    }
+  }, [userId]);
   const [newCostInput, setNewCostInput] = useState("");
   const [expenseInput, setExpenseInput] = useState<string>(String(currentFixedExpense));
   useEffect(() => {
