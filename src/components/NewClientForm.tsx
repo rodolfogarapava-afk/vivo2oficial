@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatClientName } from "@/lib/formatName";
 import { useLineCosts } from "@/hooks/useLineCosts";
+import { getCachedPanelName } from "@/hooks/usePanelPhones";
 
 interface NewClientFormProps {
   onSubmit: (client: { name: string; phone: string; whatsapp: string | null; value_paid: number; due_day: number; virtual_chip: boolean; is_resale: boolean; bonus: boolean; already_paid: boolean; company: string; account: number | null; line_cost?: number | null }) => void;
@@ -134,6 +135,12 @@ export const NewClientForm = ({ onSubmit, onCancel, isLoading, fixedExpense, exi
                 const formatted = formatPhone(numbers);
                 setPhone(formatted);
                 checkDuplicatePhone(formatted);
+
+                // Puxa o nome do Gestor pelo número digitado
+                if (numbers.length >= 10) {
+                  const panelName = getCachedPanelName(numbers);
+                  if (panelName) setName(panelName);
+                }
               }}
               className={`pl-12 h-14 bg-primary/30 border-primary/50 text-foreground placeholder:text-muted-foreground rounded-xl text-base ${phoneError ? 'border-destructive' : ''}`}
               required
