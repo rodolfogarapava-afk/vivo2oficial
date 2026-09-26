@@ -260,6 +260,8 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
   const isResale = client.is_resale === true;
   // Linha livre: nome cadastrado começando com "LIVRE" -> bordas verdes grossas, ✅ e sempre no topo.
   const isFree = !client.blocked && isFreeLine(client.name);
+  // Estilo de revenda: botão do número preto com número branco e contorno preto no WhatsApp.
+  const resaleStyle = dense || isResale;
 
   // Barra de consumo de giga (franquia anotada no app)
   const totalGb = Number(client.data_gb ?? 0);
@@ -319,15 +321,17 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                     ? 'cursor-not-allowed bg-destructive'
                     : isPaid
                       ? 'bg-accent shadow-client-action'
-                      : isFree
-                        ? 'bg-free-card-deep shadow-client-inset'
-                        : 'bg-client-card-deep shadow-client-inset'
+                      : resaleStyle
+                        ? 'bg-black shadow-client-inset'
+                        : isFree
+                          ? 'bg-free-card-deep shadow-client-inset'
+                          : 'bg-client-card-deep shadow-client-inset'
                 } active:translate-y-0.5`}
               >
                 {isPaid && !client.blocked ? (
                   <Check className="h-5 w-5 text-accent-foreground" />
                 ) : (
-                  <span className={`text-[20px] font-extrabold ${client.blocked ? 'text-destructive-foreground' : 'text-client-card-foreground'}`}>
+                  <span className={`text-[20px] font-extrabold ${client.blocked ? 'text-destructive-foreground' : resaleStyle ? 'text-white' : 'text-client-card-foreground'}`}>
                     {index + 1}
                   </span>
                 )}
@@ -395,7 +399,9 @@ export const ClientCard = ({ client, index, onToggleVirtualChip, onBlockClient, 
                     className={`flex h-12 w-[46px] items-center justify-center rounded-xl transition-transform sm:w-[50px] ${
                     client.blocked || client.name.toUpperCase().includes("CANCELADO")
                       ? 'bg-gradient-to-b from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 shadow-[0_4px_0_0_#7f1d1d] hover:shadow-[0_2px_0_0_#7f1d1d]'
-                       : 'bg-accent shadow-client-action'
+                       : resaleStyle
+                         ? 'border-[3px] border-black bg-accent shadow-client-action'
+                         : 'bg-accent shadow-client-action'
                   } active:translate-y-0.5`}
                 >
                     <img src={whatsappIcon} alt="WhatsApp" className="h-6 w-6 drop-shadow-sm" />
