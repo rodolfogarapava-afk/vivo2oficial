@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { useFixedExpense } from "@/hooks/useFixedExpense";
-import { clientCost, useLineCosts } from "@/hooks/useLineCosts";
+import { useLineCosts } from "@/hooks/useLineCosts";
 
 export interface Client {
   id: string;
