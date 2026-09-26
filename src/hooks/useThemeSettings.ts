@@ -447,7 +447,14 @@ export const useThemeSettings = () => {
 
   const setNeonLayout = useCallback((neonLayout: NeonLayout) => {
     const current = readSettings();
-    const next = { ...current, mode: "dark" as ThemeMode, backgroundColor: DEFAULT_BG, neonLayout };
+    const lightLayout = ["white", "cream", "purple3d"].includes(neonLayout);
+    const next = {
+      ...current,
+      mode: "dark" as ThemeMode,
+      backgroundColor: DEFAULT_BG,
+      neonLayout,
+      clientCardText: lightLayout ? ("black" as const) : current.clientCardText,
+    };
     setSettings(next);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     window.dispatchEvent(new Event(THEME_UPDATED_EVENT));
