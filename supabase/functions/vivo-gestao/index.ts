@@ -176,6 +176,14 @@ const isPlaceholderName = (value?: string | null) => {
 const shouldReplaceName = (current?: string | null, next?: string | null) =>
   isPlaceholderName(current) && !isPlaceholderName(next)
 
+// Reseller panel clients always carry the REV prefix
+const revName = (value: unknown, isPartner: boolean) => {
+  const base = displayName(value)
+  if (!isPartner) return base
+  if (base.toUpperCase().startsWith('REV')) return base
+  return `REV ${base}`
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
@@ -308,7 +316,7 @@ Deno.serve(async (req) => {
           if (!current) {
             const previousOwner = knownPhoneOwners.get(phone)
             if (previousOwner) {
-              const nextName = displayName(line.name)
+              const nextName = revName(line.name, target.userId !== appUser.id)
               const changes: Record<string, unknown> = {
                 user_id: target.userId,
                 blocked: line.blocked,
@@ -333,7 +341,7 @@ Deno.serve(async (req) => {
             }
             const { data: inserted, error: insertError } = await backend.from('clients').insert({
               user_id: target.userId,
-              name: displayName(line.name),
+              name: revName(line.name, target.userId !== appUser.id),
               phone,
               value_paid: 0,
               due_day: 10,
@@ -361,7 +369,7 @@ Deno.serve(async (req) => {
             continue
           }
 
-          const nextName = displayName(line.name)
+          const nextName = revName(line.name, target.userId !== appUser.id)
           const changes: Record<string, unknown> = {}
           if (current.name !== nextName && shouldReplaceName(current.name, nextName)) changes.name = nextName
           if (Boolean(current.blocked) !== line.blocked) changes.blocked = line.blocked
