@@ -54,12 +54,16 @@ export const ResellerValuesList = ({
   onBack,
   onDone,
   saveValue,
+  wholesale = false,
+  fixedExpense = 0,
 }: {
   saveValue?: (client: Client, value: number) => Promise<void>;
   panelUserId: string;
   clients: Client[];
   onBack: () => void;
   onDone: () => void;
+  wholesale?: boolean;
+  fixedExpense?: number;
 }) => {
   const { list } = useLineCosts();
   const { toast } = useToast();
@@ -92,10 +96,11 @@ export const ResellerValuesList = ({
             p_client_id: c.id,
             p_name: c.name,
             p_phone: c.phone,
-            p_value: num,
+             p_value: c.value_paid,
             p_whatsapp: c.whatsapp ?? null,
             p_data_gb: c.data_gb ?? 0,
             p_data_used_gb: c.data_used_gb ?? 0,
+             p_line_cost: wholesale ? num : (c.line_cost ?? fixedExpense),
           },
         );
         if (error) throw new Error(error.message);
@@ -111,9 +116,9 @@ export const ResellerValuesList = ({
   };
 
   return (
-    <Screen title="Lista de valores" onBack={onBack}>
+    <Screen title={wholesale ? "Valores cobrados da revenda" : "Lista de valores"} onBack={onBack}>
       <div className="flex gap-2 overflow-x-auto px-3 pt-3">
-        <Input value={value} onChange={(e) => setValue(e.target.value)} placeholder="Valor (ex.: 39,99)" inputMode="decimal" className="h-12 min-w-40" />
+         <Input value={value} onChange={(e) => setValue(e.target.value)} placeholder={wholesale ? "Custo por linha" : "Valor de venda"} inputMode="decimal" className="h-12 min-w-40" />
         {list.map((v) => (
           <Button key={v} type="button" variant="secondary" onClick={() => setValue(String(v).replace(".", ","))} className="h-12 shrink-0 font-bold">
             {money(v)}
@@ -133,7 +138,7 @@ export const ResellerValuesList = ({
           >
             {marked.has(c.id) ? <CheckCircle2 className="h-6 w-6 shrink-0 text-primary" /> : <Circle className="h-6 w-6 shrink-0 text-muted-foreground" />}
             <span className="min-w-0 flex-1 font-semibold text-foreground">{formatClientName(c.name)}</span>
-            <span className="shrink-0 font-bold text-green-400">{money(Number(c.value_paid ?? 0))}</span>
+             <span className="shrink-0 font-bold text-green-400">{money(wholesale ? Number(c.line_cost ?? fixedExpense) : Number(c.value_paid ?? 0))}</span>
           </button>
         ))}
       </div>
